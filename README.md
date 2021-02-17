@@ -1,13 +1,13 @@
-## My-Supply-Dapp
+# My-Supply-Dapp
 
-#### About Project
+### About Project
 A **Blockchain Decentralized Application** developed using *Truffle Framework* that aims to enhance **Supply Chain Cost Management** Processes through
 integrating Ethereum Blockchain and Smart Contracts with Pharmaceutical Supply Chain activites like:
 
 * Validating and Tracking Shipments.
 * Logging Interorganizational Costs During Different Phases of Product Creation.
 
-#### Running Instructions
+### Running Instructions
 
 ##### Prerequisites
 
