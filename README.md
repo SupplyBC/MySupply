@@ -10,12 +10,14 @@ integrating Ethereum Blockchain and Smart Contracts with Pharmaceutical Supply C
 #### Running Instructions
 
 ##### Prerequisites
-1. Install Node.js and npm (node package manager).
-2. Install Truffle, `npm i truffle`
-3. Download and Install Ganache GUI. https://www.trufflesuite.com/ganache (Alternative: ganache-cli)
-4. Install MetaMask Browser Extension.
 
-#### Starting the Dapp
+1. Install Node.js and npm (node package manager). https://nodejs.org
+2. Install Truffle, `npm i -g truffle`
+3. Download and Install Ganache GUI. https://www.trufflesuite.com/ganache (Alternative: ganache-cli)
+4. Install MetaMask Browser Extension. (Firefox or Google Chrome)
+
+#### Starting and Interacting with the Dapp
+
 1. `cd` into *client* folder from terminal, run `npm i --save` to install dependencies.
 2. To start the local server,`npm start`.
 3. Run Ganache and connect MetaMask to your running Ganache Network.
@@ -25,5 +27,6 @@ integrating Ethereum Blockchain and Smart Contracts with Pharmaceutical Supply C
 
 
 ### Progress Log
+
 17/2:
-* Project is currently under development.
+* Project is currently under active development.
