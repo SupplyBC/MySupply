@@ -9,7 +9,7 @@ integrating Ethereum Blockchain and Smart Contracts with Pharmaceutical Supply C
 
 ### Running Instructions
 
-##### Prerequisites
+#### Prerequisites
 
 1. Install Node.js and npm (node package manager). https://nodejs.org
 2. Install Truffle, `npm i -g truffle`
