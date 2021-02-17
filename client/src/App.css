@@ -1,0 +1,295 @@
+.App {
+  text-align: center;
+  font-family: "Electron", Arial, Helvetica, sans-serif;
+}
+*/
+
+/*
+.App-logo {
+  height: 40vmin;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #09d3ac;
+} */
+
+ /* UTILS  */
+
+
+ .notify-text {
+   color: rgb(21, 161, 21)
+ }
+ .centered {
+  text-align: center;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.active {
+  font-weight: bold;
+}
+
+.btn {
+  border: none;
+  /* background-color: rgb(31, 31, 151); */
+  background-color: #111;
+  color: #f2f2f2;
+  font-weight: bold;
+  padding: 7px 12px;
+}
+
+.btn-alt {
+  border: none;
+  /* background-color: rgb(31, 31, 151); */
+  background-color: white;
+  color: #111;
+  font-weight: bold;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+/* Header.js */
+
+.container {
+  background-color: #111;
+  color: #f2f2f2;
+  margin-top: 0;
+  padding: 2px 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.sm-font {
+  color: #888;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Navbar.js */
+.nav-container {
+  text-align: center;
+}
+
+.logo a {
+  text-decoration: none;
+  color: #f2f2f2;
+}
+
+.nav-list {
+  list-style-type: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 50px;
+}
+
+/* 
+.nav-item {
+  display: inline;
+} */
+
+.nav-item a {
+  padding: 5px 9px;
+  text-decoration: none;
+  color: #111;
+}
+
+.nav-item a:hover {
+  border-bottom: 2px solid #111;
+  font-weight: bold;
+}
+
+/* ProductForm.js */
+
+.form-container {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.form-row {
+  margin: 0;
+  width: 90%;
+}
+
+input[type="text"] {
+  padding: 7px;
+  margin-top: 5px;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* ProductForm.js */
+.material-card {
+  padding: 10px;
+  background-color: rgb(218, 218, 218);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.material-card ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 3px;
+}
+
+.material-card .btn {
+  text-align: center;
+  margin-left: 400px;
+  margin-bottom: 10px;
+}
+
+.show {
+  display: inline;
+}
+
+.hide {
+  display: none;
+}
+
+.form-container select {
+  padding: 4px 12px;
+  width: 30%;
+  text-align: center;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.form-container input[type="number"] {
+  padding: 4px;
+  align-self: center;
+  font-family: "Courier New", Courier, monospace;
+}
+
+/* Inventory.js */
+.inventory-container {
+  padding: 10px 15px;
+}
+
+/* TrackForm.js */
+.form-row input[type="text"] {
+  padding: 7px 12px;
+  width: 30%;
+  padding: 5px;
+  font-family: "Courier New", Courier, monospace;
+  margin-right: 20px;
+}
+
+/* AddProduct.js */
+.product-form-container {
+  margin: 30px 0px 30px 0px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+}
+.product-form-container .mini-nav-list {
+  height: 400px;
+  list-style-type: none;
+  margin: 0px;
+  border-right: 2px solid black;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.product-form-container .link-item a {
+  text-decoration: none;
+  color: #444;
+  border-bottom: 1px dotted #777;
+}
+
+.product-form-container .link-item a:active {
+  text-decoration: none;
+  color: #444;
+}
+
+.newform-container {
+  margin: 5px 20px 5px 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.newform-container .btn {
+  margin-top: 10px;
+}
+
+.newform-container input[type="text"],
+.newform-container input[type="number"] {
+  padding: 8px 5px;
+  margin-bottom: 10px;
+  width: 40%;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.newform-container select {
+  padding: 4px;
+  width: 40%;
+  margin-bottom: 10px;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.form-item {
+  margin-bottom: 10px;
+}
+
+/* INVENTORY.js */
+
+.item-container {
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: row;
+  background-color: rgb(202, 202, 202);
+  margin-bottom: 30px;
+  border-top: 2px solid rgb(1, 136, 1);
+}
+
+.item-container-container {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+/* MEDIA QUERIES */
+
+@media only screen and (max-width: 600px) {
+  .container {
+    font-size: 0.8em;
+    flex-direction: column;
+    padding-bottom: 15px;
+  }
+}
+
+
+

@@ -1,0 +1,31 @@
+CONTRACT ADDRESS:
+0xF3cBc8C6902CBe7f2a4629cFCE97e74eC5fd4C76
+
+DATA FOR TESTING THE DAPP:
+------------------------------
+
+Manufacturer address:
+0xB7095A347b9b87De895FF3a0bC99D0a1850B85d8
+
+- manufacturer add a product with details:
+    name: Panadol Extra X Pro
+    id:panadolX
+    form: tablets
+
+- manufacturer adds specs for Panadol Extra X Pro:
+    product_id: panadolX
+    materials: 
+    paracetamol, active , 150 , powder
+    vitamin c , active  , 50 , liquid
+    plastic , packaging , 25 , other
+
+- Manufacturer request material from supplier with amount and
+material name
+
+    Supplier Address
+    0x9F04c9437De819788e7f35D25ed236A6EfA1653B
+
+- Manufacturer can view track log of request with request Id number
+
+    request id:
+
