@@ -13,7 +13,7 @@ class QueryProductSpecs extends Component {
 
   onSubmit = async (e) => {
     e.preventDefault();
-
+    
     // this.props.contract.methods.addProduct('1', this.state.input).send({from: this.props.accounts[0]});
     // const material = this.state.materialName;
     // const proName = this.state.proName;
