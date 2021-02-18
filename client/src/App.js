@@ -5,19 +5,10 @@ import SupplyForm from "./components/SupplyForm";
 import Track from "./components/TrackForm";
 import Inventory from "./components/Inventory";
 import AddProduct from "./components/AddProduct";
-
 import FinancialLog from "./components/FinancialLog";
 import NewDemoTestContract from "./contracts/NewDemoTest.json";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 import "./App.css";
-
-//  class Welcome extends Component {
-//   render() {
-//     return (
-//       <div> Welcome! </div>
-//     );
-//   }
-// }
 
 class App extends Component {
   // state = { storageValue: 0, web3: null, accounts: null, contract: null };
@@ -28,13 +19,13 @@ class App extends Component {
       // Get network provider and web3 instance.
       const web3 = await getWeb3();
 
-      // // // // Use web3 to get the user's accounts.
+      // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
       const balance = web3.utils.fromWei(
-        await web3.eth.getBalance(accounts[0]),
+      await web3.eth.getBalance(accounts[0]),
         "ether"
       );
-      // // // Get the contract instance.
+      // Get the contract instance.
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = NewDemoTestContract.networks[networkId];
       const instance = new web3.eth.Contract(

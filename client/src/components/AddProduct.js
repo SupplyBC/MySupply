@@ -2,41 +2,44 @@ import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
 class CreateProduct extends Component {
-  state = { productName: "", productId: "", productForm: "", msg: " " };
+  state = { productName: "", productId: "", productForm: "", msg: " ", budget: 0 };
 
   constructor(props) {
     super(props);
     this.nameRef = React.createRef();
     this.idRef = React.createRef();
     this.formRef = React.createRef();
-    // this.handleNameChange = this.handleNameChange.bind(this);
-    // this.handleIdChange = this.handleIdChange.bind(this);
-    // this.handleFormChange = this.handleFormChange.bind(this);
+    this.budgetRef = React.createRef();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    // this.handleSubmit = this.handleChange.bind(this);
   }
 
-  sendData() {}
+  // sendData() {  }
 
   handleSubmit = async (e) => {
     e.preventDefault();
     let name = this.state.productName;
     let id = this.state.productId;
     let form = this.state.productForm;
+    let totBudget = this.state.budget;
+    
     await this.props.contract.methods
       .addProduct(name, id, form)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Product was created successfully!" });
+        setTimeout(() => {
+         this.setState({ msg: " " })
+        }, 2000);
       });
     this.setState({
       productName: "",
       productId: "",
       productForm: "",
+      budget: ''
     });
     // await this.props.contract.methods.addProduct(id,name,form).send({from: this.props.accounts[0]});
-    console.log(name, id, form);
+    console.log(name, id, form , totBudget);
   };
 
   handleChange = async (e) => {
@@ -44,8 +47,8 @@ class CreateProduct extends Component {
       productName: this.nameRef.current.value,
       productId: this.idRef.current.value,
       productForm: this.formRef.current.value,
+      budget: this.budgetRef.current.value
     });
-    console.log(this.props.account, this.props.contract);
   };
 
   render() {
@@ -84,11 +87,19 @@ class CreateProduct extends Component {
             OTHER
           </option>
         </select>
+
+        <label>Set Budget</label>
+        <input type="number"
+        ref={this.budgetRef}
+        value={this.state.budget}
+        placeholder="e.g. 5000"
+        onChange={this.handleChange}
+         />
         <div>
           <input className="btn" type="submit" value="CREATE PRODUCT" />
         </div>
         <div
-          style={{ marginTop: "20px", fontStyle: "italic" }}
+          style={{ marginTop: "20px"}}
           className="notify-data-container notify-text "
         >
           {this.state.msg}
@@ -105,6 +116,7 @@ class AddMaterial extends Component {
     matType: "",
     matStr: 0,
     matForm: "",
+    matAmount: 0,
     msg: " ",
   };
   constructor(props) {
@@ -114,6 +126,7 @@ class AddMaterial extends Component {
     this.matTypeRef = React.createRef();
     this.matStrRef = React.createRef();
     this.matFormRef = React.createRef();
+    this.matAmountRef = React.createRef();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -125,6 +138,7 @@ class AddMaterial extends Component {
     let type = this.state.matType;
     let strength = this.state.matStr;
     let form = this.state.matForm;
+    let amount = this.state.matAmount;
     await this.props.contract.methods
 
       .addProductSpecs(
@@ -137,6 +151,9 @@ class AddMaterial extends Component {
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Added product specification successfully!" });
+        setTimeout(() => {
+         this.setState({ msg: " " })
+        }, 2000);
       });
     this.setState({
       proID: "",
@@ -144,8 +161,9 @@ class AddMaterial extends Component {
       matType: "",
       matStr: "",
       matForm: "",
+      matAmount: "",
     });
-    console.log(proID, name, type, strength, form);
+    console.log(proID, name, type, strength, form, amount);
   };
 
   handleChange = async (e) => {
@@ -155,6 +173,7 @@ class AddMaterial extends Component {
       matType: this.matTypeRef.current.value,
       matStr: this.matStrRef.current.value,
       matForm: this.matFormRef.current.value,
+      matAmount: this.matAmountRef.current.value,
     });
   };
   render() {
@@ -250,13 +269,21 @@ class AddMaterial extends Component {
             PACKAGING
           </option>
         </select>
+        <label> Material Amount: </label>
+        <input
+          value={this.state.matAmount}
+          onChange={this.handleChange}
+          ref={this.matAmountRef}
+          type="number"
+          placeholder="e.g. 10"
+        />
         <label> Material Strength: </label>
         <input
           value={this.state.matStr}
           onChange={this.handleChange}
           ref={this.matStrRef}
           type="number"
-          placeholder="e.g. 150 mg"
+          placeholder="e.g. 10"
         />
         <label> Material Form: </label>
         <select
@@ -274,32 +301,124 @@ class AddMaterial extends Component {
             N/A
           </option>
         </select>
-
-        {/* <div>
-                
-                </div>
-                 <div>
-               
-                </div>
-                <div className="form-item">
-                
-                </div>
-                 <div>
-               
-                 </div>
-                 <div >
-               
-                </div> */}
         <div>
           <input className="btn" type="submit" value="ADD MATERIAL" />
         </div>
 
         <div
-          style={{ marginTop: "20px", fontStyle: "italic" }}
+          style={{ marginTop: "20px"}}
           className="notify-data-container notify-text"
         >
           {this.state.msg}
         </div>
+      </form>
+    );
+  }
+}
+
+class CreateCostPlan extends Component {
+
+  state= {
+
+    product: '',
+    directMaterialStdCost: 0,
+    laborStdCost: 0,
+    manuIndirectStdCost: 0, 
+    totalStdCost: 0
+
+  }
+
+  constructor(props) {
+    super(props);
+    this.proRef= React.createRef();
+    this.dirMatStdRef = React.createRef();
+    this.labStdRef = React.createRef();
+    this.manIndStdRef = React.createRef();
+    this.OnChange = this.onChange.bind(this);
+    this.OnSubmit = this.OnSubmit.bind(this);
+  }
+
+  calculateTotalStd = async() => {
+  }
+
+  OnSubmit = async(e) => {
+    e.preventDefault();
+
+    const pro = this.state.product;
+    const matStd = parseInt(this.state.directMaterialStdCost,10);
+    const labStd = parseInt(this.state.laborStdCost,10);
+    const manuIndirectStdCost = parseInt(this.state.manuIndirectStdCost,10);
+    const totalStandard = matStd + labStd + manuIndirectStdCost;
+
+    this.setState({ totalStdCost: totalStandard })
+
+
+    console.log(pro,matStd,labStd,manuIndirectStdCost,totalStandard);
+
+    this.setState({
+      product: '',
+      directMaterialStdCost: '',
+      laborStdCost: '',
+      manuIndirectStdCost: '',
+    })
+
+    // TODO TRANSACTING TO CONTRACT 
+  }
+
+  onChange = async(e) => {
+
+    this.setState({
+      product: this.proRef.current.value,
+      directMaterialStdCost: this.dirMatStdRef.current.value,
+      laborStdCost: this.labStdRef.current.value,
+      manuIndirectStdCost: this.manIndStdRef.current.value,
+    })
+
+  }
+
+  render() {
+    return (
+      <form onSubmit= {this.OnSubmit} className="newform-container">
+
+        <label>Product ID:</label>
+        <input type="text"
+        ref={this.proRef}
+        value={this.state.product}
+        placeholder="e.g. pro101"
+        onChange={this.OnChange}
+         />
+
+        <h4> Set Standard Costs </h4>
+
+        <label>Direct Materials: </label>
+        <input type="number"
+        ref={this.dirMatStdRef}
+        value={this.state.directMaterialStdCost}
+        placeholder="e.g. 5000"
+        onChange={this.OnChange}
+         />
+
+        <label>Direct Labor: </label>
+        <input type="number"
+        ref={this.labStdRef}
+        value={this.state.laborStdCost}
+        placeholder="e.g. 5000"
+        onChange={this.OnChange}
+         />  
+
+        <label>Manufacturing Overhead (Indirect Costs): </label>
+        <input type="number"
+        ref={this.manIndStdRef}
+        value={this.state.manuIndirectStdCost}
+        placeholder="e.g. 5000"
+        onChange={this.OnChange}
+         />
+
+        <div className='standard-cost-total-container'> 
+
+        </div>      
+        
+        <input type="submit" className="btn" value="CREATE PLAN"/>
       </form>
     );
   }
@@ -324,7 +443,13 @@ class AddProduct extends Component {
               </li>
               <li className="link-item">
                 {" "}
-                <NavLink to="/add-product/addMaterial">+ ADD SPECS</NavLink>
+                <NavLink to="/add-product/addMaterial">
+                  + ADD PRODUCT SPECS
+                </NavLink>
+              </li>
+              <li className="link-item">
+                {" "}
+                <NavLink to="/add-product/costPlan">+ CREATE COST PLAN</NavLink>
               </li>
             </ul>
           </div>
@@ -345,6 +470,17 @@ class AddProduct extends Component {
               exact
               render={(props) => (
                 <AddMaterial
+                  {...props}
+                  account={this.props.accounts}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            <Route
+              path="/add-product/costPlan"
+              exact
+              render={(props) => (
+                <CreateCostPlan
                   {...props}
                   account={this.props.accounts}
                   contract={this.props.contract}

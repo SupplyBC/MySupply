@@ -42,6 +42,7 @@ class Track extends Component {
       <form onSubmit={this.handleSubmit} className="form-container">
         <div className="form-row">
           <h4>Track Requested Shipments </h4>
+          <label style={{marginRight: '5px'}}> Request ID: </label>
           <input
             type="text"
             placeholder="e.g 101"

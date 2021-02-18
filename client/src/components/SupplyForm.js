@@ -13,7 +13,7 @@ class QueryProductSpecs extends Component {
 
   onSubmit = async (e) => {
     e.preventDefault();
-    
+
     // this.props.contract.methods.addProduct('1', this.state.input).send({from: this.props.accounts[0]});
     // const material = this.state.materialName;
     // const proName = this.state.proName;
@@ -25,12 +25,11 @@ class QueryProductSpecs extends Component {
     if (specs.length === 0) {
       this.setState({
         specs: specs.push(
-          "Didn't find any specs for the given product ID, please try again!"
+          "Didn't find any specs for the given product ID, please try again!".toUpperCase()
         ),
       });
     }
     this.setState({ specs });
-
     this.setState({ proName: "" });
   };
 
@@ -66,7 +65,7 @@ class QueryProductSpecs extends Component {
         />
 
         <div
-          style={{ marginTop: "20px", fontStyle: "italic" }}
+          style={{ marginTop: "20px"}}
           className="product-data-container"
         >
           {this.state.specs}
@@ -83,7 +82,8 @@ class RequestMaterials extends Component {
     supplier: "",
     amount: 0,
     form: "",
-    msg: ' '
+    strength: 0,
+    msg: " ",
   };
 
   constructor(props) {
@@ -92,6 +92,7 @@ class RequestMaterials extends Component {
     this.supplierRef = React.createRef();
     this.amountRef = React.createRef();
     this.formRef = React.createRef();
+    this.matStrRef = React.createRef();
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
@@ -100,26 +101,44 @@ class RequestMaterials extends Component {
     e.preventDefault();
     const material = this.state.materialName;
     // const proName = this.state.proName;
-     const supplierId = this.state.supplier;
-     const matform = this.state.form;
-     const matamount =this.state.amount;
-     console.log(supplierId,material,matform,matamount)
+    const supplierId = this.state.supplier;
+    const matform = this.state.form;
+    const matamount = this.state.amount;
+    const matstr = this.state.strength;
+    console.log(supplierId, material, matform, matamount, matstr);
     if (this.props.Web3.utils.isAddress(this.state.supplier)) {
-         await this.props.contract.methods
+      await this.props.contract.methods
         .createRequest(supplierId, this.state.materialName, matform, matamount)
-        .send({from: this.props.account[0]}).once('receipt', (receipt) => {
-          this.setState({ msg: 'Request was sent successfully!' })
-          });
-              // if (request.length === 0) {
+        .send({ from: this.props.account[0] })
+        .once("receipt", (receipt) => {
+          this.setState({ msg: "Request was sent successfully!" });
+          setTimeout(() => {
+            this.setState({ msg: " " })
+           }, 2000);
+        });
+      // if (request.length === 0) {
       //   this.setState({
       //     materials: materials.push(
       //       "This supplier has no recently created materials!"
       //     ),
       //   });
       // }
-      this.setState({  matName: '', proName: '', supplier: '', form: '' , amount: 0,
-        materialsVisibility: true });
+      this.setState({
+        matName: "",
+        proName: "",
+        supplier: "",
+        form: "",
+        amount: "",
+        strength: "",
+        materialsVisibility: true,
+      });
       // this.setState({ requests: this.state.requests + 1 });
+    }
+    else {
+      this.setState({ msg: "Please Try Again!" });
+      setTimeout(() => {
+        this.setState({ msg: " " })
+       }, 2000);
     }
 
     // this.props.contract.methods.addProduct('1', this.state.input).send({from: this.props.accounts[0]});
@@ -149,7 +168,7 @@ class RequestMaterials extends Component {
     }
     return (
       <form onSubmit={this.onSubmit} className="newform-container">
-        <label>Enter Supplier ID</label>
+        <label> Supplier ID:</label>
 
         <input
           type="text"
@@ -168,7 +187,7 @@ class RequestMaterials extends Component {
                     onClick = {this.getProductSpecs}
                     >SEARCH FOR MATERIAL </button> */}
 
-        <label> Material </label>
+        <label> Material Name: </label>
         <select
           name="material-name"
           onChange={this.onChange}
@@ -227,7 +246,7 @@ class RequestMaterials extends Component {
           </option>
         </select>
 
-        <label>Enter Material Form </label>
+        <label> Material Form: </label>
         <select
           name="requested-mat-form"
           onChange={this.handleChange}
@@ -243,8 +262,16 @@ class RequestMaterials extends Component {
             N/A
           </option>
         </select>
+        <label> Material Strength: </label>
+        <input
+          value={this.state.matStr}
+          onChange={this.handleChange}
+          ref={this.matStrRef}
+          type="number"
+          placeholder="e.g. 10"
+        />
 
-        <label>Requested Amount </label>
+        <label>Requested Amount: </label>
 
         <input
           type="number"
@@ -264,12 +291,22 @@ class RequestMaterials extends Component {
         />
 
         <div
-          style={{ marginTop: "20px", fontStyle: "italic"}}
+          style={{ marginTop: "20px"}}
           className="notify-data-container notify-text"
         >
           {this.state.msg}
         </div>
       </form>
+    );
+  }
+}
+
+class CreateMaterial extends Component {
+  render() {
+    return(
+      <div>
+        <em> Supplier Feature to Create Material</em>
+      </div>
     );
   }
 }
@@ -380,6 +417,14 @@ class SupplyForm extends Component {
                   + REQUEST MATERIALS
                 </NavLink>
               </li>
+              <label style={{marginTop: '10px'}}><strong> SUPPLIER </strong> </label>
+              <li className="link-item">
+                
+                {" "}
+                <NavLink to="/supply/supplier/createMaterial">
+                  + CREATE MATERIAL
+                </NavLink>
+              </li>
             </ul>
           </div>
           <div className="main-content">
@@ -399,6 +444,18 @@ class SupplyForm extends Component {
               exact
               render={(props) => (
                 <RequestMaterials
+                  {...props}
+                  Web3={this.props.Web3}
+                  account={this.props.account}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            <Route
+              path="/supply/supplier/createMaterial"
+              exact
+              render={(props) => (
+                <CreateMaterial
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.account}
