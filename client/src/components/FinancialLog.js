@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 
 class FinancialLog extends Component {
-  state = { product: "" };
+  state = { id: '' }
   constructor(props) {
     super(props);
     this.productIdRef = React.createRef();
@@ -11,26 +11,38 @@ class FinancialLog extends Component {
 
   onSubmit = async (e) => {
     e.preventDefault();
+    const proId = this.state.id;
+    let standard = await this.props.contract.methods.getStdCostPlan(proId).call();
+    this.setState({standard});
+    this.setState({product: " "})
   };
 
   onChange = async (e) => {
+
     this.setState({
-      product: this.productIdRef.current.value,
+      id: this.productIdRef.current.value,
     });
   };
   render() {
+    let account = this.props.accounts;
+    let contract = this.props.contract;
+    if (!account || !contract) {
+      return <div>Loading ..... </div>;
+    }
     return (
-        <form onSubmit={this.handleSubmit} className="form-container">
+        <div>
+        <form onSubmit={this.onSubmit} className="form-container">
         <div className="form-row">
           <h4>Review Financial Affairs</h4>
           <label style={{marginRight: '5px'}}> Product ID: </label>
           <input
             type="text"
-            placeholder="e.g 101"
-            value={this.state.product}
+            placeholder="e.g. pro101"
+            value={this.state.id}
+            onChange={this.onChange}
             ref={this.productIdRef}
-            onChange={this.handleChange}
           />
+
           <input
             style={{ cursor: "pointer" }}
             type="submit"
@@ -38,7 +50,19 @@ class FinancialLog extends Component {
             value="VIEW FINANCIAL STATUS"
           />
         </div>
+        <div className="costsClashContainer">
+          <div className="std-cost-container">
+            {this.state.standard}
+          </div>
+
+          <div className="actual-cost-container">
+            
+          </div>
+        </div>
         </form>
+
+        
+        </div>
     );
   }
 }

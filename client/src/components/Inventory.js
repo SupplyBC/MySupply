@@ -17,11 +17,11 @@ class InventoryItem extends Component {
             alt="material"
           />
           <h5> {this.props.item} </h5>
-          <h6>
+          {/* <h6>
             {this.props.stock === "OUT OF STOCK"
               ? this.props.stock
               : "IN STOCK:" + this.props.stock + "KG"}
-          </h6>
+          </h6> */}
         </div>
       </div>
     );
@@ -53,9 +53,9 @@ class Inventory extends Component {
           REFRESH STOCK{" "}
         </button>
         <div className="item-container-container">
-          <InventoryItem item="vitamin-a" stock={100 + 932} />
-          <InventoryItem item="vitamin-b-complex" stock={104 + 1342} />
-          <InventoryItem item="zinc" stock="OUT OF STOCK" />
+          <InventoryItem item="vitamin-a"  />
+          <InventoryItem item="vitamin-b-complex" />
+          <InventoryItem item="zinc"/>
         </div>
         {/* <div style={{marginTop: '20px'}}> Current Stock: {this.state.stockCount} </div> */}
       </div>

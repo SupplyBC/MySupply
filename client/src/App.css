@@ -315,6 +315,13 @@ input[type="text"], input[type="number"], select {
   background-color: #232;
 }
 
+.costsClashContainer {
+  margin-top: 40px;
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
 /* MEDIA QUERIES */
 
 @media only screen and (max-width: 600px) {

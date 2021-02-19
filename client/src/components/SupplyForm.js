@@ -64,10 +64,7 @@ class QueryProductSpecs extends Component {
           value="VIEW PRODUCT SPECS"
         />
 
-        <div
-          style={{ marginTop: "20px"}}
-          className="product-data-container"
-        >
+        <div style={{ marginTop: "20px" }} className="product-data-container">
           {this.state.specs}
         </div>
       </form>
@@ -105,16 +102,16 @@ class RequestMaterials extends Component {
     const matform = this.state.form;
     const matamount = this.state.amount;
     const matstr = this.state.strength;
-    console.log(supplierId, material, matform, matamount, matstr);
+    console.log(supplierId, material, matform, matstr, matamount);
     if (this.props.Web3.utils.isAddress(this.state.supplier)) {
       await this.props.contract.methods
-        .createRequest(supplierId, this.state.materialName, matform, matamount)
+        .createRequest(supplierId, this.state.materialName, matform, matstr, matamount)
         .send({ from: this.props.account[0] })
         .once("receipt", (receipt) => {
           this.setState({ msg: "Request was sent successfully!" });
           setTimeout(() => {
-            this.setState({ msg: " " })
-           }, 2000);
+            this.setState({ msg: " " });
+          }, 2000);
         });
       // if (request.length === 0) {
       //   this.setState({
@@ -133,12 +130,11 @@ class RequestMaterials extends Component {
         materialsVisibility: true,
       });
       // this.setState({ requests: this.state.requests + 1 });
-    }
-    else {
+    } else {
       this.setState({ msg: "Please Try Again!" });
       setTimeout(() => {
-        this.setState({ msg: " " })
-       }, 2000);
+        this.setState({ msg: " " });
+      }, 2000);
     }
 
     // this.props.contract.methods.addProduct('1', this.state.input).send({from: this.props.accounts[0]});
@@ -156,6 +152,7 @@ class RequestMaterials extends Component {
       supplier: this.supplierRef.current.value,
       amount: this.amountRef.current.value,
       form: this.formRef.current.value,
+      strength: this.matStrRef.current.value
     });
   };
 
@@ -291,7 +288,7 @@ class RequestMaterials extends Component {
         />
 
         <div
-          style={{ marginTop: "20px"}}
+          style={{ marginTop: "20px" }}
           className="notify-data-container notify-text"
         >
           {this.state.msg}
@@ -302,39 +299,72 @@ class RequestMaterials extends Component {
 }
 
 class CreateMaterial extends Component {
-  state={ matName: '', matForm: '', matStr: 0, matAmount: 0 , matUnitCost: 0 }
+  state = { matId: "", matName: "", matForm: "", matStr: 0, matAmount: 0, matUnitCost: 0 };
   constructor(props) {
     super(props);
+    this.idRef= React.createRef();
     this.matRef = React.createRef();
-    this.formRef  = React.createRef();
-    this.strRef=  React.createRef();
+    this.formRef = React.createRef();
+    this.strRef = React.createRef();
     this.amountRef = React.createRef();
     this.unitCostRef = React.createRef();
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  onSubmit = async(e) => {
+  onSubmit = async (e) => {
     e.preventDefault();
-  }
+    const id = this.state.matId;
+    const name = this.state.matName;
+    const form =  this.state.matForm;
+    const strength = this.state.matStr;
+    const amount = this.state.matAmount;
+    const cost = this.state.matUnitCost;
+    
+    await this.props.contract.methods.createMaterial(id,name,strength,form,amount,cost)
+    .send({from: this.props.account[0]})
+    .once("receipt", (receipt) => {
+      this.setState({ msg: "Materials Created Successfully!" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 2000);
+    });
 
-  onChange = async(e) => {
     this.setState({
+      matId: '',
+      matName: '',
+      matForm: '',
+      matStr: '',
+      matAmount: '',
+      matUnitCost: '',
+    })
+  };
+
+  onChange = async (e) => {
+    this.setState({
+      matId: this.idRef.current.value,
       matName: this.matRef.current.value,
       matForm: this.formRef.current.value,
       matStr: this.strRef.current.value,
       matAmount: this.amountRef.current.value,
-      matUnitCost: this.unitCostRef.current.value
-    })
-  }
+      matUnitCost: this.unitCostRef.current.value,
+    });
+  };
   render() {
-    return(
-      <form onSubmit = {this.onSubmit} className="newform-container">
+    return (
+      <form onSubmit={this.onSubmit} className="newform-container">
+        <label>Material ID:</label>
+        <input type="text"
+        value={this.state.matId}
+        onChange= {this.onChange}
+        ref = {this.idRef}
+        placeholder = "e.g. mat101"
+        />
         <label>Material Name:</label>
         <select
           name="material-name"
           onChange={this.OnChange}
-          ref={this.nameRef}
+          ref={this.matRef}
         >
           <option id="11" value="vitamin-a">
             VITAMIN A
@@ -420,20 +450,23 @@ class CreateMaterial extends Component {
           onChange={this.onChange}
           ref={this.amountRef}
           type="number"
-          placeholder="e.g. 10"
+          placeholder="e.g. 1000"
         />
 
-         <label> Material Unit Cost: </label> 
-         <input
+        <label> Material Unit Cost: </label>
+        <input
           value={this.state.matUnitCost}
           onChange={this.onChange}
           ref={this.unitCostRef}
           type="number"
           placeholder="e.g. 10"
         />
-        
-      <input type="submit" value="CREATE MATERIAL" className="btn"/>
 
+        <input type="submit" value="CREATE MATERIAL" className="btn" />
+
+        <div style={{marginTop: '20px'}} className= "notify-text">  
+          {this.state.msg}
+        </div>
       </form>
     );
   }
@@ -545,9 +578,10 @@ class SupplyForm extends Component {
                   + REQUEST MATERIALS
                 </NavLink>
               </li>
-              <label style={{marginTop: '10px'}}><strong> SUPPLIER </strong> </label>
+              <label style={{ marginTop: "10px" }}>
+                <strong> SUPPLIER </strong>{" "}
+              </label>
               <li className="link-item">
-                
                 {" "}
                 <NavLink to="/supply/supplier/createMaterial">
                   + CREATE MATERIAL

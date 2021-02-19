@@ -30,7 +30,7 @@ class CreateProduct extends Component {
     let totBudget = this.state.budget;
 
     await this.props.contract.methods
-      .addProduct(name, id, form)
+      .addProduct(name, id, form,totBudget)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Product was created successfully!" });
@@ -153,7 +153,8 @@ class AddMaterial extends Component {
         this.state.matName,
         this.state.matType,
         this.state.matStr,
-        this.state.matForm
+        this.state.matForm,
+        this.state.matAmount
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -352,10 +353,16 @@ class CreateCostPlan extends Component {
     const labStd = parseInt(this.state.laborStdCost, 10);
     const manuIndirectStdCost = parseInt(this.state.manuIndirectStdCost, 10);
     const totalStandard = matStd + labStd + manuIndirectStdCost;
-
     this.setState({ totalStdCost: totalStandard });
 
     console.log(pro, matStd, labStd, manuIndirectStdCost, totalStandard);
+    await this.props.contract.methods.setStdCostPlan(pro,matStd,labStd, manuIndirectStdCost)
+    .send({from: this.props.account[0]}).once("receipt", (receipt) => {
+      this.setState({ msg: "Standard Cost Plan Was Set Successfully" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 2000);
+    });
 
     this.setState({
       product: "",
@@ -424,6 +431,12 @@ class CreateCostPlan extends Component {
           className="btn"
           value="CREATE STANDARD COST PLAN"
         />
+
+
+        <div style={{marginTop:'20px'}} className = "notify-text">
+          {this.state.msg}
+
+        </div>
       </form>
     );
   }

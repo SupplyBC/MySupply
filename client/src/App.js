@@ -135,7 +135,14 @@ class App extends Component {
               />
             )}
           />
-          <Route path="/financial-log" exact component={FinancialLog} />
+          <Route path="/financial-log" exact
+          render={(props) => (
+            <FinancialLog
+              {...props}
+              accounts={this.state.accounts}
+              contract={this.state.contract}
+            />
+          )}/>
           {/* <Navbar /> */}
           {/* <ProductForm contract = {this.state.contract} accounts = {this.state.accounts} /> */}
           {/* <Inventory /> */}

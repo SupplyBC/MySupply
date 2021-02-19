@@ -16,7 +16,6 @@ class Track extends Component {
   handleSubmit = async (e) => {
     e.preventDefault();
     let id = parseInt(this.state.requestID, 10);
-    console.log(id, typeof id);
     // await this.props.contract.methods.createLog(1, 'SHIPPED' ,'20C', '25%', 'NORMAL').send({from: this.props.account})
     let response = await this.props.contract.methods.getTrackLogs(id).call();
     this.setState({ response });

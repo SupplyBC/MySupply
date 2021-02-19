@@ -1,10 +1,11 @@
 /*
-    THIS CONTRACT IMPLEMENTS:
-    1- Adding product with its specs. (manufacturer)
+    THIS CONTRACT IMPLEMENTATION MAKES A USER:
+    
+    1- Add product with its specs. (manufacturer)
     2- create material. (suppplier)
     3- request material from supplier (manufacturer)
-    4- track request status (manufactuer)
-    5- log tracking phases 
+    4- track request status (manufacturer)
+    5- log tracking phases (admin)
 
 
 */
@@ -21,22 +22,26 @@ contract NewDemoTest {
         return (keccak256(abi.encodePacked((x))) == keccak256(abi.encodePacked((y))));
     }
     
-    enum Role {MANUFACTURER, SUPPLIER, DISTRIBUTOR}
-    address admin;
-    uint requestCount = 0;
-    mapping(address => bool) participants;
-    mapping(address => Product[]) products;
-    mapping (string => Specs[]) productSpecs; // productID and material  
-    mapping (address => Material[])  materials;   //Participant(supplier) and material
-    mapping(string => Material) materialsByName;
-    mapping(address => Request[]) requests; 
-    mapping(uint => Log[])    trackLogs; //requestId and Log
     
+    address admin;
+    uint    requestCount = 0;
+    enum    Role                    {MANUFACTURER, SUPPLIER, DISTRIBUTOR}
+    mapping (address => bool)       participants;
+    mapping (address => Product[])  products;    // manufacturer and product
+    mapping (string => Specs[])     productSpecs; // productID and material  
+    mapping (address => Material[]) materials;   //Participant(supplier) and material
+    mapping (string => Material)    materialsById;
+    mapping (address => Request[])  requests;   // participant and requests
+    mapping (uint => Log[])         trackLogs; //requestId and Log
+    mapping (string => Cost)        standardProductCosts;
+    mapping (string => Cost)        actualProductCosts;
+    mapping(uint => uint)           requestCost;    // requestId and Total Cost.
     
     
     struct Participant {
         address particId;
         Role    particRole;
+        uint    partiBalance;
     }
     
     struct Product {
@@ -44,14 +49,15 @@ contract NewDemoTest {
         string  productId; //registration no.
         string  productName;
         string  productForm; // tablets or capsules
+        uint    productBudget;
         
     }
     
     struct Material {
         address supplier;
+        string  materialID;
         string  materialName;
-        string  materialType;
-        // string  materialStrength;
+        string  materialStrength;
         string  materialForm;
         uint    createdAmount;
         uint    unitCost;
@@ -60,19 +66,21 @@ contract NewDemoTest {
     struct Specs {
         string  materialName;
         string  materialType;
+        uint    materialAmount;
         string  materialStrength;
         string  materialForm;
         
     }
 
     struct Request {
-        uint  requestId;
+        uint    requestId;
         address fromParti;
         address toParti;
-        string materialName;
+        string  materialName;
         string  materialForm;
-        uint amount;
-        uint  issueTime;
+        string  materialStrength;
+        uint    amount;
+        uint    issueTime;
     }
     
        struct Log {
@@ -80,7 +88,14 @@ contract NewDemoTest {
         string  currentTemp;
         string  currentHumidity;
         string  materialStatus;
-        uint  logTime;
+        uint    logTime;
+    }
+    
+    struct Cost {
+        uint directMaterialCost;
+        uint directLaborCost;
+        uint totalIndirectCost; // total of VAT, MARKETING, ...etc
+        uint CostTOT; // direct material + direct labor + total indirect
     }
     
     
@@ -118,13 +133,15 @@ contract NewDemoTest {
     function addProduct(
     string memory _id,
     string memory _name,
-    string memory _pForm
+    string memory _pForm,
+    uint          _budget
     ) public {
         
         Product memory pro = Product({
             productId: _id,
             productName: _name,
             productForm: _pForm,
+            productBudget: _budget,
             manufacturer: msg.sender
         });
         
@@ -137,13 +154,15 @@ contract NewDemoTest {
     string memory _name,
     string memory _type,
     string memory _strength,
-    string memory _form
+    string memory _form,
+    uint          _amount
     ) public {
     
         Specs memory spec = Specs({
             materialName: _name,
             materialType: _type,
             materialForm: _form,
+            materialAmount: _amount,
             materialStrength: _strength
             
         });      
@@ -152,6 +171,7 @@ contract NewDemoTest {
         
     }
     
+      
     function getProductsByManu(address _manufacturer) public view returns(Product[] memory) {
         return products[_manufacturer];
     }
@@ -159,10 +179,55 @@ contract NewDemoTest {
         return productSpecs[_product];
     }
     
+    // COST ACCOUNTING STUFF START HERE
+    function setStdCostPlan(
+    string memory _product,
+    uint    _directMatCost,
+    uint    _directLaborCost,
+    uint    _totIndirectCosts
+        ) public {
+    
+    Cost memory stdCosts = Cost({
+        directMaterialCost: _directMatCost,
+        directLaborCost: _directLaborCost,
+        totalIndirectCost: _totIndirectCosts,
+        CostTOT: _directMatCost + _directLaborCost + _totIndirectCosts
+    });
+    
+    standardProductCosts[_product] = stdCosts;
+    
+    }
+    
+    
+    function getStdCostPlan(string memory _product) public view returns(Cost memory) {
+        return standardProductCosts[_product];
+    }
+    
+    function setActualCost(
+    string memory _product,
+    uint _actualMatCost,
+    uint _actualLaborCost,
+    uint _actualIndirectCost
+    ) public {
+        Cost memory actualCosts = Cost({
+            directMaterialCost: _actualMatCost,
+            directLaborCost: _actualLaborCost,
+            totalIndirectCost: _actualIndirectCost,
+            CostTOT: _actualMatCost + _actualLaborCost + _actualIndirectCost
+        });
+        actualProductCosts[_product] = actualCosts;
+    }
+    
+    function getActualCost(string memory _product) public view returns(Cost memory) {
+        return actualProductCosts[_product];
+    }
+
+    
     // By Supplier
     function createMaterial(
+    string memory _id,
     string memory _name,
-    string memory _type,
+    string memory _str,
     string memory _form,
     uint    _amount,
     uint    _unitCost
@@ -170,15 +235,17 @@ contract NewDemoTest {
         
         Material memory mat = Material({
            supplier: msg.sender,
+           materialID:   _id,
            materialName: _name,
-           materialType: _type,
            materialForm: _form,
+           materialStrength: _str,
            createdAmount: _amount,
            unitCost:      _unitCost
         });
 
         materials[msg.sender].push(mat);
-        materialsByName[_name] = mat;
+        materialsById[_id] = mat;
+        
         
     }
     
@@ -192,7 +259,9 @@ contract NewDemoTest {
     // }
     
     
-    function createRequest(address _to , string memory _material , string memory _materialForm, uint _amount) public{
+    
+    
+    function createRequest(address _to , string memory _material , string memory _materialForm, string memory _materialStr, uint _amount) public{
         requestCount += 1;
         Request memory req = Request({
            requestId: requestCount,
@@ -200,6 +269,7 @@ contract NewDemoTest {
            toParti: _to,
            materialName: _material,
            materialForm: _materialForm,
+           materialStrength: _materialStr, 
            amount: _amount,
            issueTime: block.timestamp
         });
