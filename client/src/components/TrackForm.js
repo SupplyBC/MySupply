@@ -54,7 +54,7 @@ class Track extends Component {
             style={{ cursor: "pointer" }}
             type="submit"
             className="btn"
-            value="VIEW STATUS"
+            value="VIEW SHIPMENT STATUS"
           />
         </div>
 

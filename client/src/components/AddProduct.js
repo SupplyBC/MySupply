@@ -2,7 +2,13 @@ import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
 class CreateProduct extends Component {
-  state = { productName: "", productId: "", productForm: "", msg: " ", budget: 0 };
+  state = {
+    productName: "",
+    productId: "",
+    productForm: "",
+    msg: " ",
+    budget: 0,
+  };
 
   constructor(props) {
     super(props);
@@ -22,24 +28,24 @@ class CreateProduct extends Component {
     let id = this.state.productId;
     let form = this.state.productForm;
     let totBudget = this.state.budget;
-    
+
     await this.props.contract.methods
       .addProduct(name, id, form)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Product was created successfully!" });
         setTimeout(() => {
-         this.setState({ msg: " " })
+          this.setState({ msg: " " });
         }, 2000);
       });
     this.setState({
       productName: "",
       productId: "",
       productForm: "",
-      budget: ''
+      budget: "",
     });
     // await this.props.contract.methods.addProduct(id,name,form).send({from: this.props.accounts[0]});
-    console.log(name, id, form , totBudget);
+    console.log(name, id, form, totBudget);
   };
 
   handleChange = async (e) => {
@@ -47,7 +53,7 @@ class CreateProduct extends Component {
       productName: this.nameRef.current.value,
       productId: this.idRef.current.value,
       productForm: this.formRef.current.value,
-      budget: this.budgetRef.current.value
+      budget: this.budgetRef.current.value,
     });
   };
 
@@ -89,17 +95,18 @@ class CreateProduct extends Component {
         </select>
 
         <label>Set Budget</label>
-        <input type="number"
-        ref={this.budgetRef}
-        value={this.state.budget}
-        placeholder="e.g. 5000"
-        onChange={this.handleChange}
-         />
+        <input
+          type="number"
+          ref={this.budgetRef}
+          value={this.state.budget}
+          placeholder="e.g. 5000"
+          onChange={this.handleChange}
+        />
         <div>
           <input className="btn" type="submit" value="CREATE PRODUCT" />
         </div>
         <div
-          style={{ marginTop: "20px"}}
+          style={{ marginTop: "20px" }}
           className="notify-data-container notify-text "
         >
           {this.state.msg}
@@ -152,7 +159,7 @@ class AddMaterial extends Component {
       .once("receipt", (receipt) => {
         this.setState({ msg: "Added product specification successfully!" });
         setTimeout(() => {
-         this.setState({ msg: " " })
+          this.setState({ msg: " " });
         }, 2000);
       });
     this.setState({
@@ -287,7 +294,7 @@ class AddMaterial extends Component {
         />
         <label> Material Form: </label>
         <select
-          name="mat-form"
+          name="material-form"
           onChange={this.handleChange}
           ref={this.matFormRef}
         >
@@ -302,11 +309,11 @@ class AddMaterial extends Component {
           </option>
         </select>
         <div>
-          <input className="btn" type="submit" value="ADD MATERIAL" />
+          <input className="btn" type="submit" value="ADD PRODUCT SPECIFICATION" />
         </div>
 
         <div
-          style={{ marginTop: "20px"}}
+          style={{ marginTop: "20px" }}
           className="notify-data-container notify-text"
         >
           {this.state.msg}
@@ -317,20 +324,17 @@ class AddMaterial extends Component {
 }
 
 class CreateCostPlan extends Component {
-
-  state= {
-
-    product: '',
+  state = {
+    product: "",
     directMaterialStdCost: 0,
     laborStdCost: 0,
-    manuIndirectStdCost: 0, 
-    totalStdCost: 0
-
-  }
+    manuIndirectStdCost: 0,
+    totalStdCost: 0,
+  };
 
   constructor(props) {
     super(props);
-    this.proRef= React.createRef();
+    this.proRef = React.createRef();
     this.dirMatStdRef = React.createRef();
     this.labStdRef = React.createRef();
     this.manIndStdRef = React.createRef();
@@ -338,87 +342,88 @@ class CreateCostPlan extends Component {
     this.OnSubmit = this.OnSubmit.bind(this);
   }
 
-  calculateTotalStd = async() => {
-  }
+  calculateTotalStd = async () => {};
 
-  OnSubmit = async(e) => {
+  OnSubmit = async (e) => {
     e.preventDefault();
 
     const pro = this.state.product;
-    const matStd = parseInt(this.state.directMaterialStdCost,10);
-    const labStd = parseInt(this.state.laborStdCost,10);
-    const manuIndirectStdCost = parseInt(this.state.manuIndirectStdCost,10);
+    const matStd = parseInt(this.state.directMaterialStdCost, 10);
+    const labStd = parseInt(this.state.laborStdCost, 10);
+    const manuIndirectStdCost = parseInt(this.state.manuIndirectStdCost, 10);
     const totalStandard = matStd + labStd + manuIndirectStdCost;
 
-    this.setState({ totalStdCost: totalStandard })
+    this.setState({ totalStdCost: totalStandard });
 
-
-    console.log(pro,matStd,labStd,manuIndirectStdCost,totalStandard);
+    console.log(pro, matStd, labStd, manuIndirectStdCost, totalStandard);
 
     this.setState({
-      product: '',
-      directMaterialStdCost: '',
-      laborStdCost: '',
-      manuIndirectStdCost: '',
-    })
+      product: "",
+      directMaterialStdCost: "",
+      laborStdCost: "",
+      manuIndirectStdCost: "",
+    });
 
-    // TODO TRANSACTING TO CONTRACT 
-  }
+    // TODO TRANSACTING TO CONTRACT
+  };
 
-  onChange = async(e) => {
-
+  onChange = async (e) => {
     this.setState({
       product: this.proRef.current.value,
       directMaterialStdCost: this.dirMatStdRef.current.value,
       laborStdCost: this.labStdRef.current.value,
       manuIndirectStdCost: this.manIndStdRef.current.value,
-    })
-
-  }
+    });
+  };
 
   render() {
     return (
-      <form onSubmit= {this.OnSubmit} className="newform-container">
-
+      <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
-        <input type="text"
-        ref={this.proRef}
-        value={this.state.product}
-        placeholder="e.g. pro101"
-        onChange={this.OnChange}
-         />
+        <input
+          type="text"
+          ref={this.proRef}
+          value={this.state.product}
+          placeholder="e.g. pro101"
+          onChange={this.OnChange}
+        />
 
         <h4> Set Standard Costs </h4>
 
         <label>Direct Materials: </label>
-        <input type="number"
-        ref={this.dirMatStdRef}
-        value={this.state.directMaterialStdCost}
-        placeholder="e.g. 5000"
-        onChange={this.OnChange}
-         />
+        <input
+          type="number"
+          ref={this.dirMatStdRef}
+          value={this.state.directMaterialStdCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+        />
 
         <label>Direct Labor: </label>
-        <input type="number"
-        ref={this.labStdRef}
-        value={this.state.laborStdCost}
-        placeholder="e.g. 5000"
-        onChange={this.OnChange}
-         />  
+        <input
+          type="number"
+          ref={this.labStdRef}
+          value={this.state.laborStdCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+        />
 
         <label>Manufacturing Overhead (Indirect Costs): </label>
-        <input type="number"
-        ref={this.manIndStdRef}
-        value={this.state.manuIndirectStdCost}
-        placeholder="e.g. 5000"
-        onChange={this.OnChange}
-         />
+        <input
+          type="number"
+          ref={this.manIndStdRef}
+          value={this.state.manuIndirectStdCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+        />
 
-        <div className='standard-cost-total-container'> 
+        <div className="standard-cost-total-container"></div>
 
-        </div>      
-        
-        <input type="submit" className="btn" value="CREATE PLAN"/>
+        <input
+          type="submit"
+          className="btn"
+          value="CREATE STANDARD COST PLAN"
+        />
       </form>
     );
   }

@@ -302,11 +302,139 @@ class RequestMaterials extends Component {
 }
 
 class CreateMaterial extends Component {
+  state={ matName: '', matForm: '', matStr: 0, matAmount: 0 , matUnitCost: 0 }
+  constructor(props) {
+    super(props);
+    this.matRef = React.createRef();
+    this.formRef  = React.createRef();
+    this.strRef=  React.createRef();
+    this.amountRef = React.createRef();
+    this.unitCostRef = React.createRef();
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onSubmit = async(e) => {
+    e.preventDefault();
+  }
+
+  onChange = async(e) => {
+    this.setState({
+      matName: this.matRef.current.value,
+      matForm: this.formRef.current.value,
+      matStr: this.strRef.current.value,
+      matAmount: this.amountRef.current.value,
+      matUnitCost: this.unitCostRef.current.value
+    })
+  }
   render() {
     return(
-      <div>
-        <em> Supplier Feature to Create Material</em>
-      </div>
+      <form onSubmit = {this.onSubmit} className="newform-container">
+        <label>Material Name:</label>
+        <select
+          name="material-name"
+          onChange={this.OnChange}
+          ref={this.nameRef}
+        >
+          <option id="11" value="vitamin-a">
+            VITAMIN A
+          </option>
+          <option id="22" value="vitmain-b-complex">
+            VITAMIN B COMPLEX
+          </option>
+          <option id="33" value="vitamin-c-extract">
+            VITAMIN C EXTRACT
+          </option>
+          <option id="4" value="vitamin-d">
+            VITAMIN D
+          </option>
+          <option id="5" value="potassium">
+            POTASSIUM
+          </option>
+          <option id="6" value="zinc">
+            ZINC
+          </option>
+          <option id="7" value="plastic">
+            PLASTIC
+          </option>
+          <option id="8" value="glass">
+            GLASS
+          </option>
+          <option id="9" value="wood">
+            WOOD
+          </option>
+          <option id="10" value="wheat-germ-oil">
+            WHEAT GERM OIl
+          </option>
+          <option id="11" value="paracetamol">
+            PARACETAMOL
+          </option>
+          <option id="12" value="ginseng">
+            GINSENG
+          </option>
+          <option id="13" value="selenium">
+            SELENIUM
+          </option>
+          <option id="14" value="DHA">
+            DHA
+          </option>
+          <option id="15" value="folic-acid">
+            FOLIC ACID
+          </option>
+          <option id="16" value="lysine">
+            LYSINE
+          </option>
+          <option id="17" value="nickel">
+            NICKEL
+          </option>
+        </select>
+
+        <label> Material Form: </label>
+        <select
+          name="material-form"
+          onChange={this.onChange}
+          ref={this.formRef}
+        >
+          <option id="1" value="powder">
+            POWDER
+          </option>
+          <option id="2" value="liquid">
+            LIQUID
+          </option>
+          <option id="3" value="n/a">
+            N/A
+          </option>
+        </select>
+
+        <label> Material Strength: </label>
+        <input
+          value={this.state.matStr}
+          onChange={this.onChange}
+          ref={this.strRef}
+          type="number"
+          placeholder="e.g. 10"
+        />
+        <label> Material Amount: </label>
+        <input
+          value={this.state.matAmount}
+          onChange={this.onChange}
+          ref={this.amountRef}
+          type="number"
+          placeholder="e.g. 10"
+        />
+
+         <label> Material Unit Cost: </label> 
+         <input
+          value={this.state.matUnitCost}
+          onChange={this.onChange}
+          ref={this.unitCostRef}
+          type="number"
+          placeholder="e.g. 10"
+        />
+        
+      <input type="submit" value="CREATE MATERIAL" className="btn"/>
+
+      </form>
     );
   }
 }

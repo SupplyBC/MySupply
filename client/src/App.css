@@ -78,6 +78,7 @@
   color: #f2f2f2;
   font-weight: bold;
   padding: 7px 12px;
+  cursor: pointer;
 }
 
 .btn-alt {
@@ -256,7 +257,7 @@ input[type="text"], input[type="number"], select {
 
 .product-form-container .link-item a:active {
   text-decoration: none;
-  color: #444;
+  color: #222;
 }
 
 .newform-container {
@@ -307,6 +308,11 @@ input[type="text"], input[type="number"], select {
   flex-direction: row;
   gap: 30px;
   margin-bottom: 30px;
+}
+
+/* FinancialLog.js */
+.finance-container form {
+  background-color: #232;
 }
 
 /* MEDIA QUERIES */
