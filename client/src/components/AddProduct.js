@@ -371,7 +371,6 @@ class CreateCostPlan extends Component {
       manuIndirectStdCost: "",
     });
 
-    // TODO TRANSACTING TO CONTRACT
   };
 
   onChange = async (e) => {
