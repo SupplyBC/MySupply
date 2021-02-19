@@ -1,13 +1,10 @@
 /*
-    THIS CONTRACT IMPLEMENTATION MAKES A USER:
+    THIS CONTRACT IMPLEMENTATION ALLOWS A USER TO:
     
-    1- Add product with its specs. (manufacturer)
-    2- create material. (suppplier)
-    3- request material from supplier (manufacturer)
-    4- track request status (manufacturer)
-    5- log tracking phases (admin)
-
-
+    1- Add products with their specs. (manufacturer)
+    2- Create materials. (suppplier).
+    3- Request materials from suppliers. (manufacturer)
+    4- Track requests status. (manufacturer)
 */
 
 
