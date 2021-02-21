@@ -39,7 +39,7 @@ class App extends Component {
       this.setState({ web3, accounts, balance, contract: instance });
     } catch (error) {
       // Catch any errors for any of the above operations.
-      alert(`Failed to load blockchain data. Check console for details.`);
+      alert(`Failed to load Web3. Please check your web3 connection and try again!`);
       //  console.error(error);
     }
   };

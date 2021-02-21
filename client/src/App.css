@@ -262,7 +262,6 @@ input[type="text"], input[type="number"], select {
 
 .newform-container {
   margin: 5px 20px 5px 20px;
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -324,12 +323,98 @@ input[type="text"], input[type="number"], select {
 }
 /* MEDIA QUERIES */
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 768px) {
 
   .container {
     font-size: 0.8em;
     flex-direction: column;
     padding-bottom: 15px;
+  }
+
+  .navbar-container .nav-list {
+    gap: 3px;
+    margin: 0;
+    padding: 10px;
+    background-color: #888;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .navbar-container .nav-list a:hover {
+   border-bottom: none;
+  }
+
+
+  .nav-item {
+    margin: 0;
+    padding: 5px 0px;
+    border-bottom:  1px solid #999;
+    text-align: center;
+  }
+
+  .nav-item:last-child{
+    border-bottom: none;
+  }
+
+  .form-container {
+    font-size:  14px;
+  }
+
+  .form-container .form-row {
+    display: flex;
+    gap: 30px;
+    flex-direction: column;
+  }
+
+  .form-container .form-row input {
+    width: 90%;
+  }
+
+  .product-form-container {
+    width: 100%;
+    grid-template-columns: 1fr;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .product-form-container .link-item a {
+    border: none;
+  }
+
+  .product-form-container .mini-nav-list {
+    height: auto;
+    border-right: none;
+    border-bottom:  2px solid black;
+    text-align: center;
+    align-items: center;
+    padding-top: 0px;
+    padding-bottom: 12px;
+    padding: 0px 0px 12px 0px;
+    margin-bottom: 10px;
+
+  }
+
+  .newform-container {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .newform-container input[type="text"] ,
+  .newform-container input[type="number"],
+  .newform-container select{
+    width: 70%;
+  }
+
+  .item-container-container {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 
