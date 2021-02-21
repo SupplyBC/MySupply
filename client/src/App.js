@@ -12,7 +12,12 @@ import "./App.css";
 
 class App extends Component {
   // state = { storageValue: 0, web3: null, accounts: null, contract: null };
-  state = { web3: null, accounts: null, contract: null };
+  state = { web3: null, accounts: null, contract: null , isMenuToggled: false };
+
+  constructor(props) {
+    super(props);
+    this.toggleMenu = this.toggleMenu.bind(this);
+  }
 
   componentDidMount = async () => {
     try {
@@ -61,18 +66,32 @@ class App extends Component {
   // this.setState({response});
   //  };
 
+  toggleMenu() {
+    if (this.state.isMenuToggled === '') {
+    } else {
+    this.setState({isMenuToggled: !this.state.isMenuToggled})
+    }
+  }
+
   render() {
     // if (!this.state.web3) {
     //   return <div>Loading Web3, accounts, and contract...</div>;
     // }
+    let toggle
+    this.state.isMenuToggled ?  toggle = '' : toggle = 'hide'
     return (
       <BrowserRouter>
         <div className="App">
           <Header accounts={this.state.accounts} balance={this.state.balance} />
           <div className="navbar-container">
-            <ul className="nav-list">
+          <button onClick={this.toggleMenu} className="responsive-menu">
+            <img
+            alt = "hamburger-menu"
+            width = "20px"
+            src={require("../src/hamburger-menu.svg")}/>
+            </button>
+            <ul id = "my-nav" className={`nav-list ${toggle}`}>
               <li className="nav-item">
-                {" "}
                 <NavLink to="/add-product">ADD PRODUCT</NavLink>{" "}
               </li>
               <li className="nav-item">

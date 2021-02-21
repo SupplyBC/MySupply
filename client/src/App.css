@@ -90,7 +90,9 @@
   padding: 7px 12px;
   cursor: pointer;
 }
-
+.responsive-menu {
+  display:none;
+}
 /* Header.js */
 
 .container {
@@ -132,6 +134,7 @@
   justify-content: center;
   gap: 50px;
 }
+
 
 /* 
 .nav-item {
@@ -195,12 +198,8 @@ input[type="text"], input[type="number"], select {
   margin-bottom: 10px;
 }
 
-.show {
-  display: inline;
-}
-
 .hide {
-  display: none;
+  display: flex;
 }
 
 .form-container select {
@@ -296,7 +295,7 @@ input[type="text"], input[type="number"], select {
   padding: 10px 15px;
   display: flex;
   flex-direction: row;
-  background-color: rgb(202, 202, 202);
+  background-color: rgb(235, 235, 235);
   margin-bottom: 30px;
   border-top: 2px solid rgb(1, 136, 1);
 }
@@ -323,7 +322,7 @@ input[type="text"], input[type="number"], select {
 }
 /* MEDIA QUERIES */
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 800px) {
 
   .container {
     font-size: 0.8em;
@@ -335,11 +334,14 @@ input[type="text"], input[type="number"], select {
     gap: 3px;
     margin: 0;
     padding: 10px;
-    background-color: #888;
-    display: flex;
-    flex-direction: column;
     font-size: 14px;
     text-align: center;
+    flex-direction: column;
+    padding-top: 0px;
+  }
+
+  .hide {
+    display: none;
   }
 
   .navbar-container .nav-list a:hover {
@@ -416,7 +418,20 @@ input[type="text"], input[type="number"], select {
     flex-wrap: wrap;
     justify-content: center;
   }
+
+  .responsive-menu {
+    display: block;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-bottom: 2px;
+  }
+
+  .responsive-menu:focus {
+    outline: none;
+  }
+  
 }
+
 
 
 
