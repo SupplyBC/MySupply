@@ -48,7 +48,9 @@
   src: local('Oxygen'), url(./fonts/Oxygen-Bold.ttf) format('truetype');
 }
 
-
+link:focus {
+  border:none;
+}
 * {
   font-family: Oxygen;
 }
@@ -424,6 +426,9 @@ input[type="text"], input[type="number"], select {
     margin-top: 10px;
     margin-left: 10px;
     margin-bottom: 2px;
+    padding: 5px;
+    border:none;
+    background-color: white;
   }
 
   .responsive-menu:focus {
