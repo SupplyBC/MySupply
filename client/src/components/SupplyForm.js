@@ -75,7 +75,6 @@ class QueryProductSpecs extends Component {
 class RequestMaterials extends Component {
   state = {
     materialName: "",
-    materialsVisibility: false,
     supplier: "",
     amount: 0,
     form: "",
@@ -113,6 +112,7 @@ class RequestMaterials extends Component {
             this.setState({ msg: " " });
           }, 2000);
         });
+        
       // if (request.length === 0) {
       //   this.setState({
       //     materials: materials.push(
@@ -127,7 +127,6 @@ class RequestMaterials extends Component {
         form: "",
         amount: "",
         strength: "",
-        materialsVisibility: true,
       });
       // this.setState({ requests: this.state.requests + 1 });
     } else {
@@ -143,7 +142,7 @@ class RequestMaterials extends Component {
     //  const supplierId = this.state.supplier;
     //  const matform = this.state.form;
     //  const matamount =this.state.amount;
-    this.setState({ supplier: "", materialName: "", amount: null, form: "" });
+    // this.setState({ supplier: "", materialName: "", amount: null, form: "" });
   };
 
   onChange = (e) => {
@@ -570,19 +569,19 @@ class SupplyForm extends Component {
           <div className="side-nav">
             <ul className="mini-nav-list">
               <li className="link-item">
-                <NavLink to="/supply/querySpecs">+ QUERY PRODUCT SPECS</NavLink>{" "}
+                <NavLink to="/supply/querySpecs">+ QUERY PRODUCT SPECS</NavLink>
               </li>
               <li className="link-item">
-                {" "}
+                
                 <NavLink to="/supply/requestMaterial">
-                  + REQUEST MATERIALS
+                  + REQUEST MATERIAL
                 </NavLink>
               </li>
               <label style={{ marginTop: "10px" }}>
-                <strong> SUPPLIER </strong>{" "}
+                <strong> SUPPLIER </strong>
               </label>
               <li className="link-item">
-                {" "}
+                
                 <NavLink to="/supply/supplier/createMaterial">
                   + CREATE MATERIAL
                 </NavLink>

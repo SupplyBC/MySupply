@@ -8,20 +8,20 @@ function Navbar() {
         <ul className="nav-list">
           <NavLink to="/inventory"> GO TO INVENTORY </NavLink>
           <li className="nav-item">
-            {" "}
-            <a href="/">SUPPLY</a>{" "}
+            
+            <a href="/">SUPPLY</a>
           </li>
           <li className="nav-item">
-            {" "}
-            <a href="/">TRACK</a>{" "}
+            
+            <a href="/">TRACK</a>
           </li>
           <li className="nav-item">
-            {" "}
-            <a href="/">FINANCE</a>{" "}
+            
+            <a href="/">FINANCE</a>
           </li>
           <li className="nav-item">
-            {" "}
-            <a href="/">INVENTORY</a>{" "}
+            
+            <a href="/">INVENTORY</a>
           </li>
         </ul>
       </div>

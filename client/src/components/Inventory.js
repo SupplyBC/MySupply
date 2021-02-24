@@ -49,8 +49,8 @@ class Inventory extends Component {
     return (
       <div className="inventory-container">
         <button className="btn" onClick={this.calculateStock}>
-          {" "}
-          REFRESH STOCK{" "}
+          
+          REFRESH STOCK
         </button>
         <div className="item-container-container">
           <InventoryItem item="vitamin-c extract"  />

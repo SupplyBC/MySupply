@@ -205,7 +205,7 @@ input[type="text"], input[type="number"], select {
 }
 
 .form-container select {
-  padding: 4px 12px;
+  padding: 8px 12px;
   width: 30%;
   text-align: center;
   /* font-family: "Courier New", Courier, monospace; */
@@ -259,6 +259,11 @@ input[type="text"], input[type="number"], select {
 .product-form-container .link-item a:active {
   text-decoration: none;
   color: #222;
+  
+}
+
+.product-form-container .link-item a:hover {
+  font-weight: 700;
 }
 
 .newform-container {
@@ -281,7 +286,7 @@ input[type="text"], input[type="number"], select {
 }
 
 .newform-container select {
-  padding: 4px;
+  padding: 8px;
   width: 40%;
   margin-bottom: 10px;
   /* font-family: "Courier New", Courier, monospace; */
@@ -422,6 +427,7 @@ input[type="text"], input[type="number"], select {
   }
 
   .responsive-menu {
+    cursor:pointer;
     display: block;
     margin-top: 10px;
     margin-left: 10px;
@@ -432,7 +438,7 @@ input[type="text"], input[type="number"], select {
   }
 
   .responsive-menu:focus {
-    outline: none;
+    outline-width: thin;
   }
   
 }

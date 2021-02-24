@@ -67,10 +67,7 @@ class App extends Component {
   //  };
 
   toggleMenu() {
-    if (this.state.isMenuToggled === '') {
-    } else {
     this.setState({isMenuToggled: !this.state.isMenuToggled})
-    }
   }
 
   render() {
@@ -92,23 +89,23 @@ class App extends Component {
             </button>
             <ul id = "my-nav" className={`nav-list ${toggle}`}>
               <li className="nav-item">
-                <NavLink to="/add-product">ADD PRODUCT</NavLink>{" "}
+                <NavLink to="/add-product">ADD PRODUCT</NavLink>
               </li>
               <li className="nav-item">
-                {" "}
-                <NavLink to="/supply">REQUEST MATERIAL</NavLink>{" "}
+                
+                <NavLink to="/supply">REQUEST MATERIAL</NavLink>
               </li>
               <li className="nav-item">
-                {" "}
-                <NavLink to="/track">TRACK REQUESTS</NavLink>{" "}
+                
+                <NavLink to="/track">TRACK REQUESTS</NavLink>
               </li>
               <li className="nav-item">
-                {" "}
-                <NavLink to="/inventory">VIEW INVENTORY</NavLink>{" "}
+                
+                <NavLink to="/inventory">VIEW INVENTORY</NavLink>
               </li>
               <li className="nav-item">
-                {" "}
-                <NavLink to="/financial-log">FINANCIAL LOG</NavLink>{" "}
+                
+                <NavLink to="/financial-log">FINANCIAL LOG</NavLink>
               </li>
             </ul>
           </div>

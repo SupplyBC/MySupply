@@ -7,7 +7,6 @@ class CreateProduct extends Component {
     productId: "",
     productForm: "",
     msg: " ",
-    budget: 0,
   };
 
   constructor(props) {
@@ -15,7 +14,6 @@ class CreateProduct extends Component {
     this.nameRef = React.createRef();
     this.idRef = React.createRef();
     this.formRef = React.createRef();
-    this.budgetRef = React.createRef();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -27,10 +25,10 @@ class CreateProduct extends Component {
     let name = this.state.productName;
     let id = this.state.productId;
     let form = this.state.productForm;
-    let totBudget = this.state.budget;
+    
 
     await this.props.contract.methods
-      .addProduct(name, id, form,totBudget)
+      .addProduct(name, id, form)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Product was created successfully!" });
@@ -42,10 +40,9 @@ class CreateProduct extends Component {
       productName: "",
       productId: "",
       productForm: "",
-      budget: "",
     });
     // await this.props.contract.methods.addProduct(id,name,form).send({from: this.props.accounts[0]});
-    console.log(name, id, form, totBudget);
+    console.log(name, id, form);
   };
 
   handleChange = async (e) => {
@@ -53,7 +50,6 @@ class CreateProduct extends Component {
       productName: this.nameRef.current.value,
       productId: this.idRef.current.value,
       productForm: this.formRef.current.value,
-      budget: this.budgetRef.current.value,
     });
   };
 
@@ -94,14 +90,6 @@ class CreateProduct extends Component {
           </option>
         </select>
 
-        <label>Set Budget</label>
-        <input
-          type="number"
-          ref={this.budgetRef}
-          value={this.state.budget}
-          placeholder="e.g. 5000"
-          onChange={this.handleChange}
-        />
         <div>
           <input className="btn" type="submit" value="CREATE PRODUCT" />
         </div>
@@ -328,17 +316,25 @@ class CreateCostPlan extends Component {
   state = {
     product: "",
     directMaterialStdCost: 0,
+    packagingMaterialStdCost: 0,
     laborStdCost: 0,
     manuIndirectStdCost: 0,
+    mrkStdCost: 0,
+    rsrhStdCost: 0,
     totalStdCost: 0,
+    budget: 0,
   };
 
   constructor(props) {
     super(props);
     this.proRef = React.createRef();
     this.dirMatStdRef = React.createRef();
+    this.pkgMatStdRef = React.createRef();
     this.labStdRef = React.createRef();
     this.manIndStdRef = React.createRef();
+    this.mrkStdRef = React.createRef();
+    this.rsrhStdRef = React.createRef();
+    this.budgetRef = React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
   }
@@ -350,12 +346,16 @@ class CreateCostPlan extends Component {
 
     const pro = this.state.product;
     const matStd = parseInt(this.state.directMaterialStdCost, 10);
+    const pkgMatStd = parseInt(this.staste.packagingMaterialStdCost,10)
     const labStd = parseInt(this.state.laborStdCost, 10);
     const manuIndirectStdCost = parseInt(this.state.manuIndirectStdCost, 10);
+    const totBudget = parseInt(this.state.budget,10);
+    
     const totalStandard = matStd + labStd + manuIndirectStdCost;
+    
     this.setState({ totalStdCost: totalStandard });
 
-    console.log(pro, matStd, labStd, manuIndirectStdCost, totalStandard);
+    console.log(pro, matStd, labStd, manuIndirectStdCost, totalStandard, totBudget, pkgMatStd);
     await this.props.contract.methods.setStdCostPlan(pro,matStd,labStd, manuIndirectStdCost)
     .send({from: this.props.account[0]}).once("receipt", (receipt) => {
       this.setState({ msg: "Standard Cost Plan Was Set Successfully" });
@@ -367,8 +367,12 @@ class CreateCostPlan extends Component {
     this.setState({
       product: "",
       directMaterialStdCost: "",
+      packagingMaterialStdCost: "",
       laborStdCost: "",
       manuIndirectStdCost: "",
+      mrkStdCost: "",
+      rsrhStdCost: "",
+      budget: ""
     });
 
   };
@@ -377,14 +381,18 @@ class CreateCostPlan extends Component {
     this.setState({
       product: this.proRef.current.value,
       directMaterialStdCost: this.dirMatStdRef.current.value,
+      packagingMaterialStdCost: this.pkgMatStdRef.current.value,
       laborStdCost: this.labStdRef.current.value,
       manuIndirectStdCost: this.manIndStdRef.current.value,
+      mrkStdCost: this.mrkStdRef.current.value,
+      rsrhStdCost: this.rsrhStdRef.current.value,
+      budget: this.budgetRef.current.value,
     });
   };
 
   render() {
     return (
-      <form onSubmit={this.OnSubmit} className="newform-container">
+      <form onSubmit={this.OnSubmit}  className="newform-container">
         <label>Product ID:</label>
         <input
           type="text"
@@ -396,11 +404,20 @@ class CreateCostPlan extends Component {
 
         <h4> Set Standard Costs </h4>
 
-        <label>Direct Materials: </label>
+        <label>Raw Materials: </label>
         <input
           type="number"
           ref={this.dirMatStdRef}
           value={this.state.directMaterialStdCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+        />
+
+        <label>Packaging Materials: </label>
+        <input
+          type="number"
+          ref={this.pkgMatStdRef}
+          value={this.state.packagingMatStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
         />
@@ -421,6 +438,35 @@ class CreateCostPlan extends Component {
           value={this.state.manuIndirectStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
+        />
+
+        <label>Marketing: </label>
+        <input
+          type="number"
+          ref={this.mrkStdRef}
+          value={this.state.mrkStdCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+        />
+
+        <label>Research: </label>
+        <input
+          type="number"
+          ref={this.rsrhStdRef}
+          value={this.state.rsrhStdCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+        />
+
+        <h4> Set Product Budget </h4>
+
+        <label>Product Budget:</label>
+        <input
+          type="number"
+          ref={this.budgetRef}
+          value={this.state.budget}
+          placeholder="e.g. 5000"
+          onChange={this.onChange}
         />
 
         <div className="standard-cost-total-container"></div>
@@ -456,16 +502,16 @@ class AddProduct extends Component {
               <li className="link-item">
                 <NavLink to="/add-product/createProduct">
                   + CREATE PRODUCT
-                </NavLink>{" "}
+                </NavLink>
               </li>
               <li className="link-item">
-                {" "}
+                
                 <NavLink to="/add-product/addMaterial">
                   + ADD PRODUCT SPECS
                 </NavLink>
               </li>
               <li className="link-item">
-                {" "}
+                
                 <NavLink to="/add-product/costPlan">+ CREATE COST PLAN</NavLink>
               </li>
             </ul>
