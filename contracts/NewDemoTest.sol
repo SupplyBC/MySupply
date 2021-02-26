@@ -15,24 +15,28 @@ pragma experimental ABIEncoderV2;
 contract NewDemoTest {
     
     // UTILS
+    
     function strComp(string memory x , string memory y ) public pure returns (bool){
+        
         return (keccak256(abi.encodePacked((x))) == keccak256(abi.encodePacked((y))));
+        
     }
     
     
     address admin;
     uint    requestCount = 0;
-    enum    Role                    {MANUFACTURER, SUPPLIER, DISTRIBUTOR}
+    enum    Role                    {MANUFACTURER, SUPPLIER, DISTRIBUTOR, DRUG_AUTHORITY, BANK}
     mapping (address => bool)       participants;
     mapping (address => Product[])  products;    // manufacturer and product
     mapping (string => Specs[])     productSpecs; // productID and material  
     mapping (address => Material[]) materials;   //Participant(supplier) and material
-    mapping (string => Material)    materialsById;
+    // mapping (string => Material)    materialList; // materials by name
     mapping (address => Request[])  requests;   // participant and requests
     mapping (uint => Log[])         trackLogs; //requestId and Log
     mapping (string => Cost)        standardProductCosts;
     mapping (string => Cost)        actualProductCosts;
     mapping(uint => uint)           requestCost;    // requestId and Total Cost.
+    Material[] public  materialArr;
     
     
     struct Participant {
@@ -90,8 +94,11 @@ contract NewDemoTest {
     
     struct Cost {
         uint directMaterialCost;
+        uint packagingMaterialCost;
+        uint marketingCost;
+        uint researchCost;
         uint directLaborCost;
-        uint totalIndirectCost; // total of VAT, MARKETING, ...etc
+        uint totalIndirectCost; // indirect manufacturing costs
         uint CostTOT; // direct material + direct labor + total indirect
     }
     
@@ -110,6 +117,7 @@ contract NewDemoTest {
     }
     
     // Core functions 
+    
     // Handle participants privileges
     
     function verifyParticipant(address _participant) public  {
@@ -128,17 +136,18 @@ contract NewDemoTest {
     
     
     function addProduct(
+    
     string memory _id,
     string memory _name,
-    string memory _pForm,
-    uint          _budget
+    string memory _pForm
+    
     ) public {
         
         Product memory pro = Product({
             productId: _id,
             productName: _name,
             productForm: _pForm,
-            productBudget: _budget,
+            productBudget: 0,
             manufacturer: msg.sender
         });
         
@@ -147,15 +156,18 @@ contract NewDemoTest {
     }
     
     function addProductSpecs(
+    
     string memory _productID,
     string memory _name,
     string memory _type,
     string memory _strength,
     string memory _form,
     uint          _amount
+    
     ) public {
     
         Specs memory spec = Specs({
+            
             materialName: _name,
             materialType: _type,
             materialForm: _form,
@@ -177,22 +189,43 @@ contract NewDemoTest {
     }
     
     // COST ACCOUNTING STUFF START HERE
+    
     function setStdCostPlan(
+    
     string memory _product,
     uint    _directMatCost,
+    uint    _pkgMatCost,
     uint    _directLaborCost,
-    uint    _totIndirectCosts
+    uint    _totIndirectCosts,
+    uint    _mrkCost,
+    uint    _rsrchCost,
+    uint    _productBudget
+    
         ) public {
     
     Cost memory stdCosts = Cost({
         directMaterialCost: _directMatCost,
         directLaborCost: _directLaborCost,
         totalIndirectCost: _totIndirectCosts,
-        CostTOT: _directMatCost + _directLaborCost + _totIndirectCosts
+        packagingMaterialCost: _pkgMatCost,
+        marketingCost: _mrkCost,
+        researchCost: _rsrchCost,
+        CostTOT: _directMatCost + _pkgMatCost +  _directLaborCost + _totIndirectCosts
+                 + _mrkCost  + _rsrchCost
+       
     });
     
     standardProductCosts[_product] = stdCosts;
     
+    setProductBudget(_product, _productBudget);
+    
+    }
+    
+    function setProductBudget(string memory _product, uint _budget) public {
+        if(strComp(_product, products[msg.sender][0].productId)) {
+            products[msg.sender][0].productBudget = _budget;
+        }
+       
     }
     
     
@@ -201,17 +234,27 @@ contract NewDemoTest {
     }
     
     function setActualCost(
+    
     string memory _product,
     uint _actualMatCost,
+    uint _actualPkgMatCost,
     uint _actualLaborCost,
-    uint _actualIndirectCost
+    uint _actualIndirectCost,
+    uint _actualMrkCost,
+    uint _actualRsrchCost
+    
     ) public {
         Cost memory actualCosts = Cost({
             directMaterialCost: _actualMatCost,
+            packagingMaterialCost: _actualPkgMatCost,
+            marketingCost: _actualMrkCost,
+            researchCost: _actualRsrchCost,
             directLaborCost: _actualLaborCost,
             totalIndirectCost: _actualIndirectCost,
-            CostTOT: _actualMatCost + _actualLaborCost + _actualIndirectCost
+            CostTOT: _actualMatCost + _actualPkgMatCost + _actualLaborCost + _actualIndirectCost
+                     + _actualMrkCost + _actualRsrchCost
         });
+        
         actualProductCosts[_product] = actualCosts;
     }
     
@@ -221,13 +264,16 @@ contract NewDemoTest {
 
     
     // By Supplier
+    
     function createMaterial(
+    
     string memory _id,
     string memory _name,
     string memory _str,
     string memory _form,
     uint    _amount,
     uint    _unitCost
+    
     ) public {
         
         Material memory mat = Material({
@@ -241,24 +287,48 @@ contract NewDemoTest {
         });
 
         materials[msg.sender].push(mat);
-        materialsById[_id] = mat;
+        materialArr.push(mat);
         
         
     }
     
     // TODOOOO
-    function getMaterialBySupplier(address _supplier) public view returns(Material[] memory ) {
+    
+    function getMaterialsBySupplier(address _supplier) public view returns(Material[] memory ) {
         return materials[_supplier];
     }
     
-    // function getMaterialByName(string memory _name) public view returns (Material[] memory) {
-    //     Material[] memory matTemp;
+    
+    // Material Search 
+    
+    // function getMaterialsByName(string memory _name) public view returns (Material[] memory) {
+        
+    //     uint counter = 0;
+    //     Material[] memory result = new Material[](materialArr.length);
+        
+    //     if(strComp(_name, materialList[_name].materialName)) {
+            
+    //     result[counter] = materialList[_name];
+    //     counter++;
+        
+    //     }
+        
+    //     return result;
     // }
     
     
+
+
+    function createRequest(
     
+    address _to ,
+    string memory _material ,
+    string memory _materialForm,
+    string memory _materialStr,
+    uint _amount )
     
-    function createRequest(address _to , string memory _material , string memory _materialForm, string memory _materialStr, uint _amount) public{
+    public {
+        
         requestCount += 1;
         Request memory req = Request({
            requestId: requestCount,
@@ -286,11 +356,14 @@ contract NewDemoTest {
     }
     
     
-    function createLog(uint _requestId,
+    function createLog(
+    
+    uint _requestId,
     string memory _shipStatus,
     string memory _currentTemp,
     string memory _currentHumid,
     string memory _materialStatus
+    
     ) public  {
         
         Log memory myLog = Log({
