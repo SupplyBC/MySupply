@@ -44,7 +44,6 @@ contract NewDemoTest {
         Role    particRole;
         uint    partiBalance;
     }
-    
     struct Product {
         address manufacturer;
         string  productId; //registration no.
@@ -167,7 +166,7 @@ contract NewDemoTest {
     ) public {
     
         Specs memory spec = Specs({
-            
+
             materialName: _name,
             materialType: _type,
             materialForm: _form,
