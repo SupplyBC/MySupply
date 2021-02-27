@@ -6,6 +6,7 @@ import Track from "./components/TrackForm";
 import Inventory from "./components/Inventory";
 import AddProduct from "./components/AddProduct";
 import FinancialLog from "./components/FinancialLog";
+import BankAccounts from "./components/BankAccounts";
 import NewDemoTestContract from "./contracts/NewDemoTest.json";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 import "./App.css";
@@ -41,6 +42,8 @@ class App extends Component {
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       // this.setState({ web3, accounts, contract: instance }, this.runExample);
+
+      // const balance = await instance.methods.getBalance().call();
       this.setState({ web3, accounts, balance, contract: instance });
     } catch (error) {
       // Catch any errors for any of the above operations.
@@ -101,11 +104,15 @@ class App extends Component {
               </li>
               <li className="nav-item">
                 
-                <NavLink to="/inventory">VIEW INVENTORY</NavLink>
+              {/* <NavLink to="/inventory">VIEW INVENTORY</NavLink>
+              </li>
+              <li className="nav-item"> */}
+                
+                <NavLink to="/financial-log">FINANCIAL LOG</NavLink>
               </li>
               <li className="nav-item">
                 
-                <NavLink to="/financial-log">FINANCIAL LOG</NavLink>
+                <NavLink to="/bank-account">MANAGE BANK ACCOUNTS</NavLink>
               </li>
             </ul>
           </div>
@@ -154,6 +161,14 @@ class App extends Component {
           <Route path="/financial-log" exact
           render={(props) => (
             <FinancialLog
+              {...props}
+              accounts={this.state.accounts}
+              contract={this.state.contract}
+            />
+          )}/>
+          <Route path="/bank-account" exact
+          render={(props) => (
+            <BankAccounts
               {...props}
               accounts={this.state.accounts}
               contract={this.state.contract}

@@ -346,17 +346,21 @@ class CreateCostPlan extends Component {
 
     const pro = this.state.product;
     const matStd = parseInt(this.state.directMaterialStdCost, 10);
-    const pkgMatStd = parseInt(this.staste.packagingMaterialStdCost,10)
+    const pkgMatStd = parseInt(this.state.packagingMaterialStdCost,10)
     const labStd = parseInt(this.state.laborStdCost, 10);
     const manuIndirectStdCost = parseInt(this.state.manuIndirectStdCost, 10);
     const totBudget = parseInt(this.state.budget,10);
+    const mrkStd = parseInt(this.state.mrkStdCost,10);
+    const rsrhStd = parseInt(this.state.rsrhStdCost,10);
     
-    const totalStandard = matStd + labStd + manuIndirectStdCost;
+    const totalStandard = matStd + labStd + manuIndirectStdCost
+                          + mrkStd + rsrhStd;
     
     this.setState({ totalStdCost: totalStandard });
 
     console.log(pro, matStd, labStd, manuIndirectStdCost, totalStandard, totBudget, pkgMatStd);
-    await this.props.contract.methods.setStdCostPlan(pro,matStd,labStd, manuIndirectStdCost)
+    await this.props.contract.methods.setStdCostPlan(pro,matStd, pkgMatStd,
+      labStd, manuIndirectStdCost, mrkStd , rsrhStd, totBudget)
     .send({from: this.props.account[0]}).once("receipt", (receipt) => {
       this.setState({ msg: "Standard Cost Plan Was Set Successfully" });
       setTimeout(() => {
