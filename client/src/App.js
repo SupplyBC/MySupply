@@ -27,10 +27,10 @@ class App extends Component {
 
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
-      const balance = web3.utils.fromWei(
-      await web3.eth.getBalance(accounts[0]),
-        "ether"
-      );
+      // const balance = web3.utils.fromWei(
+      // await web3.eth.getBalance(accounts[0]),
+      //   "ether"
+      // );
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = NewDemoTestContract.networks[networkId];
@@ -43,7 +43,7 @@ class App extends Component {
       // example of interacting with the contract's methods.
       // this.setState({ web3, accounts, contract: instance }, this.runExample);
 
-      // const balance = await instance.methods.getBalance(accounts[0]).call();
+      const balance = await instance.methods.getBalance(accounts[0]).call();
       this.setState({ web3, accounts, balance, contract: instance });
     } catch (error) {
       // Catch any errors for any of the above operations.
@@ -172,6 +172,7 @@ class App extends Component {
               {...props}
               accounts={this.state.accounts}
               contract={this.state.contract}
+              web3 = {this.state.web3}
             />
           )}/>
           {/* <Navbar /> */}

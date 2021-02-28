@@ -18,7 +18,7 @@ class Header extends Component {
                     </div> 
                     <div className = 'sm-font'> BALANCE:</div>
                     <div className = 'italic centered'>
-                    {this.props.balance}
+                    {this.props.balance} <em> L.E </em>
                     </div>
                 </div>
             </div>

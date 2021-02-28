@@ -179,6 +179,16 @@ input[type="text"], input[type="number"], select {
   opacity: 0.9;
 }
 
+.alert {
+  padding: 20px 15px;
+  background-color:#d9534f;
+  color: #f2f2f2;
+  text-align: center;
+  font-weight: 700;
+  width: 70%;
+  margin-left: 10%;
+  text-transform: uppercase;
+}
 /* ProductForm.js */
 .material-card {
   padding: 10px;
@@ -328,9 +338,53 @@ input[type="text"], input[type="number"], select {
   flex-direction: row;
   gap: 20px;
 }
+
+/* BankAccount.js */
+
+.account-details {
+  padding: 3px 15px;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  align-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+
+}
+
+.account-details p {
+  margin: 0;
+  padding: 0;
+}
+
+.bank {
+  width:90%;
+}
+.bank input[type="text"], .bank input[type="number"] {
+  width: 40%;
+
+} 
+
+.custom-hr-half {
+  width:50%;
+  margin-left: 0;
+}
+
+.custom-hr-full {
+  width: 100%;
+}
 /* MEDIA QUERIES */
 
 @media only screen and (max-width: 800px) {
+
+  .alert {
+    font-size: 14px;
+  }
+  .custom-hr-half {
+    width: 100%;
+  }
 
   .container {
     font-size: 0.8em;
@@ -380,6 +434,7 @@ input[type="text"], input[type="number"], select {
 
   .form-container .form-row input {
     width: 90%;
+    margin-top: 15px;
   }
 
   .product-form-container {
@@ -442,6 +497,31 @@ input[type="text"], input[type="number"], select {
     outline-width: thin;
   }
   
+  .account-details {
+    padding: 5px 15px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 14px;
+  
+  }
+  
+  .account-details p {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .bank {
+    width:90%;
+    font-size: 14px;
+  }
+  .bank input[type="text"], .bank input[type="number"] {
+    width: 70%;
+  
+  } 
+
 }
 
 
