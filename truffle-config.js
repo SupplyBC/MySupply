@@ -11,7 +11,7 @@ module.exports = {
       port: 7545
     },
 
-    mobiledevelop: {
+    mobile_develop: {
 
       host: '192.168.1.7',
       network_id: '*',
