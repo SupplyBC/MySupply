@@ -43,7 +43,7 @@ class App extends Component {
       // example of interacting with the contract's methods.
       // this.setState({ web3, accounts, contract: instance }, this.runExample);
 
-      // const balance = await instance.methods.getBalance().call();
+      // const balance = await instance.methods.getBalance(accounts[0]).call();
       this.setState({ web3, accounts, balance, contract: instance });
     } catch (error) {
       // Catch any errors for any of the above operations.

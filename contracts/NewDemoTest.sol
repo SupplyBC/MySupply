@@ -24,27 +24,41 @@ contract NewDemoTest {
     
     
     address admin;
+    address payable bank;
     uint    requestCount = 0;
-    enum    Role                    {MANUFACTURER, SUPPLIER, DISTRIBUTOR, DRUG_AUTHORITY, BANK}
-    mapping (address => bool)       participants;
-    mapping (address => Product[])  products;    // manufacturer and product
-    mapping (string => Specs[])     productSpecs; // productID and material  
-    mapping (address => Material[]) materials;   //Participant(supplier) and material
-    // mapping (string => Material)    materialList; // materials by name
-    mapping (address => Request[])  requests;   // participant and requests
-    mapping (uint => Log[])         trackLogs; //requestId and Log
-    mapping (string => Cost)        standardProductCosts;
-    mapping (string => Cost)        actualProductCosts;
-    mapping(uint => uint)           requestCost;    // requestId and Total Cost.
+    enum    Role                     {MANUFACTURER, SUPPLIER, DISTRIBUTOR, DRUG_AUTHORITY , BANK}
+    mapping (address => bool)        participants;
+    mapping (address => Product[])   products;    // manufacturer and product
+    mapping (string => Specs[])      productSpecs; // productID and material  
+    mapping (address => Material[])  materials;   //Participant(supplier) and material
+    mapping (string => Material)     materialList; // materials by name
+    mapping (address => Request[])   requests;   // participant and requests
+    mapping (uint => Log[])          trackLogs; //requestId and Log
+    mapping (string => Cost)         standardProductCosts;
+    mapping (string => Cost)         actualProductCosts;
+    mapping (uint => uint)           requestCost;    // requestId and Total Cost.
+    mapping (address => mapping (address => BankAccount) ) userBankAccounts; // bankAddr -> userAddr -> userAcc
+    
     Material[] public  materialArr;
     
     
+    struct BankAccount {
+    
+        address userId;
+        string  userName;
+        uint    userBalance;
+        bool    isActive;
+    }
+    
     struct Participant {
+        
         address particId;
         Role    particRole;
-        uint    partiBalance;
     }
+    
+
     struct Product {
+        
         address manufacturer;
         string  productId; //registration no.
         string  productName;
@@ -102,6 +116,7 @@ contract NewDemoTest {
     }
     
     
+    
     // FUNCTIONS
     
     //constructor
@@ -132,7 +147,7 @@ contract NewDemoTest {
     }
     
     
-    
+
     
     function addProduct(
     
@@ -166,7 +181,6 @@ contract NewDemoTest {
     ) public {
     
         Specs memory spec = Specs({
-
             materialName: _name,
             materialType: _type,
             materialForm: _form,
@@ -183,11 +197,12 @@ contract NewDemoTest {
     function getProductsByManu(address _manufacturer) public view returns(Product[] memory) {
         return products[_manufacturer];
     }
+    
     function getProductSpecs(string memory _product) public view returns(Specs[] memory) {
         return productSpecs[_product];
     }
-    
-    // COST ACCOUNTING STUFF START HERE
+
+    // COST ACCOUNTING STUFF GOES HERE
     
     function setStdCostPlan(
     
@@ -258,11 +273,13 @@ contract NewDemoTest {
     }
     
     function getActualCost(string memory _product) public view returns(Cost memory) {
+        
         return actualProductCosts[_product];
     }
-
     
-    // By Supplier
+    // END OF  COST ACCOUNTING STUFF
+    
+    // Creation of Material By Supplier
     
     function createMaterial(
     
@@ -286,37 +303,20 @@ contract NewDemoTest {
         });
 
         materials[msg.sender].push(mat);
+        materialList[_name] = mat;
         materialArr.push(mat);
         
         
     }
     
-    // TODOOOO
+    // TODOO : * Search Materials By Name and Type (e.g. Vitamin-a , active )
+    // * send material supplier a request.
+    // * calculate request cost and pay half the total cost in advance in case of request approval
     
     function getMaterialsBySupplier(address _supplier) public view returns(Material[] memory ) {
         return materials[_supplier];
     }
     
-    
-    // Material Search 
-    
-    // function getMaterialsByName(string memory _name) public view returns (Material[] memory) {
-        
-    //     uint counter = 0;
-    //     Material[] memory result = new Material[](materialArr.length);
-        
-    //     if(strComp(_name, materialList[_name].materialName)) {
-            
-    //     result[counter] = materialList[_name];
-    //     counter++;
-        
-    //     }
-        
-    //     return result;
-    // }
-    
-    
-
 
     function createRequest(
     
@@ -354,6 +354,162 @@ contract NewDemoTest {
         return requests[_participant];
     }
     
+        
+    // BANKING STUFF GOES HERE 
+    
+    // functions that has 'self' word are invokable by msg.sender
+    // other functions should require admin / bank control of execution
+    
+    function setAsBank(address payable _addr) public {
+        bank = _addr;
+        
+    }
+    
+    function getBank() public view returns (address) {
+        return bank;
+    }
+    
+    function createBankAccount(address _userAddr, string memory _userName) public {
+        
+        BankAccount memory account = BankAccount({
+            
+            userId:  _userAddr,
+            userName: _userName,
+            userBalance: 0,
+            isActive: true
+            
+        });
+        
+        userBankAccounts[bank][_userAddr] = account;
+        
+    }
+    
+     function selfCreateBankAccount(string memory _userName) public {
+        
+       createBankAccount(msg.sender, _userName);
+        
+    }
+    
+    function hasBankAccount(address _userAddr) public view returns (bool) {
+        if (userBankAccounts[bank][_userAddr].isActive != false) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    function deposit (address _userAddr, uint _amount) public returns (bool) {
+        
+        require (_amount > 0, 'Enter A Valid Deposit Amount!');
+        if ( userBankAccounts[bank][_userAddr].userId == _userAddr) {
+            uint balance = userBankAccounts[bank][_userAddr].userBalance;
+            balance += _amount;
+            userBankAccounts[bank][_userAddr].userBalance = balance;
+            return true;
+        }
+        else {
+            return false;
+        }
+        
+    }
+    
+    function selfDeposit (uint _amount) public returns (bool) {
+        
+       return deposit(msg.sender, _amount);
+        
+    }
+    
+    function withdraw (address _userAddr, uint _amount) public returns (bool) {
+        
+        require(userBankAccounts[bank][_userAddr].userBalance > _amount , 'Not Enough Balance!' );
+        if (userBankAccounts[bank][_userAddr].userId == _userAddr) {
+            
+            uint balance = userBankAccounts[bank][_userAddr].userBalance;
+            balance -= _amount;
+            userBankAccounts[bank][_userAddr].userBalance = balance;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    function selfWithdraw (uint _amount) public returns (bool) {
+        
+       return withdraw(msg.sender, _amount);
+    }
+    
+    function getBalance (address _userAddr) public view returns (uint x) {
+        
+         if (userBankAccounts[bank][_userAddr].userId == _userAddr) {
+             uint balance = userBankAccounts[bank][_userAddr].userBalance;
+             return balance;
+        }
+    }
+    
+    function selfGetBalance () public view returns (uint x) {
+        
+        return getBalance(msg.sender);
+    }
+    
+    function transfer (address _from, address _to , uint _amount) public returns (bool) {
+        
+         require(userBankAccounts[bank][_from].userBalance >= _amount ,
+         'Not Enough Balance to Transfer This Amount!' );
+         
+        if (userBankAccounts[bank][_from].userId == _from && userBankAccounts[bank][_to].isActive == true) {
+            
+            uint fromBalance = userBankAccounts[bank][_from].userBalance;
+            uint toBalance = userBankAccounts[bank][_to].userBalance;
+            fromBalance -= _amount;
+            toBalance += _amount;
+            userBankAccounts[bank][_from].userBalance = fromBalance;
+            userBankAccounts[bank][_to].userBalance = toBalance; 
+            return true;
+        }
+        else {
+            return false;
+        }
+        
+    }
+    
+     function selfTransfer (address _to , uint _amount) public returns (bool) {
+        
+         require(userBankAccounts[bank][msg.sender].userBalance >= _amount ,
+         'You Do Not Have Enough Balance to Transfer This Amount!' );
+         
+        if (userBankAccounts[bank][msg.sender].userId == msg.sender
+            && userBankAccounts[bank][_to].isActive == true)
+        {
+            uint fromBalance = userBankAccounts[bank][msg.sender].userBalance;
+            uint toBalance = userBankAccounts[bank][_to].userBalance;
+            fromBalance -= _amount;
+            toBalance += _amount;
+            userBankAccounts[bank][msg.sender].userBalance = fromBalance;
+            userBankAccounts[bank][_to].userBalance = toBalance; 
+            return true;
+        }
+        
+        else {
+            
+            return false;
+        }
+        
+    }
+    
+    
+    function getAccountDetails(address _account) public view returns (BankAccount memory) {
+        return userBankAccounts[bank][_account];
+    }
+    
+    function selfGetAccountDetails() public view returns (BankAccount memory) {
+        return userBankAccounts[bank][msg.sender];
+    }
+    
+    // END OF BANKING STUFF
+    
+    // TRACKING STUFF GOES HERE
     
     function createLog(
     
@@ -380,6 +536,8 @@ contract NewDemoTest {
         return trackLogs[_request];
     }
     
+    
+    // END OF TRACKING STUFF
     
     
 }

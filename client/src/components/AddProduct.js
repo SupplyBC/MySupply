@@ -421,7 +421,7 @@ class CreateCostPlan extends Component {
         <input
           type="number"
           ref={this.pkgMatStdRef}
-          value={this.state.packagingMatStdCost}
+          value={this.state.packagingMaterialStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
         />
