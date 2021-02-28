@@ -500,7 +500,6 @@ input[type="text"], input[type="number"], select {
   .account-details {
     padding: 5px 15px;
     text-align: left;
-    display: flex;
     flex-direction: column;
     flex-wrap: wrap;
     gap: 15px;
@@ -509,8 +508,7 @@ input[type="text"], input[type="number"], select {
   }
   
   .account-details p {
-    margin: 0;
-    padding: 0;
+    margin-left: 5px;
   }
   
   .bank {
