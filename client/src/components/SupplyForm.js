@@ -98,7 +98,7 @@ class QueryProductSpecs extends Component {
 
         <div style={{ marginTop: "20px" }}
         className= {`${table} product-data-container`}>
-          <div style= {{margin: '40px 0px'}} className="query-result">
+          <div style= {{margin: '10px 0px'}} className="query-result">
             {this.state.msg} </div>
           <table border="1">
             <thead>
