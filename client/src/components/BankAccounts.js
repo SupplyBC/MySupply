@@ -292,10 +292,10 @@ class ManageAccount extends Component {
     return( 
       <div style={{margin: '0', padding: '0'}} className="newform-container">
         <div className= "account-details">
-        <p> <strong>Bank ID:</strong> {this.state.bank} </p>
-            <p> <strong> Account ID:</strong>  {this.state.userAddr} </p>
-            <p> <strong> Username:</strong>  {this.state.userName} </p>
-            <p> <strong> Current Balance:</strong> {this.state.balance} <em>L.E </em> </p>
+        <p> <strong>Bank ID:</strong> <em>{this.state.bank}</em> </p>
+            <p> <strong> Account ID:</strong>  <em>{this.state.userAddr}</em> </p>
+            <p> <strong> Username:</strong>  <em>{this.state.userName}</em> </p>
+            <p> <strong> Current Balance:</strong> <em>{this.state.balance} </em> <em>L.E </em> </p>
         </div>
         <hr className ="custom-hr-full"/>
         <Deposit account={this.props.account} contract = {this.props.contract}/>

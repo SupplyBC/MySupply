@@ -18,7 +18,13 @@ class Track extends Component {
     let id = parseInt(this.state.requestID, 10);
     // await this.props.contract.methods.createLog(1, 'SHIPPED' ,'20C', '25%', 'NORMAL').send({from: this.props.account})
     let response = await this.props.contract.methods.getTrackLogs(id).call();
-    this.setState({ response });
+    console.log(response);
+    let log1 = response.map(item => {
+      return <div style={{backgroundColor: '#999', padding: '10px',borderBottom: '1px solid black'}}> {item = item + ", "} <br></br> </div>
+    })
+    let log2 = response[0]
+    console.log(log1, log2);
+    this.setState({ response, log1 });
     this.setState({
       requestID: "",
     });
@@ -57,7 +63,7 @@ class Track extends Component {
           />
         </div>
 
-        <div className="response-text">{this.state.response}</div>
+        <div className="response-text">{this.state.log1}</div>
       </form>
     );
   }

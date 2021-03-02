@@ -2,11 +2,12 @@ import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
 class QueryProductSpecs extends Component {
-  state = { proName: "" };
+  state = { proName: "" , tableVisibility: false };
 
   constructor(props) {
     super(props);
     this.productRef = React.createRef();
+    this.btnRef = React.createRef();
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
@@ -18,33 +19,63 @@ class QueryProductSpecs extends Component {
     // const material = this.state.materialName;
     // const proName = this.state.proName;
     // const supplierId = this.state.supplier;
-
+    this.btnRef.current.setAttribute("disabled", "disabled")
     const specs = await this.props.contract.methods
       .getProductSpecs(this.state.proName)
       .call();
-    if (specs.length === 0) {
+
+    const specsRow = specs.map( (spec,index) => {
+
+      let name = spec.materialName;
+      let amount = spec.materialAmount;
+      let form = spec.materialForm;
+      let type = spec.materialType;
+      return (
+        <tr key ={index}> 
+          <td> {name} </td>
+          <td> {type} </td>
+          <td>{amount} mg </td>
+          <td>{form} </td>
+        </tr>
+      );
+      
+     })
+
+     if (specs.length === 0) {
       this.setState({
-        specs: specs.push(
-          "Didn't find any specs for the given product ID, please try again!".toUpperCase()
-        ),
+        msg:
+          "Didn't find any specs for the given product ID, please try again!"
+          .toUpperCase()
       });
     }
-    this.setState({ specs });
-    this.setState({ proName: "" });
+    setTimeout(() => {
+      this.setState({ msg: " " });
+    }, 7000);
+    
+    
+    this.setState({ proName: "", specsRow });
+    this.setState({ tableVisibility: true});
+
+    this.btnRef.current.removeAttribute("disabled")
   };
 
-  onChange = (e) => {
+  onChange = async(e) => {
     this.setState({
       proName: this.productRef.current.value,
     });
+ 
   };
 
+
+
   render() {
+    let table;
     let acc = this.props.account;
     let cont = this.props.contract;
     if (!acc || !cont) {
       return <div> Loading..... </div>;
     }
+    this.state.tableVisibility ? table = 'show' : table = 'hide'
     return (
       <form onSubmit={this.onSubmit} className="newform-container">
         <label> Enter Product ID </label>
@@ -58,14 +89,31 @@ class QueryProductSpecs extends Component {
         />
 
         <input
-          style={{ cursor: "pointer" }}
+
           className="btn"
           type="submit"
           value="VIEW PRODUCT SPECS"
+          ref= {this.btnRef}
         />
 
-        <div style={{ marginTop: "20px" }} className="product-data-container">
-          {this.state.specs}
+        <div style={{ marginTop: "20px" }}
+        className= {`${table} product-data-container`}>
+          <div style= {{margin: '40px 0px'}} className="query-result">
+            {this.state.msg} </div>
+          <table border="1">
+            <thead>
+              <tr>
+                <th>NAME</th>
+                <th>TYPE </th>
+                <th>AMOUNT</th>
+                <th>FORM</th>
+              </tr>
+            </thead>
+            <tbody>
+            {this.state.specsRow}
+            </tbody>
+       
+            </table>
         </div>
       </form>
     );

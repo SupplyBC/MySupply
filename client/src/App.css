@@ -29,6 +29,10 @@
 
 }
 
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
  /* UTILS  */
 
 @font-face {
@@ -82,6 +86,10 @@ link:focus {
   font-weight: bold;
   padding: 7px 12px;
   cursor: pointer;
+}
+
+.btn:disabled{
+  cursor: not-allowed;
 }
 
 .btn-alt {
@@ -211,8 +219,12 @@ input[type="text"], input[type="number"], select {
   margin-bottom: 10px;
 }
 
-.hide {
+.navbar-container .hide {
   display: flex;
+}
+
+.hide {
+  display: none;
 }
 
 .form-container select {
@@ -375,6 +387,26 @@ input[type="text"], input[type="number"], select {
 .custom-hr-full {
   width: 100%;
 }
+
+.product-data-container table {
+  text-transform: uppercase;
+  text-align:center;
+  border-collapse: collapse;
+}
+.product-data-container table thead {
+  color: #f2f2f2;
+  background-color: #222;
+  font-weight: 700;
+}
+
+.product-data-container table th , .product-data-container table td  {
+  padding: 8px 25px;
+
+}
+ .product-data-container tbody tr:hover  {
+  background-color: rgb(221, 220, 220);
+
+}
 /* MEDIA QUERIES */
 
 @media only screen and (max-width: 800px) {
@@ -384,6 +416,10 @@ input[type="text"], input[type="number"], select {
   }
   .custom-hr-half {
     width: 100%;
+  }
+
+  .notify-text {
+    font-size: 11px;
   }
 
   .container {
@@ -402,10 +438,11 @@ input[type="text"], input[type="number"], select {
     padding-top: 0px;
   }
 
-  .hide {
+  .navbar-container .hide {
     display: none;
   }
 
+  
   .navbar-container .nav-list a:hover {
    border-bottom: none;
   }
@@ -428,7 +465,7 @@ input[type="text"], input[type="number"], select {
 
   .form-container .form-row {
     display: flex;
-    gap: 30px;
+    gap: 7px;
     flex-direction: column;
   }
 
@@ -438,8 +475,9 @@ input[type="text"], input[type="number"], select {
   }
 
   .product-form-container {
-    width: 100%;
-    grid-template-columns: 1fr;
+
+    display: flex;
+    flex-direction: column;
     margin-top: 15px;
     text-align: center;
     font-size: 14px;
@@ -519,6 +557,14 @@ input[type="text"], input[type="number"], select {
     width: 70%;
   
   } 
+
+
+  .product-data-container  {
+    font-size: 12px;
+    width: 90%;
+    overflow-x: auto;
+    
+  }
 
 }
 

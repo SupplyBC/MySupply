@@ -38,7 +38,6 @@ class App extends Component {
         NewDemoTestContract.abi,
         deployedNetwork && deployedNetwork.address
       );
-
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       // this.setState({ web3, accounts, contract: instance }, this.runExample);
