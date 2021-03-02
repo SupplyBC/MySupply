@@ -103,9 +103,9 @@ class App extends Component {
               </li>
               <li className="nav-item">
                 
-              {/* <NavLink to="/inventory">VIEW INVENTORY</NavLink>
+              <NavLink to="/inventory">VIEW INVENTORY</NavLink>
               </li>
-              <li className="nav-item"> */}
+              <li className="nav-item">
                 
                 <NavLink to="/financial-log">FINANCIAL LOG</NavLink>
               </li>
@@ -138,7 +138,7 @@ class App extends Component {
           <Route
             path="/track"
             exact
-            render={(props) => (
+            render={ (props) => (
               <Track
                 {...props}
                 account={this.state.accounts}

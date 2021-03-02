@@ -43,7 +43,7 @@ class QueryProductSpecs extends Component {
     }
     setTimeout(() => {
       this.setState({ msg: " " });
-    }, 7000);
+    }, 3000);
 
     this.setState({ proName: "", specsRow });
     this.setState({ tableVisibility: true });
