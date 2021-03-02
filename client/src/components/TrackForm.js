@@ -2,9 +2,9 @@ import React, { Component } from "react";
 
 function TrackImg(props) {
   if (props.status === "ABNORMAL") {
-    return <img src={require("../invalid-1.svg")} alt="invalid" />;
+    return <img src={require("../assets/invalid-1.svg")} alt="invalid" />;
   } else {
-    return <img src={require("../valid-3.svg")} alt="valid" />;
+    return <img src={require("../assets/valid-3.svg")} alt="valid" />;
   }
 }
 class TrackRecord extends Component {

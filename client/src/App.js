@@ -87,7 +87,7 @@ class App extends Component {
             <img
             alt = "hamburger-menu"
             width = "20px"
-            src={require("../src/hamburger-menu.svg")}/>
+            src={require("../src/assets/hamburger-menu.svg")}/>
             </button>
             <ul id = "my-nav" className={`nav-list ${toggle}`}>
               <li className="nav-item">
