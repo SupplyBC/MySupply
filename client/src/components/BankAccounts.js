@@ -65,10 +65,9 @@ class CreateAccount extends Component {
   }
 }
 class Deposit extends Component {
+  state = { msg: "", depositAmount: 0, usrAddr: "" };
 
-  state = { msg: '' , depositAmount: 0, usrAddr: ''}
-
-   constructor(props) {
+  constructor(props) {
     super(props);
     this.amountRef = React.createRef();
     this.onSubmit = this.onSubmit.bind(this);
@@ -77,7 +76,7 @@ class Deposit extends Component {
 
   onSubmit = async (e) => {
     e.preventDefault();
-    const amount = parseInt(this.state.depositAmount,10);
+    const amount = parseInt(this.state.depositAmount, 10);
 
     await this.props.contract.methods
       .selfDeposit(amount)
@@ -89,7 +88,7 @@ class Deposit extends Component {
         }, 3000);
       });
 
-    this.setState({ depositAmount: '' , usrAddr: ''});
+    this.setState({ depositAmount: "", usrAddr: "" });
   };
 
   onChange = async (e) => {
@@ -98,9 +97,8 @@ class Deposit extends Component {
     });
   };
 
-
   render() {
-    return(
+    return (
       <form onSubmit={this.onSubmit} className=" newform-container bank">
         <h4> Deposit </h4>
         <label> Enter Amount: </label>
@@ -126,10 +124,9 @@ class Deposit extends Component {
 }
 
 class Withdraw extends Component {
+  state = { msg: "", withdrawalAmount: 0, usrAddr: "" };
 
-  state = { msg: '' , withdrawalAmount: 0, usrAddr: ''}
-
-   constructor(props) {
+  constructor(props) {
     super(props);
     this.amountRef = React.createRef();
     this.onSubmit = this.onSubmit.bind(this);
@@ -138,7 +135,7 @@ class Withdraw extends Component {
 
   onSubmit = async (e) => {
     e.preventDefault();
-    const amount = parseInt(this.state.withdrawalAmount,10);
+    const amount = parseInt(this.state.withdrawalAmount, 10);
     await this.props.contract.methods
       .selfWithdraw(amount)
       .send({ from: this.props.account[0] })
@@ -149,7 +146,7 @@ class Withdraw extends Component {
         }, 3000);
       });
 
-    this.setState({ withdrawalAmount: '' , usrAddr: ''});
+    this.setState({ withdrawalAmount: "", usrAddr: "" });
   };
 
   onChange = async (e) => {
@@ -159,7 +156,7 @@ class Withdraw extends Component {
   };
 
   render() {
-    return(
+    return (
       <form onSubmit={this.onSubmit} className=" newform-container bank">
         <h4> Withdraw </h4>
         <label> Enter Amount: </label>
@@ -185,10 +182,9 @@ class Withdraw extends Component {
 }
 
 class Transfer extends Component {
+  state = { msg: "", transferAmount: 0, fromAddr: "", toAddr: "" };
 
-  state = { msg: '' , transferAmount: 0, fromAddr: '' , toAddr: '' }
-
-   constructor(props) {
+  constructor(props) {
     super(props);
     this.amountRef = React.createRef();
     this.toRef = React.createRef();
@@ -199,9 +195,9 @@ class Transfer extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const to = this.state.toAddr;
-    const amount = parseInt(this.state.transferAmount,10);
+    const amount = parseInt(this.state.transferAmount, 10);
     await this.props.contract.methods
-      .selfTransfer(to,amount)
+      .selfTransfer(to, amount)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Transfer was completed successfully!" });
@@ -210,20 +206,19 @@ class Transfer extends Component {
         }, 3000);
       });
 
-    this.setState({ transferAmount: '' , fromAddr: '', toAddr :'' });
+    this.setState({ transferAmount: "", fromAddr: "", toAddr: "" });
   };
 
   onChange = async (e) => {
     this.setState({
       transferAmount: this.amountRef.current.value,
-      toAddr: this.toRef.current.value
+      toAddr: this.toRef.current.value,
     });
   };
 
   render() {
-    return(
-      <form onSubmit={this.onSubmit}
-      className=" newform-container bank">
+    return (
+      <form onSubmit={this.onSubmit} className=" newform-container bank">
         <h4> Transfer </h4>
         <label> Enter Amount: </label>
         <input
@@ -233,7 +228,7 @@ class Transfer extends Component {
           placeholder="e.g. 125000"
           value={this.state.transferAmount}
         />
-         <label> Transfer to: </label>
+        <label> Transfer to: </label>
         <input
           onChange={this.onChange}
           ref={this.toRef}
@@ -255,23 +250,22 @@ class Transfer extends Component {
   }
 }
 
-
 class ManageAccount extends Component {
-  state = { msg: "", userAddr: "", userName: "", bankAddr: '0x00', balance: 0};
+  state = { msg: "", userAddr: "", userName: "", bankAddr: "0x00", balance: 0 };
 
-
-  componentDidMount= async () => {
+  componentDidMount = async () => {
     const bank = await this.props.contract.methods.getBank().call();
-    const balance = await this.props.contract.methods.getBalance(this.props.account[0]).call();
-    const userInfo = await this.props.contract.methods.getAccountDetails(this.props.account[0]).call();
-    console.log(userInfo);
+    const balance = await this.props.contract.methods
+      .getBalance(this.props.account[0])
+      .call();
+    const userInfo = await this.props.contract.methods
+      .getAccountDetails(this.props.account[0])
+      .call();
     const addr = userInfo.userId;
     const name = userInfo.userName;
-    const accState =  userInfo.isActive;
-    console.log(addr);
-    this.setState({bank, balance , userAddr: addr , userName: name , accState});
-   
-  } 
+    const accState = userInfo.isActive;
+    this.setState({ bank, balance, userAddr: addr, userName: name, accState });
+  };
   // constructor(props) {
   //   super(props);
   //   this.accAddrRef = React.createRef();
@@ -287,25 +281,46 @@ class ManageAccount extends Component {
       return <div> Loading..... </div>;
     }
     if (!this.state.accState) {
-      return <div className='alert'> You don't have a bank account to manage! Please create an account and try again!</div>
-    }
-    return( 
-      <div style={{margin: '0', padding: '0'}} className="newform-container">
-        <div className= "account-details">
-        <p> <strong>Bank ID:</strong> <em>{this.state.bank}</em> </p>
-            <p> <strong> Account ID:</strong>  <em>{this.state.userAddr}</em> </p>
-            <p> <strong> Username:</strong>  <em>{this.state.userName}</em> </p>
-            <p> <strong> Current Balance:</strong> <em>{this.state.balance} </em> <em>L.E </em> </p>
+      return (
+        <div className="alert">
+          {" "}
+          You don't have a bank account to manage! Please create an account and
+          try again!
         </div>
-        <hr className ="custom-hr-full"/>
-        <Deposit account={this.props.account} contract = {this.props.contract}/>
-        <hr className ="custom-hr-half" />
-        <Withdraw account={this.props.account} contract = {this.props.contract}/>
-        <hr className ="custom-hr-half" />
-        <Transfer account={this.props.account} contract = {this.props.contract}
-          web3 = {this.props.web3} />
+      );
+    }
+    return (
+      <div style={{ margin: "0", padding: "0" }} className="newform-container">
+        <div className="account-details">
+          <p>
+            {" "}
+            <strong>Bank ID:</strong> <em>{this.state.bank}</em>{" "}
+          </p>
+          <p>
+            {" "}
+            <strong> Account ID:</strong> <em>{this.state.userAddr}</em>{" "}
+          </p>
+          <p>
+            {" "}
+            <strong> Username:</strong> <em>{this.state.userName}</em>{" "}
+          </p>
+          <p>
+            {" "}
+            <strong> Current Balance:</strong> <em>{this.state.balance} </em>{" "}
+            <em>L.E </em>{" "}
+          </p>
+        </div>
+        <hr className="custom-hr-full" />
+        <Deposit account={this.props.account} contract={this.props.contract} />
+        <hr className="custom-hr-half" />
+        <Withdraw account={this.props.account} contract={this.props.contract} />
+        <hr className="custom-hr-half" />
+        <Transfer
+          account={this.props.account}
+          contract={this.props.contract}
+          web3={this.props.web3}
+        />
       </div>
-     
     );
   }
 }
@@ -356,7 +371,7 @@ class BankAccounts extends Component {
                   {...props}
                   account={this.props.accounts}
                   contract={this.props.contract}
-                  web3= {this.props.web3}
+                  web3={this.props.web3}
                 />
               )}
             />
