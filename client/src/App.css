@@ -210,6 +210,13 @@ input[type="text"], input[type="number"], select {
   text-transform: uppercase;
 }
 
+/* SupplyForm.js */ 
+
+.notify-data-container {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
 
 /* ProductForm.js */
 .material-card {

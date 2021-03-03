@@ -137,23 +137,31 @@ class RequestMaterials extends Component {
     const matform = this.state.form;
     const matamount = this.state.amount;
     const matstr = this.state.strength;
-    console.log(supplierId, material, matform, matstr, matamount);
     if (this.props.Web3.utils.isAddress(this.state.supplier)) {
       await this.props.contract.methods
         .createRequest(
           supplierId,
-          this.state.materialName,
+          material,
           matform,
           matstr,
           matamount
         )
         .send({ from: this.props.account[0] })
         .once("receipt", (receipt) => {
-          this.setState({ msg: "Request was sent successfully!" });
+          this.setState({ msg: "Request was sent successfully!"});
           setTimeout(() => {
             this.setState({ msg: " " });
           }, 2000);
         });
+
+        const request = await this.props.contract.methods.getMyRequests().call();
+        const requestNo = request[request.length -1].requestId;
+
+        this.setState({ requestInfo: "Your Request ID: " + requestNo});
+          setTimeout(() => {
+            this.setState({ requestInfo: " " });
+          }, 9000);
+
 
       // if (request.length === 0) {
       //   this.setState({
@@ -162,6 +170,8 @@ class RequestMaterials extends Component {
       //     ),
       //   });
       // }
+
+    
       this.setState({
         matName: "",
         proName: "",
@@ -332,7 +342,8 @@ class RequestMaterials extends Component {
           style={{ marginTop: "20px" }}
           className="notify-data-container notify-text"
         >
-          {this.state.msg}
+          <div><strong>{this.state.msg}</strong> </div>
+          <div style={{color: '#222', fontSize: '16px' }}><strong>{this.state.requestInfo}</strong></div>
         </div>
       </form>
     );
