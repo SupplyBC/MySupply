@@ -260,6 +260,7 @@ input[type="text"], input[type="number"], select {
 }
 
 /* TrackForm.js */
+
 .form-row input[type="text"] {
   padding: 7px 12px;
   width: 30%;
@@ -324,6 +325,7 @@ input[type="text"], input[type="number"], select {
  }
 
 /* AddProduct.js */
+
 .product-form-container {
   margin: 30px 0px 30px 0px;
   width: 100%;
@@ -413,11 +415,48 @@ input[type="text"], input[type="number"], select {
 }
 
 .costsClashContainer {
-  margin-top: 40px;
   padding: 10px 15px;
   display: flex;
   flex-direction: row;
-  gap: 20px;
+  gap: 80px;
+}
+
+.costsClashContainer table {
+  text-transform: uppercase;
+  text-align:left;
+  border-collapse: collapse;
+  
+}
+.costsClashContainer  table thead {
+  font-weight: 700;
+  border-bottom: 1px solid #999;
+}
+
+.costsClashContainer table th , .costsClashContainer  table td  {
+  padding: 8px 25px;
+
+}
+.costsClashContainer  tbody tr:hover  {
+  background-color: #222;
+  color: #f2f2f2
+
+}
+
+.costsClashContainer  tfoot  {
+ border-top: 1px solid #999;
+
+}
+
+.form-container .product-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  align-items: flex-start;
+}
+
+
+.form-container .hide {
+  display: none;
 }
 
 /* BankAccount.js */
@@ -659,6 +698,15 @@ input[type="text"], input[type="number"], select {
     margin-left: 10px;
     text-align: center;
   }
+
+  .costsClashContainer {
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-size: 14px;
+  }
+  
 
 
   
