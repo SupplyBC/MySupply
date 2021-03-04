@@ -70,6 +70,7 @@ class FinancialLog extends Component {
               value={this.state.id}
               onChange={this.onChange}
               ref={this.productIdRef}
+              required = "required"
             />
 
             <input

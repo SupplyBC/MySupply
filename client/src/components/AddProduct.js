@@ -404,6 +404,7 @@ class CreateCostPlan extends Component {
           value={this.state.product}
           placeholder="e.g. pro101"
           onChange={this.OnChange}
+          required = "required"
         />
 
         <h4> Set Standard Costs </h4>
@@ -415,6 +416,7 @@ class CreateCostPlan extends Component {
           value={this.state.directMaterialStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
+          required = "required"
         />
 
         <label>Packaging Materials: </label>
@@ -424,6 +426,7 @@ class CreateCostPlan extends Component {
           value={this.state.packagingMaterialStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
+          required = "required"
         />
 
         <label>Direct Labor: </label>
@@ -433,6 +436,7 @@ class CreateCostPlan extends Component {
           value={this.state.laborStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
+          required = "required"
         />
 
         <label>Manufacturing Overhead (Indirect Costs): </label>
@@ -442,6 +446,7 @@ class CreateCostPlan extends Component {
           value={this.state.manuIndirectStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
+          required = "required"
         />
 
         <label>Marketing: </label>
@@ -451,6 +456,7 @@ class CreateCostPlan extends Component {
           value={this.state.mrkStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
+          required = "required"
         />
 
         <label>Research: </label>
@@ -460,6 +466,7 @@ class CreateCostPlan extends Component {
           value={this.state.rsrhStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
+          required = "required"
         />
 
         <h4> Set Product Budget </h4>
@@ -473,7 +480,7 @@ class CreateCostPlan extends Component {
           onChange={this.onChange}
         />
 
-        <div className="standard-cost-total-container"></div>
+        {/* <div className="standard-cost-total-container"></div> */}
 
         <input
           type="submit"

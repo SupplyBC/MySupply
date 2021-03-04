@@ -50,6 +50,7 @@ class CreateAccount extends Component {
           type="text"
           placeholder="e.g. MY COMPANY PHARMACEUTICAL INDUSTRIES"
           value={this.state.accName}
+          required = "required"
         />
         <div>
           <input className="btn" type="submit" value="CREATE ACCOUNT" />
@@ -108,6 +109,7 @@ class Deposit extends Component {
           type="number"
           placeholder="e.g. 125000"
           value={this.state.depositAmount}
+          required = "required"
         />
         <div>
           <input className="btn" type="submit" value="DEPOSIT" />
@@ -166,6 +168,7 @@ class Withdraw extends Component {
           type="number"
           placeholder="e.g. 125000"
           value={this.state.withdrawalAmount}
+          required = "required"
         />
         <div>
           <input className="btn" type="submit" value="WITHDRAW" />
@@ -227,6 +230,7 @@ class Transfer extends Component {
           type="number"
           placeholder="e.g. 125000"
           value={this.state.transferAmount}
+          required = "required"
         />
         <label> Transfer to: </label>
         <input
@@ -235,6 +239,7 @@ class Transfer extends Component {
           type="text"
           placeholder="e.g. 0x9F04c9437De819788e7f35D25ed236A6EfA1653B"
           value={this.state.toAddr}
+          required = "required"
         />
         <div>
           <input className="btn" type="submit" value="TRANSFER" />

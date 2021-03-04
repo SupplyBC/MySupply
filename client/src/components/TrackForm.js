@@ -47,7 +47,7 @@ class TrackRecord extends Component {
 }
 
 class Track extends Component {
-  state = { logs: [] };
+  state = { logs: [], wholeActive:false, isTab1Active: false , isTab2Active: false };
 
   componentDidMount = async () => {};
 
@@ -58,8 +58,21 @@ class Track extends Component {
     this.requestIdRef = React.createRef();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.toggleSection1 = this.toggleSection1.bind(this);
+    this.toggleSection2 = this.toggleSection2.bind(this);
   }
 
+  toggleSection1= async(e) => {
+    e.preventDefault();
+    this.setState({isTab1Active: !this.state.isTab1Active ,
+     active: !this.state.active})
+    
+  }
+  toggleSection2= async(e) => {
+    e.preventDefault();
+    this.setState({isTab2Active: !this.state.isTab2Active,
+       active: !this.state.active})
+  }
   handleSubmit = async (e) => {
     e.preventDefault();
     let id = parseInt(this.state.requestID, 10);
@@ -99,7 +112,10 @@ class Track extends Component {
     this.setState({ response, log });
     this.setState({
       requestID: " ",
+      isTab1Active: true,
+      wholeActive:true
     });
+    
   };
 
   handleChange = async (e) => {
@@ -109,12 +125,16 @@ class Track extends Component {
   };
 
   render() {
+    let view1, view2, wholeView , activated;
     let acc = this.props.account;
     let cont = this.props.contract;
 
     if (!acc || !cont) {
       return <div> Loading..... </div>;
     }
+    this.state.wholeActive ? wholeView ="show" : wholeView ="hide"
+    this.state.isTab1Active ? view1 ="show": view1 ="hide" 
+    this.state.isTab2Active ? view2 ="show" : view2 ="hide" 
     return (
       <form onSubmit={this.handleSubmit} className="form-container">
         <div className="form-row">
@@ -126,7 +146,9 @@ class Track extends Component {
             value={this.state.requestID}
             ref={this.requestIdRef}
             onChange={this.handleChange}
+            required = "required"
           />
+
           <input
             style={{ cursor: "pointer" }}
             type="submit"
@@ -138,7 +160,22 @@ class Track extends Component {
         <div style={{ margin: "10px 0px" }} className="query-result">
           {this.state.msg}
         </div>
-        <div className="response-logs">{this.state.log} </div>
+        <div className={` ${wholeView} accordion-tabs`}>
+        <a href="/track" onClick={this.toggleSection1}
+         className=  {`${activated}  accordion-toggle one `} >
+          + TRACKING SUMMARY  </a>
+          <div className={`${view1} response-logs tab`}>
+            {this.state.log} 
+          </div>
+          <a href="/track" onClick={this.toggleSection2}
+            className=  {`${this.state.active}  accordion-toggle two `} >
+          + TEMPRATURE HISTORY </a>
+          <div className={` ${view2} response-logs tab`}>
+          
+            1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+          </div>
+        </div>
+        
       </form>
     );
   }

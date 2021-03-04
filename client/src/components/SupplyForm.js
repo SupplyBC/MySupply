@@ -75,6 +75,7 @@ class QueryProductSpecs extends Component {
           placeholder="e.g. pro101"
           value={this.state.proName}
           onChange={this.onChange}
+          required = "required"
         />
 
         <input
@@ -226,6 +227,7 @@ class RequestMaterials extends Component {
           autoComplete="off"
           value={this.state.supplier}
           onChange={this.onChange}
+          required = "required"
         />
 
         {/* <button
@@ -329,6 +331,7 @@ class RequestMaterials extends Component {
           placeholder="e.g. 1000 KGs"
           autoComplete="off"
           onChange={this.onChange}
+          required = "required"
         />
 
         <input
@@ -420,6 +423,8 @@ class CreateMaterial extends Component {
           onChange={this.onChange}
           ref={this.idRef}
           placeholder="e.g. mat101"
+          required = "required"
+          
         />
         <label>Material Name:</label>
         <select name="material-name" onChange={this.OnChange} ref={this.matRef}>
@@ -508,6 +513,7 @@ class CreateMaterial extends Component {
           ref={this.amountRef}
           type="number"
           placeholder="e.g. 1000"
+          required = "required"
         />
 
         <label> Material Unit Cost: </label>
@@ -517,6 +523,7 @@ class CreateMaterial extends Component {
           ref={this.unitCostRef}
           type="number"
           placeholder="e.g. 10"
+          required = "required"
         />
 
         <input type="submit" value="CREATE MATERIAL" className="btn" />

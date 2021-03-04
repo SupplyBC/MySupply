@@ -18,6 +18,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.toggleMenu = this.toggleMenu.bind(this);
+    this.collapseMenu = this.collapseMenu.bind(this);
   }
 
   componentDidMount = async () => {
@@ -51,22 +52,13 @@ class App extends Component {
     }
   };
 
-  //  runExample = async () => {
-  //  const {contract, accounts } = this.state;
-
-  //   // Stores a given value, 5 by default.
-  //   // await contract.methods.set(5).send({ from: accounts[0] });
-  //   const supplier =  await contract.methods.getSupplier('0xf333028b8Fc7a030F1186Db50BceF0C0607c2CF2').call();
-  // await contract.methods.createLog(1, 'SHIPPED' ,'20C', '25%', 'NORMAL').send({from: accounts[0]})
-  // const response = await contract.methods.getTrackLogs(1).call()
-
-  //   // Get the value from the contract to prove it worked.
-  //   // const response = await contract.methods.get().call();
-
-  //   // Update state with the result.
-  //   this.setState({ supplier });
-  // this.setState({response});
-  //  };
+  collapseMenu() {
+    
+    setTimeout(() => {
+      this.setState({isMenuToggled: false});
+    }, 200);
+    
+  }
 
   toggleMenu() {
     this.setState({isMenuToggled: !this.state.isMenuToggled})
@@ -91,27 +83,27 @@ class App extends Component {
             </button>
             <ul id = "my-nav" className={`nav-list ${toggle}`}>
               <li className="nav-item">
-                <NavLink to="/add-product">ADD PRODUCT</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/add-product">ADD PRODUCT</NavLink>
               </li>
               <li className="nav-item">
                 
-                <NavLink to="/supply">REQUEST MATERIAL</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/supply">REQUEST MATERIAL</NavLink>
               </li>
               <li className="nav-item">
                 
-                <NavLink to="/track">TRACK REQUESTS</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/track">TRACK REQUESTS</NavLink>
               </li>
               <li className="nav-item">
                 
-              <NavLink to="/inventory">VIEW INVENTORY</NavLink>
+              <NavLink onClick={this.collapseMenu} to="/inventory">VIEW INVENTORY</NavLink>
               </li>
               <li className="nav-item">
                 
-                <NavLink to="/financial-log">FINANCIAL LOG</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/financial-log">FINANCIAL LOG</NavLink>
               </li>
               <li className="nav-item">
                 
-                <NavLink to="/bank-account">MANAGE BANK ACCOUNTS</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/bank-account">MANAGE BANK ACCOUNTS</NavLink>
               </li>
             </ul>
           </div>
