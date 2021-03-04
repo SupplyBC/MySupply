@@ -60,6 +60,10 @@ link:focus {
   font-family: Oxygen;
 }
 
+input, select {
+  font-size: 14px;
+}
+
  .notify-text {
    text-transform: uppercase;
    color:  #5cb85c;
