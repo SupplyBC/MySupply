@@ -579,7 +579,7 @@ input[type="text"], input[type="number"], select {
     background-color: rgba(0, 0, 0, 0.938);
     overflow-x: hidden;
     z-index: 1;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
     position: fixed;
     top: 0;
     left: 0;
@@ -593,6 +593,7 @@ input[type="text"], input[type="number"], select {
   .navbar-container .hide {
     width: 0%;
     opacity: 0;
+    visibility: hidden;
   }
 
   
