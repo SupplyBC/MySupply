@@ -65,9 +65,11 @@ class App extends Component {
   }
 
   render() {
-    // if (!this.state.web3) {
-    //   return <div>Loading Web3, accounts, and contract...</div>;
-    // }
+    if (!this.state.web3) {
+      return <div style={{textAlign:'center' , margin: '50px auto', padding: '10px'}}>
+        <img src={require("./assets/spinner.gif")}  alt='loading'/>
+        </div>;
+    }
     let toggle
     this.state.isMenuToggled ?  toggle = '' : toggle = 'hide'
     return (
