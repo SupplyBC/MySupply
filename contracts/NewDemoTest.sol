@@ -7,12 +7,16 @@
     4- Track requests status. (manufacturer)
 */
 
+// contract address: 0x0F8B51E0474D48CD31610c883Af89cb0e4E99CBc 
+// productId: plus01, test01
 
 // "SPDX-License-Identifier: UNLICENSED"
 pragma solidity >=0.6.2;
 pragma experimental ABIEncoderV2;  
 
 contract NewDemoTest {
+
+// CONTRACT CONTENT GOES HERE
     
     // UTILS
     
@@ -23,23 +27,35 @@ contract NewDemoTest {
     }
     
     
-    address admin;
-    address payable bank;
-    uint    requestCount = 0;
-    enum    Role                     {MANUFACTURER, SUPPLIER, DISTRIBUTOR, DRUG_AUTHORITY , BANK}
+    address     admin;
+    address     payable bank = 0xB1D4d13a22F21ECD91d728D9cfD12C4Dadef2Bb0;
+    uint        trackNoCount = 115912;
+    uint        tempThreshold = 40;
+    uint        humidityThreshold = 50;
+    Material[]  materialArr;
+    Product[]   productArr;
+    uint[]      tempArr;
+    uint[]      humidArr;
+    enum        Role                 {MANUFACTURER, SUPPLIER, DISTRIBUTOR, DRUG_AUTHORITY , BANK}
     mapping (address => bool)        participants;
     mapping (address => Product[])   products;    // manufacturer and product
-    mapping (string => Specs[])      productSpecs; // productID and material  
+    mapping (string => Specs[])      productSpecs; // productID and material 
+    mapping (string => Product)      productList; // product by id
     mapping (address => Material[])  materials;   //Participant(supplier) and material
-    mapping (string => Material)     materialList; // materials by name
+    mapping (string => Material)     materialList; // materials by id
     mapping (address => Request[])   requests;   // participant and requests
+    mapping (uint => Request)        requestList; // requests by id
     mapping (uint => Log[])          trackLogs; //requestId and Log
+    mapping (uint => uint[])         tempDataLogs; // requestId and temp data
+    mapping (uint => uint[])         humidDataLogs; // requestId and humid data
     mapping (string => Cost)         standardProductCosts;
     mapping (string => Cost)         actualProductCosts;
     mapping (uint => uint)           requestCost;    // requestId and Total Cost.
     mapping (address => mapping (address => BankAccount) ) userBankAccounts; // bankAddr -> userAddr -> userAcc
-    
-    Material[] public  materialArr;
+    event   DataSent (string DataCategory , uint dataValue , uint timestamp  );
+    event   ShipmentStateUpdate (uint requestNo, string state, uint timestamp);
+    event   requestStateUpdate (address who, uint timestamp , string state);
+  
     
     
     struct BankAccount {
@@ -71,7 +87,7 @@ contract NewDemoTest {
         address supplier;
         string  materialID;
         string  materialName;
-        string  materialStrength;
+        uint  materialStrength;
         string  materialForm;
         uint    createdAmount;
         uint    unitCost;
@@ -90,18 +106,18 @@ contract NewDemoTest {
         uint    requestId;
         address fromParti;
         address toParti;
-        string  materialName;
-        string  materialForm;
-        string  materialStrength;
+        string  materialID;
         uint    amount;
         uint    issueTime;
     }
     
        struct Log {
-        string  shipStatus;
-        string  currentTemp;
-        string  currentHumidity;
-        string  materialStatus;
+        address logger;
+        string  requestStatus;
+        // uint    currentTemp;
+        // uint    currentHumidity;
+        string  description;
+        string  shipmentStatus;
         uint    logTime;
     }
     
@@ -112,6 +128,7 @@ contract NewDemoTest {
         uint researchCost;
         uint directLaborCost;
         uint totalIndirectCost; // indirect manufacturing costs
+        uint totalDirectCost;
         uint CostTOT; // direct material + direct labor + total indirect
     }
     
@@ -125,10 +142,11 @@ contract NewDemoTest {
         
     // }
     
-    modifier onlyAdmin {
-        require(msg.sender == admin);
-        _;
-    }
+    // modifier onlyAdmin {
+    //     require(msg.sender == admin);
+    //     _;
+    // }
+
     
     // Core functions 
     
@@ -147,6 +165,7 @@ contract NewDemoTest {
     }
     
     
+    // MANUFACTURING STUFF GOES HERE
 
     
     function addProduct(
@@ -166,6 +185,8 @@ contract NewDemoTest {
         });
         
         products[msg.sender].push(pro);
+        productList[_id] = pro;
+        productArr.push(pro);
         
     }
     
@@ -198,9 +219,19 @@ contract NewDemoTest {
         return products[_manufacturer];
     }
     
+    function getProducts() public view returns(Product[] memory) {
+        return productArr;
+    }
+    
+    function getProductById(string memory _id) public view returns(Product memory) {
+        return productList[_id];
+    }
     function getProductSpecs(string memory _product) public view returns(Specs[] memory) {
         return productSpecs[_product];
     }
+    
+    
+    // END OF MANUFACTURING STUFF
 
     // COST ACCOUNTING STUFF GOES HERE
     
@@ -221,11 +252,11 @@ contract NewDemoTest {
         directMaterialCost: _directMatCost,
         directLaborCost: _directLaborCost,
         totalIndirectCost: _totIndirectCosts,
+        totalDirectCost: _directMatCost + _pkgMatCost +  _directLaborCost,
         packagingMaterialCost: _pkgMatCost,
         marketingCost: _mrkCost,
         researchCost: _rsrchCost,
-        CostTOT: _directMatCost + _pkgMatCost +  _directLaborCost + _totIndirectCosts
-                 + _mrkCost  + _rsrchCost
+        CostTOT: _directMatCost + _pkgMatCost +  _directLaborCost + _totIndirectCosts + _mrkCost  + _rsrchCost
        
     });
     
@@ -261,6 +292,7 @@ contract NewDemoTest {
         Cost memory actualCosts = Cost({
             directMaterialCost: _actualMatCost,
             packagingMaterialCost: _actualPkgMatCost,
+            totalDirectCost: _actualMatCost + _actualPkgMatCost + _actualLaborCost,
             marketingCost: _actualMrkCost,
             researchCost: _actualRsrchCost,
             directLaborCost: _actualLaborCost,
@@ -279,16 +311,18 @@ contract NewDemoTest {
     
     // END OF  COST ACCOUNTING STUFF
     
+    // SUPPLYING STUFF GOES HERE
+    
     // Creation of Material By Supplier
     
     function createMaterial(
     
     string memory _id,
     string memory _name,
-    string memory _str,
+    uint          _str,
     string memory _form,
-    uint    _amount,
-    uint    _unitCost
+    uint          _amount,
+    uint          _unitCost
     
     ) public {
         
@@ -303,7 +337,7 @@ contract NewDemoTest {
         });
 
         materials[msg.sender].push(mat);
-        materialList[_name] = mat;
+        materialList[_id] = mat;
         materialArr.push(mat);
         
         
@@ -317,43 +351,64 @@ contract NewDemoTest {
         return materials[_supplier];
     }
     
+    
+    // Materials to filter through
+    
+    function getMaterials() public view returns(Material[] memory) {
+        return materialArr;
+    }
+    
+    function getMaterialById (string memory _materialId) public view returns(Material memory) {
+        return materialList[_materialId];
+    }
+    
 
     function createRequest(
     
     address _to ,
-    string memory _material ,
-    string memory _materialForm,
-    string memory _materialStr,
+    string memory _materialId,
     uint _amount )
     
     public {
-        
-        requestCount += 1;
+        trackNoCount += 325;
         Request memory req = Request({
-           requestId: requestCount,
+           requestId: trackNoCount,
            fromParti: msg.sender,
            toParti: _to,
-           materialName: _material,
-           materialForm: _materialForm,
-           materialStrength: _materialStr, 
+           materialID : _materialId,
            amount: _amount,
            issueTime: block.timestamp
         });
         
+        requestCost[req.requestId] = req.amount * materialList[_materialId].unitCost; 
         requests[msg.sender].push(req);
+        requestList[req.requestId] = req;
+        emit requestStateUpdate(msg.sender, block.timestamp , 'REQUEST CREATED');
     }
     
+    function getRequestCost(uint _id) public view returns(uint) {
+        return requestCost[_id];
+    }
     
     function getMyRequests() public view returns (Request[] memory) {
         
         return requests[msg.sender];
     }
     
+     
+     // return received requests (filtering: to address) for the portal control
+     
+    //  function getMyReceivedRequests() public view returns (Request[] memory) {
+        
+    //     return requests[msg.sender];
+    // }
+    
     function getRequestByAddress(address _participant) public  view returns(Request[] memory) {
         
         return requests[_participant];
     }
     
+    // END OF SUPPLING STUFF
         
     // BANKING STUFF GOES HERE 
     
@@ -511,25 +566,123 @@ contract NewDemoTest {
     
     // TRACKING STUFF GOES HERE
     
-    function createLog(
     
+    // TRACKING STEPS:
+    // 1- REQUEST IS CREATED
+    // 2- SUPPLIER APPROVE REQUEST
+    // 3- SUPPLIER CREATE AND SEND SHIPMENT FOR GLOBAL TRANSMISSION
+    // 4- GLOBAL TRANSMISSION SHIPS PACKAGE FOR LOCAL TRANSMISSION
+    // 5- LOCAL TRANSMISSION SHIPS PACKAGE TO FINAL DESTINATION (MANUFACTURER)
+    
+    //supplier
+    
+    function approveRequest(uint _requestId) public {
+        createLog(_requestId, 'REQUEST APPROVED', 'NORMAL' , 'REQUEST IS BEING PROCESSED' );
+        emit requestStateUpdate(msg.sender, block.timestamp , 'REQUEST APPROVED');
+        uint payment = requestCost[_requestId]/2;
+        transfer(requestList[_requestId].fromParti, msg.sender, payment);
+    }
+    
+ 
+    
+    function verifyShipmentState(uint _id) public returns (string memory) {
+        
+        string memory status;
+        
+        if(tempArr[tempArr.length-1] >= tempThreshold || humidArr[humidArr.length-1] >= humidityThreshold) {
+            
+            status = 'ABNORMAL';
+             emit ShipmentStateUpdate (_id, status , block.timestamp);
+            
+        } else {
+            
+            status = 'NORMAL';
+             emit ShipmentStateUpdate (_id, status , block.timestamp);
+        }
+          return status;
+    }
+    
+ 
+    // supplier 
+    function sendShipment(uint _requestId) public {
+        string memory result = verifyShipmentState(_requestId);
+        
+        createLog(_requestId, 'PACKAGE CREATED',  result , 'SHIPMENT IS READY TO LEAVE' );
+        emit requestStateUpdate(msg.sender, block.timestamp , 'PACKAGE CREATED');
+        
+        createLog (_requestId, 'OUT FOR SHIPPING', result , 'SHIPMENT IS ON ITS WAY');
+        emit requestStateUpdate(msg.sender, block.timestamp , 'PACKAGE IS OUT FOR SHIPPING');
+    }
+    
+    // global distributor
+    function globalTransitShipment(uint _requestId) public {
+        
+        string memory result = verifyShipmentState(_requestId);
+        
+        createLog (_requestId, 'SHIPPING PACKAGE', result , 'SHIPMENT IS CURRENTLY IN TRANSIT');
+        emit requestStateUpdate(msg.sender, block.timestamp , 'IN TRANSIT');
+        
+    }
+    
+    //local distributor
+    function localTransitShipment(uint _requestId) public {
+        
+         string memory result = verifyShipmentState(_requestId);
+         
+        createLog (_requestId, 'READY FOR DELIVERY', result , 'SHIPMENT IS SET FOR LOCAL DELIVERY');
+        emit requestStateUpdate(msg.sender, block.timestamp , 'IN LOCAL TRANSIT');
+        
+    }
+     
+    //manufacturer
+    
+    function receiveShipment(uint _requestId) public {
+        string memory result = verifyShipmentState(_requestId);
+        createLog(_requestId, 'DELIVERED' , result , 'YOUR REQUEST HAS BEEN FULFILLED');
+        emit requestStateUpdate(msg.sender, block.timestamp , 'SHIPMENT DELIVERED');
+        
+        uint payment = requestCost[_requestId] - requestCost[_requestId]/2;
+        transfer(requestList[_requestId].fromParti, msg.sender, payment);
+    }
+    
+    
+    function createLog(
     uint _requestId,
-    string memory _shipStatus,
-    string memory _currentTemp,
-    string memory _currentHumid,
-    string memory _materialStatus
+    string memory _requestStatus,
+    // uint _currentTemp,
+    // uint _currentHumid,
+    string memory _shipmentStatus,
+    string memory _description
     
     ) public  {
         
         Log memory myLog = Log({
-            shipStatus: _shipStatus,
-            currentTemp: _currentTemp,
-            currentHumidity: _currentHumid,
-            materialStatus: _materialStatus,
+            logger: msg.sender,
+            requestStatus: _requestStatus,
+            // currentTemp: _currentTemp,
+            // currentHumidity: _currentHumid,
+            shipmentStatus: _shipmentStatus,
+            description: _description,
             logTime: block.timestamp
         });
         
         trackLogs[_requestId].push(myLog);
+        emit requestStateUpdate(msg.sender, block.timestamp , _requestStatus);
+    }
+    
+    function setShipmentTrackData (uint _id, uint _temp , uint _humid) public {
+        
+        tempDataLogs[_id].push(_temp);
+        tempArr.push(_temp);
+        emit DataSent( 'Temp Data' , _temp , block.timestamp);
+        humidDataLogs[_id].push(_humid);
+        humidArr.push(_humid);
+        emit DataSent('Humidity Data', _humid, block.timestamp);
+    }
+    
+    function getShipmentTrackData (uint _id) public view returns (uint[] memory temp, uint[] memory humid) {
+        return (tempDataLogs[_id],humidDataLogs[_id]);
+        
     }
     
     function getTrackLogs(uint _request) public view returns(Log[] memory) {
@@ -539,5 +692,6 @@ contract NewDemoTest {
     
     // END OF TRACKING STUFF
     
-    
+// END OF CONTRACT
+
 }
