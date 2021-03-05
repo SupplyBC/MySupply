@@ -90,7 +90,7 @@ class QueryProductSpecs extends Component {
           className={`${table} product-data-container`}
         >
           <div style={{ margin: "10px 0px" }} className="query-result">
-            {this.state.msg}{" "}
+            {this.state.msg}
           </div>
           <table border="1">
             <thead>
@@ -116,7 +116,9 @@ class RequestMaterials extends Component {
     amount: 0,
     form: "",
     strength: 0,
+    resultCount: 0,
     msg: " ",
+    amountToggled: false
   };
 
   constructor(props) {
@@ -126,68 +128,126 @@ class RequestMaterials extends Component {
     this.amountRef = React.createRef();
     this.formRef = React.createRef();
     this.matStrRef = React.createRef();
+    this.idRef = React.createRef();
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.addRequest = this.addRequest.bind(this);
   }
 
+  addRequest = async(e) => {
+    e.preventDefault()
+    const amount = this.state.amount;
+    const id = this.state.matId;
+    console.log(id,amount);
+    const info = await this.props.contract.methods.getMaterialById(id).call();
+    const toAddr = info.supplier;
+    console.log(info,toAddr)
+    await this.props.contract.methods.createRequest(toAddr,id,amount)
+    .send({from: this.props.account[0]})
+    .once("receipt", (receipt) => {
+        this.setState({ msg: "Request was sent successfully!"});
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    });
+    const request = await this.props.contract.methods.getMyRequests().call();
+    const requestNo = request[request.length -1].requestId;
+
+    this.setState({ requestInfo: "Your Tracking Number: " + requestNo});
+      setTimeout(() => {
+        this.setState({ requestInfo: " " });
+      }, 15000);
+  }
   onSubmit = async (e) => {
     e.preventDefault();
     const material = this.state.materialName;
     // const proName = this.state.proName;
-    const supplierId = this.state.supplier;
-    const matform = this.state.form;
-    const matamount = this.state.amount;
-    const matstr = this.state.strength;
-    if (this.props.Web3.utils.isAddress(this.state.supplier)) {
-      await this.props.contract.methods
-        .createRequest(
-          supplierId,
-          material,
-          matform,
-          matstr,
-          matamount
-        )
-        .send({ from: this.props.account[0] })
-        .once("receipt", (receipt) => {
-          this.setState({ msg: "Request was sent successfully!"});
-          setTimeout(() => {
-            this.setState({ msg: " " });
-          }, 2000);
-        });
+    // const supplierId = this.state.supplier;
+    // const matform = this.state.form;
+    // const matamount = this.state.amount;
+    // const matstr = this.state.strength;
 
-        const request = await this.props.contract.methods.getMyRequests().call();
-        const requestNo = request[request.length -1].requestId;
+    console.log(material);
+    const query = await this.props.contract.methods.getMaterials().call();
+    console.log(query);
+    const queryFilter = query.filter( item => {
+      return item.materialName.includes(material) 
+    });
+    console.log(queryFilter);
+    const result = queryFilter.map((item,index) => {
+      let supplier = item.supplier;
+      let id = item.materialID;
+      let name = item.materialName;
+      let cost = item.unitCost;
+      let form = item.materialForm;
+      let availableAmount = item.createdAmount;
+      console.log(supplier,id,name,cost);
 
-        this.setState({ requestInfo: "Your Tracking Number: " + requestNo});
-          setTimeout(() => {
-            this.setState({ requestInfo: " " });
-          }, 15000);
+      return(
+          <div key={index}>
+            <ul className="query-result-list" key={index}>
+              <li> <strong>SUPPLIER: </strong> {supplier}</li>
+              <li> <strong>ID: </strong> {id}</li>
+              <li> <strong>NAME: </strong> {name}</li>
+              <li> <strong>FORM: </strong> {form}</li>
+              <li> <strong>UNIT COST: </strong> {cost}  L.E</li>
+              <li> <strong>IN STOCK: </strong> {availableAmount} KG</li>     
+            </ul>
+            <hr className="custom-hr-full"></hr> 
+          </div>
+      );
+    })
+    this.setState({ resultCount: queryFilter.length ,result , amountToggled: true});
+    // if (this.props.Web3.utils.isAddress(this.state.supplier)) {
+    //   await this.props.contract.methods
+    //     .createRequest(
+    //       supplierId,
+    //       material,
+    //       matform,
+    //       matstr,
+    //       matamount
+    //     )
+    //     .send({ from: this.props.account[0] })
+    //     .once("receipt", (receipt) => {
+    //       this.setState({ msg: "Request was sent successfully!"});
+    //       setTimeout(() => {
+    //         this.setState({ msg: " " });
+    //       }, 2000);
+    //     });
+
+        // const request = await this.props.contract.methods.getMyRequests().call();
+        // const requestNo = request[request.length -1].requestId;
+
+        // this.setState({ requestInfo: "Your Tracking Number: " + requestNo});
+        //   setTimeout(() => {
+        //     this.setState({ requestInfo: " " });
+        //   }, 15000);
 
 
-      // if (request.length === 0) {
-      //   this.setState({
-      //     materials: materials.push(
-      //       "This supplier has no recently created materials!"
-      //     ),
-      //   });
-      // }
+    //   // if (request.length === 0) {
+    //   //   this.setState({
+    //   //     materials: materials.push(
+    //   //       "This supplier has no recently created materials!"
+    //   //     ),
+    //   //   });
+    //   // }
 
     
-      this.setState({
-        matName: "",
-        proName: "",
-        supplier: "",
-        form: "",
-        amount: "",
-        strength: "",
-      });
-      // this.setState({ requests: this.state.requests + 1 });
-    } else {
-      this.setState({ msg: "Please Try Again!" });
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 2000);
-    }
+    //   this.setState({
+    //     matName: "",
+    //     proName: "",
+    //     supplier: "",
+    //     form: "",
+    //     amount: "",
+    //     strength: "",
+    //   });
+    //   // this.setState({ requests: this.state.requests + 1 });
+    // } else {
+    //   this.setState({ msg: "Please Try Again!" });
+    //   setTimeout(() => {
+    //     this.setState({ msg: " " });
+    //   }, 2000);
+    // }
 
     // this.props.contract.methods.addProduct('1', this.state.input).send({from: this.props.accounts[0]});
     //  const material = this.state.materialName;
@@ -201,23 +261,26 @@ class RequestMaterials extends Component {
   onChange = (e) => {
     this.setState({
       materialName: this.materialRef.current.value,
-      supplier: this.supplierRef.current.value,
+      matId: this.idRef.current.value,
+      // supplier: this.supplierRef.current.value,
       amount: this.amountRef.current.value,
-      form: this.formRef.current.value,
-      strength: this.matStrRef.current.value,
+      // form: this.formRef.current.value,
+      // strength: this.matStrRef.current.value,
     });
   };
 
   render() {
+    let toggled;
     let acc = this.props.account;
     let cont = this.props.contract;
     let web = this.props.Web3;
     if (!acc || !cont || !web) {
       return <div> Loading..... </div>;
     }
+    this.state.amountToggled ? toggled="show" : toggled ="hide"
     return (
       <form onSubmit={this.onSubmit} className="newform-container">
-        <label> Supplier ID:</label>
+        {/* <label> Supplier ID:</label>
 
         <input
           type="text"
@@ -228,7 +291,7 @@ class RequestMaterials extends Component {
           value={this.state.supplier}
           onChange={this.onChange}
           required = "required"
-        />
+        /> */}
 
         {/* <button
                     style= {{cursor:'pointer'}}
@@ -295,8 +358,33 @@ class RequestMaterials extends Component {
             NICKEL
           </option>
         </select>
+        
+        <div 
+        className={`${toggled} amount-pop-up`}> 
 
-        <label> Material Form: </label>
+        <label>Material ID:</label>
+        <input
+          type="text"
+          value={this.state.matId}
+          onChange={this.onChange}
+          ref={this.idRef}
+          placeholder="e.g. mat101"
+          
+        />
+        <label>Requested Amount: </label>
+        <input
+          type="number"
+          id="material-amount"
+          value={this.state.amount}
+          ref={this.amountRef}
+          placeholder="e.g. 1000 KGs"
+          autoComplete="off"
+          onChange={this.onChange}
+          required = "required"
+          />
+          </div>
+
+        {/* <label> Material Form: </label>
         <select
           name="requested-mat-form"
           onChange={this.handleChange}
@@ -332,14 +420,24 @@ class RequestMaterials extends Component {
           autoComplete="off"
           onChange={this.onChange}
           required = "required"
-        />
+        /> */}
 
-        <input
-          style={{ cursor: "pointer" }}
-          className="btn"
-          type="submit"
-          value="SEND MATERIAL REQUEST"
-        />
+        <div className="btn-group">
+          <input
+            style={{ cursor: "pointer" }}
+            className="btn"
+            type="submit"
+            value="SEARCH"
+          />
+
+          <button
+           className={`${toggled} btn`}
+           onClick={this.addRequest}>
+            REQUEST</button>
+
+
+        </div>
+        
 
         <div
           style={{ marginTop: "20px" }}
@@ -347,6 +445,14 @@ class RequestMaterials extends Component {
         >
           <div><strong>{this.state.msg}</strong> </div>
           <div style={{color: '#222', fontSize: '16px' }}><strong>{this.state.requestInfo}</strong></div>
+        </div>
+        <div className={`${toggled} results-counter`}>
+        <p style={{textAlign: 'left'}}> Found <strong>{this.state.resultCount} </strong> results
+            for "{this.state.materialName}". </p>
+        </div>
+        <div className={`${toggled} query-result-container`}>
+         
+          {this.state.result} 
         </div>
       </form>
     );

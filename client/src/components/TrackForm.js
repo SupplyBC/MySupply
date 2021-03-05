@@ -24,21 +24,24 @@ class TrackRecord extends Component {
     )
       return (
         <div className="track-record-container">
-          <TrackImg status={this.props.material} />
+          <TrackImg status={this.props.ship} />
           <ul className="record-list">
             <li className="timestamp log-item"> {timestamp}</li>
-            <li className="head log-item"> {this.props.ship}</li>
+            <li className="head log-item"> {this.props.request}</li>
+            <li style={{fontStyle: 'normal'}}className="timestamp log-item"> SHIPMENT VERIFIED</li>
             <hr className="custom-hr-full" />
             <li className="log-item">
+            {this.props.description}.
+            </li>
+            {/* <li className="log-item">
               <strong>TEMP:</strong> {this.props.temp} °C 
             </li>
             <li className="log-item">
-              {" "}
               <strong>HUMIDITY:</strong>  {this.props.humid} %
-            </li>
+            </li> */}
             <li className="log-item">
               <strong>STATUS:</strong>
-              <span className={`${statusColor}`}> {this.props.material}</span>
+              <span className={`${statusColor}`}> {this.props.ship}</span>
             </li>
           </ul>
         </div>
@@ -89,22 +92,22 @@ class Track extends Component {
     }, 3000);
 
     let log = response.map((item, index) => {
-      const shipStatus = item.shipStatus;
-      const matStatus = item.materialStatus;
-      const temp = item.currentTemp;
-      const humid = item.currentHumidity;
+      const shipmentStatus = item.shipmentStatus;
+      const requestStatus = item.requestStatus;
+      const loggedBy = item.logger;
+      const description = item.description;
       const time = item.logTime;
-      this.setState({ shipStatus, matStatus, temp, humid, time });
+      this.setState({ shipmentStatus, requestStatus, loggedBy, description, time });
 
       return (
         <TrackRecord
           key={index}
           status={item}
           time={this.state.time}
-          ship={this.state.shipStatus}
-          material={this.state.matStatus}
-          temp={this.state.temp}
-          humid={this.state.humid}
+          request={this.state.requestStatus}
+          ship={this.state.shipmentStatus}
+          logger ={this.state.loggedBy}
+          description = {this.state.description}
         />
       );
     });
@@ -173,7 +176,7 @@ class Track extends Component {
           <div className={` ${view2} response-logs tab`}>
           
             {/* 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 */}
-            <p> Chart.js Goes here </p>
+            <p> Chart Goes here </p>
           </div>
         </div>
         
