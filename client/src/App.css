@@ -222,6 +222,58 @@ input[type="text"], input[type="number"], select {
   flex-direction: column;
 }
 
+
+.query-result-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 90%;
+  scrollbar-width: none;
+  overflow-x: hidden;
+  height: 600px;
+}
+
+.query-result-container::-webkit-scrollbar {
+  display: none;
+}
+
+.query-result-list {
+  list-style-type: none;
+  text-align: left;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+
+  
+}
+
+
+
+
+.query-result-list  li {
+  padding: 5px;
+}
+
+.amount-pop-up {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin: 0;
+  width: 70%;
+  gap:0;
+
+}
+.amount-pop-up input[type="number"] {
+  width: 57%;
+
+}
+
+.btn-group {
+  display: flex;
+  gap: 5px;
+}
+
+
 /* ProductForm.js */
 .material-card {
   padding: 10px;
@@ -493,6 +545,7 @@ input[type="text"], input[type="number"], select {
   display: none;
 }
 
+
 /* BankAccount.js */
 
 .account-details {
@@ -760,6 +813,50 @@ input[type="text"], input[type="number"], select {
   
   .accordion-tabs .hide {
     display: none;
+  }
+
+  .newform-container .hide {
+    display: none;
+  }
+
+  .query-result-container {
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 90%;
+    scrollbar-width: none;
+    overflow-x: hidden;
+    height: 600px;
+  }
+  
+  
+  .query-result-list {
+    list-style-type: none;
+    text-align: left;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+  
+    
+  }
+  
+  
+  
+  
+  .query-result-list  li {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
+  
+  .amount-pop-up {
+    text-align: center;
+  }
+  .amount-pop-up input[type="number"], .amount-pop-up input[type="text"] {
+    width: 93%;
+  
   }
   
 
