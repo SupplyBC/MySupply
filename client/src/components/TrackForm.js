@@ -30,11 +30,11 @@ class TrackRecord extends Component {
             <li className="head log-item"> {this.props.ship}</li>
             <hr className="custom-hr-full" />
             <li className="log-item">
-              <strong>TEMP:</strong> {this.props.temp}
+              <strong>TEMP:</strong> {this.props.temp} °C 
             </li>
             <li className="log-item">
               {" "}
-              <strong>HUMIDITY:</strong> {this.props.humid}
+              <strong>HUMIDITY:</strong>  {this.props.humid} %
             </li>
             <li className="log-item">
               <strong>STATUS:</strong>
@@ -139,7 +139,7 @@ class Track extends Component {
       <form onSubmit={this.handleSubmit} className="form-container">
         <div className="form-row">
           <h4>Track Requested Shipments </h4>
-          <label style={{ marginRight: "5px" }}> Request ID: </label>
+          <label style={{ marginRight: "5px" }}> Tracking Number : </label>
           <input
             type="text"
             placeholder="e.g 101"
@@ -153,7 +153,7 @@ class Track extends Component {
             style={{ cursor: "pointer" }}
             type="submit"
             className="btn"
-            value="VIEW SHIPMENT STATUS"
+            value="VIEW STATUS"
           />
         </div>
 
@@ -172,7 +172,8 @@ class Track extends Component {
           + TEMPRATURE HISTORY </a>
           <div className={` ${view2} response-logs tab`}>
           
-            1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+            {/* 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 */}
+            <p> Chart.js Goes here </p>
           </div>
         </div>
         

@@ -158,10 +158,10 @@ class RequestMaterials extends Component {
         const request = await this.props.contract.methods.getMyRequests().call();
         const requestNo = request[request.length -1].requestId;
 
-        this.setState({ requestInfo: "Your Request ID: " + requestNo});
+        this.setState({ requestInfo: "Your Tracking Number: " + requestNo});
           setTimeout(() => {
             this.setState({ requestInfo: " " });
-          }, 9000);
+          }, 15000);
 
 
       // if (request.length === 0) {
