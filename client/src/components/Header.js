@@ -8,6 +8,7 @@ class Header extends Component {
     };
 
     render() {
+
         return (
             <div className='container'>
                 <h1 className= 'logo'><a href="/">MY SUPPLY DAPP</a></h1>
@@ -18,7 +19,7 @@ class Header extends Component {
                     </div> 
                     <div className = 'sm-font'> BALANCE:</div>
                     <div className = 'italic centered'>
-                    {this.props.balance} <em> L.E </em>
+                    {parseInt(this.props.balance,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'})}
                     </div>
                 </div>
             </div>

@@ -263,13 +263,14 @@ class ManageAccount extends Component {
     const balance = await this.props.contract.methods
       .getBalance(this.props.account[0])
       .call();
+      const balanceUSD = parseInt(balance,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'})
     const userInfo = await this.props.contract.methods
       .getAccountDetails(this.props.account[0])
       .call();
     const addr = userInfo.userId;
     const name = userInfo.userName;
     const accState = userInfo.isActive;
-    this.setState({ bank, balance, userAddr: addr, userName: name, accState });
+    this.setState({ bank, balanceUSD, userAddr: addr, userName: name, accState });
   };
   // constructor(props) {
   //   super(props);
@@ -311,8 +312,7 @@ class ManageAccount extends Component {
           </p>
           <p>
             {" "}
-            <strong> Current Balance:</strong> <em>{this.state.balance} </em>{" "}
-            <em>L.E </em>{" "}
+            <strong> Current Balance:</strong> <em>{this.state.balanceUSD} </em>
           </p>
         </div>
         <hr className="custom-hr-full" />

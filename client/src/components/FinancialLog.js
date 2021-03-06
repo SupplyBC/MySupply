@@ -16,13 +16,13 @@ class FinancialLog extends Component {
     .getStdCostPlan(proId)
     .call();
     const stdCostData = standard.map( (costList , index) => {
-      let matCost = parseInt(standard.directMaterialCost,10);
-      let pkgCost = parseInt(standard.packagingMaterialCost,10);
-      let laborCost = parseInt(standard.directLaborCost,10);
-      let indirectManuCost = parseInt(standard.totalIndirectCost,10);
-      let mrkCost = parseInt(standard.marketingCost,10);
-      let rsrchCost= parseInt(standard.researchCost,10);
-      let totalCost = parseInt(standard.CostTOT,10);
+      let matCost = parseInt(standard.directMaterialCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
+      let pkgCost = parseInt(standard.packagingMaterialCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
+      let laborCost = parseInt(standard.directLaborCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
+      let indirectManuCost = parseInt(standard.totalIndirectCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
+      let mrkCost = parseInt(standard.marketingCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
+      let rsrchCost= parseInt(standard.researchCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
+      let totalCost = parseInt(standard.CostTOT,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
       // let stdCostList = costList.standard.packagingMaterialCost;
       this.setState({ standard , proId, matCost, pkgCost, laborCost,
         indirectManuCost, mrkCost , rsrchCost, totalCost });

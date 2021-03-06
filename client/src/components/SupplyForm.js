@@ -178,7 +178,7 @@ class RequestMaterials extends Component {
       let supplier = item.supplier;
       let id = item.materialID;
       let name = item.materialName;
-      let cost = item.unitCost;
+      let cost = parseInt(item.unitCost,10).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
       let form = item.materialForm;
       let availableAmount = item.createdAmount;
       console.log(supplier,id,name,cost);
@@ -190,7 +190,7 @@ class RequestMaterials extends Component {
               <li> <strong>ID: </strong> {id}</li>
               <li> <strong>NAME: </strong> {name}</li>
               <li> <strong>FORM: </strong> {form}</li>
-              <li> <strong>UNIT COST: </strong> {cost}  L.E</li>
+              <li> <strong>UNIT COST: </strong> {cost}</li>
               <li> <strong>IN STOCK: </strong> {availableAmount} KG</li>     
             </ul>
             <hr className="custom-hr-full"></hr> 
@@ -365,7 +365,6 @@ class RequestMaterials extends Component {
         <label>Material ID:</label>
         <input
           type="text"
-          value={this.state.matId}
           onChange={this.onChange}
           ref={this.idRef}
           placeholder="e.g. mat101"
@@ -642,6 +641,452 @@ class CreateMaterial extends Component {
   }
 }
 
+class ApproveRequest extends Component {
+  state = {msg: '', requestId: ''}
+
+  constructor(props) {
+    super(props);
+    this.requestIdRef = React.createRef();
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+  
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const requestNo = parseInt(this.state.requestId,10);
+    console.log(requestNo);
+
+    //todo transact here
+    await this.props.contract.methods.approveRequest(requestNo)
+    .send({from: this.props.account[0]})
+    .once("receipt", (receipt) => {
+      this.setState({ msg: "Request was approved successfully!" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    });
+
+
+    this.setState({requestId: ''})
+
+  }
+
+  onChange = async(e) => {
+    this.setState({
+      requestId: this.requestIdRef.current.value
+    })
+    
+
+  }
+  render() {
+    return(
+      <form onSubmit={this.onSubmit} className="newform-container">
+        <h4> Approve Request</h4>
+        <label> Tracking Number: </label>
+        <input 
+        type="number"
+        value = {this.state.requestId}
+        ref = {this.requestIdRef}
+        onChange = {this.onChange}
+        placeholder = "e.g. 101"
+        required= "required"
+        />
+        <div>
+        <input type="submit" className="btn" value="APPROVE REQUEST" />
+        </div>
+        <div
+          style={{ marginTop: "20px" }}
+          className="notify-data-container notify-text "
+        >
+          {this.state.msg}
+        </div>
+      </form>
+    ); 
+  }
+}
+
+class SendShipment extends Component {
+  state = {msg: '', requestId: ''}
+
+  constructor(props) {
+    super(props);
+    this.requestIdRef = React.createRef();
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+  
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const requestNo = this.state.requestId;
+    console.log(requestNo);
+
+
+    //todo transact here
+    await this.props.contract.methods.sendShipment(requestNo)
+    .send({from: this.props.account[0]})
+    .once("receipt", (receipt) => {
+      this.setState({ msg: "Updated shipment status successfully!" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    });
+
+
+    this.setState({requestId: ''})
+
+    
+  }
+
+  onChange = async(e) => {
+    this.setState({
+      requestId: this.requestIdRef.current.value
+    })
+    
+
+  }
+  render() {
+    return(
+      <form onSubmit={this.onSubmit} className="newform-container">
+        <h4> Send Shipment</h4>
+        <label> Tracking Number: </label>
+        <input 
+        type="number"
+        value = {this.state.requestId}
+        ref = {this.requestIdRef}
+        onChange = {this.onChange}
+        placeholder = "e.g. 101"
+        required= "required"
+        />
+        <div>
+        <input type="submit" className="btn" value="SEND SHIPMENT" />
+        </div>
+        <div
+          style={{ marginTop: "20px" }}
+          className="notify-data-container notify-text "
+        >
+          {this.state.msg}
+        </div>
+      </form>
+    ); 
+  }
+}
+
+class TransitGlobal extends Component {
+  state = {msg: '', requestId: ''}
+
+  constructor(props) {
+    super(props);
+    this.requestIdRef = React.createRef();
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+  
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const requestNo = this.state.requestId;
+    console.log(requestNo);
+
+
+    //todo transact here
+
+    await this.props.contract.methods.globalTransitShipment(requestNo)
+    .send({from: this.props.account[0]})
+    .once("receipt", (receipt) => {
+      this.setState({ msg: "Updated shipment status successfully!" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    });
+
+
+    this.setState({requestId: ''})
+
+    
+  }
+
+  onChange = async(e) => {
+    this.setState({
+      requestId: this.requestIdRef.current.value
+    })
+    
+
+  }
+  render() {
+    return(
+      <form onSubmit={this.onSubmit} className="newform-container">
+        <h4> Transit Shipment (Globally)</h4>
+        <label> Tracking Number: </label>
+        <input 
+        type="number"
+        value = {this.state.requestId}
+        ref = {this.requestIdRef}
+        onChange = {this.onChange}
+        placeholder = "e.g. 101"
+        required= "required"
+        />
+        <div>
+        <input type="submit" className="btn" value="SHIP GLOBALLY" />
+        </div>
+        <div
+          style={{ marginTop: "20px" }}
+          className="notify-data-container notify-text "
+        >
+          {this.state.msg}
+        </div>
+      </form>
+    ); 
+  }
+}
+
+class TransitLocal extends Component {
+  state = {msg: '', requestId: ''}
+
+  constructor(props) {
+    super(props);
+    this.requestIdRef = React.createRef();
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+  
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const requestNo = this.state.requestId;
+    console.log(requestNo);
+
+
+    //todo transact here
+
+    await this.props.contract.methods.localTransitShipment(requestNo)
+    .send({from: this.props.account[0]})
+    .once("receipt", (receipt) => {
+      this.setState({ msg: "Updated shipment status successfully!" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    });
+
+
+    this.setState({requestId: ''})
+
+    
+    
+  }
+
+  onChange = async(e) => {
+    this.setState({
+      requestId: this.requestIdRef.current.value
+    })
+    
+
+  }
+  render() {
+    return(
+      <form onSubmit={this.onSubmit} className="newform-container">
+        <h4> Transit Shipment (Locally)</h4>
+        <label> Tracking Number: </label>
+        <input 
+        type="number"
+        value = {this.state.requestId}
+        ref = {this.requestIdRef}
+        onChange = {this.onChange}
+        placeholder = "e.g. 101"
+        required= "required"
+        />
+        <div>
+        <input type="submit" className="btn" value="SHIP LOCALLY" />
+        </div>
+        <div
+          style={{ marginTop: "20px" }}
+          className="notify-data-container notify-text "
+        >
+          {this.state.msg}
+        </div>
+      </form>
+    ); 
+  }
+}
+
+class ReceiveShipment extends Component {
+  state = {msg: '', requestId: ''}
+
+  constructor(props) {
+    super(props);
+    this.requestIdRef = React.createRef();
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+  
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const requestNo = this.state.requestId;
+
+
+    //todo transact here
+    
+    await this.props.contract.methods.receiveShipment(requestNo)
+    .send({from: this.props.account[0]})
+    .once("receipt", (receipt) => {
+      this.setState({ msg: "Updated shipment status successfully!" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    });
+
+
+    this.setState({requestId: ''})
+  }
+
+  onChange = async(e) => {
+    this.setState({
+      requestId: this.requestIdRef.current.value
+    })
+    
+
+  }
+  render() {
+    return(
+      <form onSubmit={this.onSubmit} className="newform-container">
+        <h4> Receive Shipment</h4>
+        <label> Tracking Number: </label>
+        <input 
+        type="number"
+        value = {this.state.requestId}
+        ref = {this.requestIdRef}
+        onChange = {this.onChange}
+        placeholder = "e.g. 101"
+        required = "required"
+        />
+        <div>
+        <input type="submit" className="btn" value="RECEIVE SHIPMENT" />
+        </div>
+        <div
+          style={{ marginTop: "20px" }}
+          className="notify-data-container notify-text "
+        >
+          {this.state.msg}
+        </div>
+      </form>
+    ); 
+  }
+}
+
+
+class ManageSupply extends Component {
+  render() {
+    return(
+      <div className="form-collection newform-container">
+        <p className="sub-head" style={{textAlign:'center'}}> <strong>SUPPLY PORTAL: </strong>MANAGE SUPPLY CHAIN ACTIVITES. </p>
+        <ApproveRequest account={this.props.account}
+          contract={this.props.contract} />
+        <hr className="custom-hr-half"></hr>
+        <SendShipment account={this.props.account}
+          contract={this.props.contract} />
+        <hr className="custom-hr-half"></hr>
+        <TransitGlobal account={this.props.account}
+          contract={this.props.contract} />
+        <hr className="custom-hr-half"></hr>
+        <TransitLocal account={this.props.account}
+          contract={this.props.contract} />
+        <hr className="custom-hr-half"></hr>
+        <ReceiveShipment account={this.props.account}
+          contract={this.props.contract} />
+
+      </div>
+    );
+  }
+}
+
+class ManageIOT extends Component {
+  state ={ request: '', temp: 0 , humid: 0 , msg: ''}
+  constructor(props) {
+    super(props)
+    this.tempRef = React.createRef();
+    this.humidRef = React.createRef();
+    this.requestIdRef = React.createRef();
+    this.onClick = this.onClick.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+
+    onClick = async (e) => {
+      e.preventDefault();
+      const temp = this.state.temp;
+      const humid = this.state.humid;
+      const request = parseInt(this.state.request,10);
+      console.log(temp,humid)
+      await this.props.contract.methods.setShipmentTrackData(request,temp,humid)
+      .send({from: this.props.account[0]})
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Updated Temp and Humidity Data Successfully!" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
+      
+    }
+
+    onChange = async (e) => {
+      this.setState({
+        temp: this.tempRef.current.value,
+        humid: this.humidRef.current.value,
+        request: this.requestIdRef.current.value
+      });
+    }
+
+    render () {
+      return(
+        <div className="newform-container">
+          <p className="sub-head" style={{marginBottom: '20px'}}> <strong>IOT PORTAL</strong>: MANAGE IOT DATA. </p>
+          <label> Tracking Number: </label>
+          <input 
+          type="number"
+          value = {this.state.requestId}
+          ref = {this.requestIdRef}
+          onChange = {this.onChange}
+          placeholder = "e.g. 101"
+          required = "required"
+          />
+          <hr className="custom-hr-full"></hr>
+          <h4> Set Temperature </h4>
+          <label>  Temperature (°C):</label>
+          <input type="number"
+          value={this.state.temp}
+          ref= {this.tempRef}
+          onChange = {this.onChange}
+          placeholder = "e.g. 28"
+          required = "required"
+          />
+          
+          <h4> Set Humidity </h4>
+          <label> Humidity (%):</label>
+          <input type="number"
+          value={this.state.humid}
+          ref= {this.humidRef}
+          onChange = {this.onChange}
+          placeholder = "e.g. 30"
+          required = "required"
+          />
+          <div>
+            <button onClick = {this.onClick} className="btn"> UPDATE DATA </button>
+          </div> 
+          <div
+          style={{ marginTop: "20px" }}
+          className="notify-data-container notify-text "
+        >
+          {this.state.msg}
+        </div>
+
+
+        </div>
+      );
+    }
+
+}
+
 class SupplyForm extends Component {
   // state = {materialName: '' , materialsVisibility:  false , proName: '' , supplier: '' }
 
@@ -755,6 +1200,19 @@ class SupplyForm extends Component {
                   + CREATE MATERIAL
                 </NavLink>
               </li>
+              <label style={{ marginTop: "10px" }}>
+                <strong> MISC. </strong>
+              </label>
+              <li className="link-item">
+                <NavLink to="/supply/supplyPortal">
+                  + MANAGE SUPPLY
+                </NavLink>
+              </li>
+              <li className="link-item">
+                <NavLink to="/supply/iotPortal">
+                  + MANAGE IOT
+                </NavLink>
+              </li>
             </ul>
           </div>
           <div className="main-content">
@@ -786,6 +1244,30 @@ class SupplyForm extends Component {
               exact
               render={(props) => (
                 <CreateMaterial
+                  {...props}
+                  Web3={this.props.Web3}
+                  account={this.props.account}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            <Route
+              path="/supply/supplyPortal"
+              exact
+              render={(props) => (
+                <ManageSupply
+                  {...props}
+                  Web3={this.props.Web3}
+                  account={this.props.account}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            <Route
+              path="/supply/iotPortal"
+              exact
+              render={(props) => (
+                <ManageIOT
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.account}

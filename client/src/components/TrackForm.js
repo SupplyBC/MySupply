@@ -1,4 +1,42 @@
 import React, { Component } from "react";
+import { Line } from "react-chartjs-2";
+
+class HistoryChart extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      chartData: this.props.chartData,
+      tempSet: this.props.temp,
+      humidSet: this.props.humid,
+      timeSet: this.props.timestamp,
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.temp !== this.props.temp ||
+      prevProps.humid !== this.props.humid ||
+      prevProps.timestamp !== this.props.timestamp
+    ) {
+      let { chartData } = this.state;
+      chartData.labels = this.props.timestamp;
+      chartData.datasets[0].data = this.props.temp;
+      chartData.datasets[1].data = this.props.humid;
+      this.setState({ chartData });
+    }
+  }
+
+  render() {
+    return (
+      <Line
+        data={this.state.chartData}
+        width={650}
+        options={{ maintainAspectRatio: false }}
+      />
+    );
+  }
+}
 
 function TrackImg(props) {
   if (props.status === "ABNORMAL") {
@@ -8,17 +46,19 @@ function TrackImg(props) {
   }
 }
 class TrackRecord extends Component {
+  state = { tempHistory: [], humidHistory: [] };
   // constructor(props) {
   //   super(props);
 
   // }
+
   render() {
     let statusColor;
     const dateStr = new Date(this.props.time * 1000).toString();
     const dateArr = dateStr.split(" ", 5);
     const timestamp = dateArr.join(" ");
     if (
-      this.props.material === "ABNORMAL"
+      this.props.ship === "ABNORMAL"
         ? (statusColor = "alert-text")
         : (statusColor = "good-text")
     )
@@ -28,11 +68,12 @@ class TrackRecord extends Component {
           <ul className="record-list">
             <li className="timestamp log-item"> {timestamp}</li>
             <li className="head log-item"> {this.props.request}</li>
-            <li style={{fontStyle: 'normal'}}className="timestamp log-item"> SHIPMENT VERIFIED</li>
-            <hr className="custom-hr-full" />
-            <li className="log-item">
-            {this.props.description}.
+            <li style={{ fontStyle: "normal" }} className="timestamp log-item">
+              {" "}
+              SHIPMENT VERIFIED
             </li>
+            <hr className="custom-hr-full" />
+            <li className="log-item">{this.props.description}.</li>
             {/* <li className="log-item">
               <strong>TEMP:</strong> {this.props.temp} °C 
             </li>
@@ -50,11 +91,14 @@ class TrackRecord extends Component {
 }
 
 class Track extends Component {
-  state = { logs: [], wholeActive:false, isTab1Active: false , isTab2Active: false };
-
-  componentDidMount = async () => {};
-
-  state = { requestID: "" };
+  state = {
+    logs: [],
+    wholeActive: false,
+    isTab1Active: false,
+    isTab2Active: false,
+    requestID: "",
+    chartData: {},
+  };
 
   constructor(props) {
     super(props);
@@ -65,27 +109,66 @@ class Track extends Component {
     this.toggleSection2 = this.toggleSection2.bind(this);
   }
 
-  toggleSection1= async(e) => {
+  componentWillMount = async () => {
+    this.getChartData();
+  };
+
+  toggleSection1 = async (e) => {
     e.preventDefault();
-    this.setState({isTab1Active: !this.state.isTab1Active ,
-     active: !this.state.active})
-    
-  }
-  toggleSection2= async(e) => {
+    this.setState({
+      isTab1Active: !this.state.isTab1Active,
+      active: !this.state.active,
+    });
+  };
+  toggleSection2 = async (e) => {
     e.preventDefault();
-    this.setState({isTab2Active: !this.state.isTab2Active,
-       active: !this.state.active})
-  }
+    this.setState({
+      isTab2Active: !this.state.isTab2Active,
+      active: !this.state.active,
+    });
+  };
+
   handleSubmit = async (e) => {
     e.preventDefault();
     let id = parseInt(this.state.requestID, 10);
     // await this.props.contract.methods.createLog(1, 'SHIPPED' ,'20C', '25%', 'NORMAL').send({from: this.props.account})
     let response = await this.props.contract.methods.getTrackLogs(id).call();
+    let trackHistory = await this.props.contract.methods
+      .getShipmentTrackData(id)
+      .call();
+    let tempHistory = trackHistory.temp;
+    let humidHistory = trackHistory.humid;
+
+    let events = await this.props.contract.getPastEvents("DataSent", {
+      fromBlock: 0,
+    });
+    let timeLogs = events.map((log, index) => {
+      let logTime = new Date(log.returnValues.timestamp * 1000);
+      let hours = logTime.getUTCHours();
+      let minutes = logTime.getUTCMinutes().toString().padStart(2, "0");
+      let day = logTime.getUTCDay();
+      let month = logTime.getUTCMonth() + 1;
+      let year = logTime.getUTCFullYear();
+      let timestamp =
+        day + "/" + month + "/" + year + " " + hours + ":" + minutes;
+
+      // const dateArr =time.split(" ", 5);
+      // const timestamp = dateArr.join(" ");
+
+      return timestamp;
+    });
+    this.setState({ trackHistory, tempHistory, humidHistory, timeLogs });
+
+    // send data to chart
+    this.getChartData(tempHistory, humidHistory, timeLogs);
 
     if (response.length === 0) {
       this.setState({
         msg: "No tracking logs are available for this request, please try again later!".toUpperCase(),
+        wholeActive: false,
       });
+    } else {
+      this.setState({ wholeActive: true });
     }
     setTimeout(() => {
       this.setState({ msg: "" });
@@ -97,7 +180,13 @@ class Track extends Component {
       const loggedBy = item.logger;
       const description = item.description;
       const time = item.logTime;
-      this.setState({ shipmentStatus, requestStatus, loggedBy, description, time });
+      this.setState({
+        shipmentStatus,
+        requestStatus,
+        loggedBy,
+        description,
+        time,
+      });
 
       return (
         <TrackRecord
@@ -106,8 +195,8 @@ class Track extends Component {
           time={this.state.time}
           request={this.state.requestStatus}
           ship={this.state.shipmentStatus}
-          logger ={this.state.loggedBy}
-          description = {this.state.description}
+          logger={this.state.loggedBy}
+          description={this.state.description}
         />
       );
     });
@@ -116,9 +205,34 @@ class Track extends Component {
     this.setState({
       requestID: " ",
       isTab1Active: true,
-      wholeActive:true
     });
-    
+  };
+
+  getChartData = async (temp, humid, timestamp) => {
+    this.setState({
+      responsive: "true",
+      chartData: {
+        labels: timestamp,
+        datasets: [
+          {
+            label: "Temperature (°C)",
+            data: temp,
+            backgroundColor: ["rgba(255, 99, 132, 0)"],
+            borderColor: ["rgba(255, 99, 132, 1)"],
+            pointBackgroundColor: "rgba(255, 99, 132, 0.9)",
+            borderWidth: 2,
+          },
+          {
+            label: "Humidity (%)",
+            data: humid,
+            backgroundColor: ["rgba(54, 162, 235, 0)"],
+            borderColor: ["rgba(54, 162, 235, 1)"],
+            pointBackgroundColor: "rgba(54, 162, 235, 0.9)",
+            borderWidth: 2,
+          },
+        ],
+      },
+    });
   };
 
   handleChange = async (e) => {
@@ -128,16 +242,16 @@ class Track extends Component {
   };
 
   render() {
-    let view1, view2, wholeView , activated;
+    let view1, view2, wholeView;
     let acc = this.props.account;
     let cont = this.props.contract;
 
     if (!acc || !cont) {
       return <div> Loading..... </div>;
     }
-    this.state.wholeActive ? wholeView ="show" : wholeView ="hide"
-    this.state.isTab1Active ? view1 ="show": view1 ="hide" 
-    this.state.isTab2Active ? view2 ="show" : view2 ="hide" 
+    this.state.wholeActive ? (wholeView = "show") : (wholeView = "hide");
+    this.state.isTab1Active ? (view1 = "show") : (view1 = "hide");
+    this.state.isTab2Active ? (view2 = "show") : (view2 = "hide");
     return (
       <form onSubmit={this.handleSubmit} className="form-container">
         <div className="form-row">
@@ -149,7 +263,7 @@ class Track extends Component {
             value={this.state.requestID}
             ref={this.requestIdRef}
             onChange={this.handleChange}
-            required = "required"
+            required="required"
           />
 
           <input
@@ -164,22 +278,43 @@ class Track extends Component {
           {this.state.msg}
         </div>
         <div className={` ${wholeView} accordion-tabs`}>
-        <a href="/track" onClick={this.toggleSection1}
-         className=  {`${activated}  accordion-toggle one `} >
-          + TRACKING SUMMARY  </a>
-          <div className={`${view1} response-logs tab`}>
-            {this.state.log} 
-          </div>
-          <a href="/track" onClick={this.toggleSection2}
-            className=  {`${this.state.active}  accordion-toggle two `} >
-          + TEMPRATURE HISTORY </a>
-          <div className={` ${view2} response-logs tab`}>
-          
+          <a
+            href="/track"
+            onClick={this.toggleSection1}
+            className={` accordion-toggle one `}
+          >
+            + TRACKING SUMMARY
+          </a>
+          <div className={`${view1} response-logs tab`}>{this.state.log}</div>
+          <a
+            href="/track"
+            onClick={this.toggleSection2}
+            className={` accordion-toggle two `}
+          >
+            + TRACKING HISTORY
+          </a>
+          <div
+            style={{ height: "200px" }}
+            className={` ${view2} response-logs tab2`}
+          >
             {/* 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 */}
-            <p> Chart Goes here </p>
+            {/* {this.state.tempTrackHistory}
+            {this.state.humidTrackHistory} */}
+            {/* <p> Chart Goes here </p> */}
+            <div className={`${view2} chart-container`}>
+              <HistoryChart
+
+                style={{ marginBottom: "30px" }}
+                tempData={this.state.tempHistory}
+                HumidData={this.state.HumidData}
+                chartData={this.state.chartData}
+                temp={this.state.tempHistory}
+                humid={this.state.humidHistory}
+                timestamp={this.state.timeLogs}
+              />
+            </div>
           </div>
         </div>
-        
       </form>
     );
   }
