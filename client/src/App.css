@@ -387,6 +387,18 @@ input[type="text"], input[type="number"], select {
   padding: 0;
  }
 
+ .form-collection .newform-container {
+   width:90%;
+ 
+ }
+ .form-collection input[type="text"] {
+   width: 60%;
+ }
+
+ .form-collection p {
+   font: 13px;
+ }
+
 /* AddProduct.js */
 
 .product-form-container {
@@ -606,6 +618,9 @@ input[type="text"], input[type="number"], select {
 
 @media only screen and (max-width: 800px) {
 
+  .sub-head {
+    font-size: 13px;
+  }
   .alert {
     font-size: 14px;
   }
@@ -818,6 +833,9 @@ input[type="text"], input[type="number"], select {
   .newform-container .hide {
     display: none;
   }
+  .response-logs .hide {
+    display: none;
+  }
 
   .query-result-container {
     font-size: 14px;
@@ -858,7 +876,24 @@ input[type="text"], input[type="number"], select {
     width: 93%;
   
   }
-  
+
+ .form-container  .tab2   {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: center;
+    text-align: left;
+    font-size: 14px;
+    height: 500px;
+    margin: 0;
+  }
+
+  .chart-container{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px !important;
+  }
 
 
   
