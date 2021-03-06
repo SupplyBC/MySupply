@@ -7,8 +7,9 @@
     4- Track requests status. (manufacturer)
 */
 
-// contract address: 0x0F8B51E0474D48CD31610c883Af89cb0e4E99CBc 
-// productId: plus01, test01
+// contract address: 0xDF68a904750D4236299199859D54fa18C6b7FE04 
+// productId: plus01
+// tracking no: 116887 , 117212 , 117537
 
 // "SPDX-License-Identifier: UNLICENSED"
 pragma solidity >=0.6.2;
@@ -25,6 +26,38 @@ contract NewDemoTest {
         return (keccak256(abi.encodePacked((x))) == keccak256(abi.encodePacked((y))));
         
     }
+    
+    function toString(uint _i) internal pure returns (string memory _uintAsString) {
+        
+        if (_i == 0) {
+            return "0";
+        }
+        uint j = _i;
+        uint len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint k = len;
+        while (_i != 0) {
+            k = k-1;
+            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
+    }
+    
+    function concat(string memory a, string memory b) internal pure returns (string memory) {
+    string memory c = ' , ';
+    return string(abi.encodePacked( a, c, b));
+
+    }
+
+    // END OF UTILS
+
     
     
     address     admin;
@@ -52,9 +85,9 @@ contract NewDemoTest {
     mapping (string => Cost)         actualProductCosts;
     mapping (uint => uint)           requestCost;    // requestId and Total Cost.
     mapping (address => mapping (address => BankAccount) ) userBankAccounts; // bankAddr -> userAddr -> userAcc
-    event   DataSent (string DataCategory , uint dataValue , uint timestamp  );
+    event   DataSent (string DataCategory , string indexed dataValues , uint indexed timestamp  );
     event   ShipmentStateUpdate (uint requestNo, string state, uint timestamp);
-    event   requestStateUpdate (address who, uint timestamp , string state);
+    event   requestStateUpdate (address indexed who, uint indexed timestamp , string indexed state);
   
     
     
@@ -150,6 +183,8 @@ contract NewDemoTest {
     
     // Core functions 
     
+    
+    
     // Handle participants privileges
     
     function verifyParticipant(address _participant) public  {
@@ -164,6 +199,7 @@ contract NewDemoTest {
              return participants[_participant];
     }
     
+
     
     // MANUFACTURING STUFF GOES HERE
 
@@ -674,10 +710,9 @@ contract NewDemoTest {
         
         tempDataLogs[_id].push(_temp);
         tempArr.push(_temp);
-        emit DataSent( 'Temp Data' , _temp , block.timestamp);
         humidDataLogs[_id].push(_humid);
         humidArr.push(_humid);
-        emit DataSent('Humidity Data', _humid, block.timestamp);
+        emit DataSent('Humidity Data', concat(toString(_temp),toString(_humid)), block.timestamp);
     }
     
     function getShipmentTrackData (uint _id) public view returns (uint[] memory temp, uint[] memory humid) {
