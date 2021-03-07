@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Line } from "react-chartjs-2";
-import { HEREMap, Marker, RouteLine } from 'here-maps-react';
+import { MapContainer, Marker, Popup } from 'react-leaflet'
 
 class HistoryChart extends Component {
   constructor(props) {
@@ -309,6 +309,15 @@ class Track extends Component {
                 humid={this.state.humidHistory}
                 timestamp={this.state.timeLogs}
               />
+            </div>
+            <div className = "map-container">
+              <MapContainer style={{height: '400px'}} center={[30.3, 31.18]} zoom={10} scrollWheelZoom={false}>
+                <Marker  position={[30.3, 31.18]}>
+                  <Popup>
+                    A pretty CSS3 popup. <br /> Easily customizable.
+                  </Popup>
+                </Marker>
+              </MapContainer>
             </div>
           </div>
         </div>
