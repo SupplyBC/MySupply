@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Line } from "react-chartjs-2";
+import { HEREMap, Marker, RouteLine } from 'here-maps-react';
 
 class HistoryChart extends Component {
   constructor(props) {
@@ -297,10 +298,6 @@ class Track extends Component {
             style={{ height: "200px" }}
             className={` ${view2} response-logs tab2`}
           >
-            {/* 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 */}
-            {/* {this.state.tempTrackHistory}
-            {this.state.humidTrackHistory} */}
-            {/* <p> Chart Goes here </p> */}
             <div className={`${view2} chart-container`}>
               <HistoryChart
 
