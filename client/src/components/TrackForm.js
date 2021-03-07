@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Line } from "react-chartjs-2";
-import { MapContainer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 class HistoryChart extends Component {
   constructor(props) {
@@ -104,6 +105,7 @@ class Track extends Component {
   constructor(props) {
     super(props);
     this.requestIdRef = React.createRef();
+    this.mapRef = React.createRef();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.toggleSection1 = this.toggleSection1.bind(this);
@@ -300,7 +302,6 @@ class Track extends Component {
           >
             <div className={`${view2} chart-container`}>
               <HistoryChart
-
                 style={{ marginBottom: "30px" }}
                 tempData={this.state.tempHistory}
                 HumidData={this.state.HumidData}
@@ -310,15 +311,19 @@ class Track extends Component {
                 timestamp={this.state.timeLogs}
               />
             </div>
-            <div className = "map-container">
-              <MapContainer style={{height: '400px'}} center={[30.3, 31.18]} zoom={10} scrollWheelZoom={false}>
-                <Marker  position={[30.3, 31.18]}>
+              <MapContainer
+                style={{width: '100%'}}
+                center={[51.505, -0.09]}
+                zoom={9}
+                scrollWheelZoom={false}
+              >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <Marker position={[30.3, 31.18]}>
                   <Popup>
                     A pretty CSS3 popup. <br /> Easily customizable.
                   </Popup>
                 </Marker>
               </MapContainer>
-            </div>
           </div>
         </div>
       </form>
