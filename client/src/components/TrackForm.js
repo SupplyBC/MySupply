@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Line } from "react-chartjs-2";
-import { HEREMap, Marker, RouteLine } from 'here-maps-react';
 
 class HistoryChart extends Component {
   constructor(props) {
