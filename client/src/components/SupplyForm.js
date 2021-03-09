@@ -975,12 +975,104 @@ class ReceiveShipment extends Component {
   }
 }
 
+class SetLocation extends Component {
+  state = {msg: '', requestId: '' , latitude: '', longitude: ''}
+
+  constructor(props) {
+    super(props);
+    this.requestIdRef = React.createRef();
+    this.latRef = React.createRef();
+    this.longRef = React.createRef();
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+  
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const requestNo = this.state.requestId;
+    const lat = this.state.latitude;
+    const long = this.state.longitude;
+
+
+    //todo transact here
+    
+    await this.props.contract.methods.setShipmentLocation(requestNo,lat,long)
+    .send({from: this.props.account[0]})
+    .once("receipt", (receipt) => {
+      this.setState({ msg: "Updated shipment location successfully!" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    });
+
+
+    this.setState({requestId: '', latitude: '' , longitude: ''})
+  }
+
+  onChange = async(e) => {
+    this.setState({
+      requestId: this.requestIdRef.current.value,
+      latitude: this.latRef.current.value,
+      longitude: this.longRef.current.value
+    })
+    
+
+  }
+  render() {
+    return(
+      <form onSubmit={this.onSubmit} className="newform-container">
+        <h4> Set Shipment Location</h4>
+        <label> Tracking Number: </label>
+        <input 
+        type="text"
+        value = {this.state.requestId}
+        ref = {this.requestIdRef}
+        onChange = {this.onChange}
+        placeholder = "e.g. 101"
+        required = "required"
+        />
+        <label> Latitude: </label>
+        <input 
+        type="text"
+        value = {this.state.latitude}
+        ref = {this.latRef}
+        onChange = {this.onChange}
+        placeholder = "e.g. 50.1"
+        required = "required"
+        />
+        <label> Longitude: </label>
+        <input 
+        type="text"
+        value = {this.state.longitude}
+        ref = {this.longRef}
+        onChange = {this.onChange}
+        placeholder = "e.g. 0.09"
+        required = "required"
+        />
+        <div>
+        <input type="submit" className="btn" value="SET LOCATION" />
+        </div>
+        <div
+          style={{ marginTop: "20px" }}
+          className="notify-data-container notify-text "
+        >
+          {this.state.msg}
+        </div>
+      </form>
+    ); 
+  }
+}
+
 
 class ManageSupply extends Component {
   render() {
     return(
       <div className="form-collection newform-container">
         <p className="sub-head" style={{textAlign:'center'}}> <strong>SUPPLY PORTAL: </strong>MANAGE SUPPLY CHAIN ACTIVITES. </p>
+        <SetLocation account={this.props.account}
+          contract={this.props.contract} />
+        <hr className="custom-hr-full"></hr>
         <ApproveRequest account={this.props.account}
           contract={this.props.contract} />
         <hr className="custom-hr-half"></hr>

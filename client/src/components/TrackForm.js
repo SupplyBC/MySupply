@@ -1,7 +1,82 @@
-import React, { Component } from "react";
+import React, { Component , useState } from "react";
 import { Line } from "react-chartjs-2";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
+import 'leaflet-defaulticon-compatibility';
+import { latLng } from "leaflet";
+
+function UpdateMap(props) {
+  const [position, setPosition] = useState(null)
+  const map = useMapEvents({
+
+  
+    click: () => {
+      map.locate()
+     
+    },
+    locationfound: (location) => {
+          setPosition(location.latlng)
+          // console.log(props.location)
+          // console.log(location.latlng);
+          // console.log(latLng(props.location))
+          
+          // map.flyTo(location.latlng, map.getZoom())
+          map.flyTo(latLng(props.location), map.getZoom())
+    },
+
+   })
+
+   map.whenReady( () => {
+    //  console.log(props.location)
+    setTimeout(() => {
+      map.invalidateSize();
+   }, 1); 
+     
+   })
+
+  // return null
+
+  return position === null ? null : (
+    <Marker position={latLng(props.location)}>
+      <Popup>
+        <p>Current Shipment Location</p>
+        <p><strong> STATUS: </strong></p>
+      </Popup>
+    </Marker>
+  );
+
+  
+}
+
+class Map extends Component {
+
+    componentDidMount = async() => {  
+}
+   
+  render() {
+    return (
+      <MapContainer
+      style={{width: '100%'}}
+      center={[51.505, -0.09]}
+      zoom={6}
+      minZoom = {3}
+      maxZoom = {12}
+      dragging={true}
+      animate={true}
+      scrollWheelZoom={false}
+      easeLinearity={0.4}
+    >
+      <UpdateMap location={this.props.location}/>
+      <TileLayer
+        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+    </MapContainer>
+
+    );
+  }
+}
+
 
 class HistoryChart extends Component {
   constructor(props) {
@@ -47,6 +122,7 @@ function TrackImg(props) {
     return <img src={require("../assets/valid-3.svg")} alt="valid" />;
   }
 }
+
 class TrackRecord extends Component {
   state = { tempHistory: [], humidHistory: [] };
   // constructor(props) {
@@ -91,6 +167,9 @@ class TrackRecord extends Component {
       );
   }
 }
+
+
+
 
 class Track extends Component {
   state = {
@@ -142,10 +221,20 @@ class Track extends Component {
     let tempHistory = trackHistory.temp;
     let humidHistory = trackHistory.humid;
 
+    let locationInfo = await this.props.contract.methods.getShipmentLocation(id).call();
+    console.log(locationInfo);
+    let currentLocation = locationInfo[locationInfo.length -1];
+    console.log(currentLocation)
+    let lat = parseFloat(currentLocation.Latitude);
+    let long = parseFloat(currentLocation.Longitude);
+    let coords = [lat,long]
+    this.setState({coords});
+  
+
     let events = await this.props.contract.getPastEvents("DataSent", {
       fromBlock: 0,
     });
-    let timeLogs = events.map((log, index) => {
+    let timeLogs = events.map((log) => {
       let logTime = new Date(log.returnValues.timestamp * 1000);
       let hours = logTime.getUTCHours();
       let minutes = logTime.getUTCMinutes().toString().padStart(2, "0");
@@ -160,11 +249,23 @@ class Track extends Component {
 
       return timestamp;
     });
+
     this.setState({ trackHistory, tempHistory, humidHistory, timeLogs });
 
     // send data to chart
     this.getChartData(tempHistory, humidHistory, timeLogs);
 
+    let mapEvents = await this.props.contract.getPastEvents("ShipmentStateUpdate", {
+      fromBlock: 0,
+    });
+    
+    let stateLogs = mapEvents.map( (log) => {
+        let shipStatus = log.returnValues.state;
+        console.log(this.props.Web3.utils.hexToAscii(shipStatus));
+
+        return true;
+    })
+    console.log(stateLogs);
     if (response.length === 0) {
       this.setState({
         msg: "No tracking logs are available for this request, please try again later!".toUpperCase(),
@@ -248,8 +349,9 @@ class Track extends Component {
     let view1, view2, wholeView;
     let acc = this.props.account;
     let cont = this.props.contract;
+    let web3 = this.props.Web3;
 
-    if (!acc || !cont) {
+    if (!acc || !cont || !web3) {
       return <div> Loading..... </div>;
     }
     this.state.wholeActive ? (wholeView = "show") : (wholeView = "hide");
@@ -288,7 +390,9 @@ class Track extends Component {
           >
             + TRACKING SUMMARY
           </a>
-          <div className={`${view1} response-logs tab`}>{this.state.log}</div>
+          <div className={`${view1} summary-container`}>
+          <div className={`response-logs tab`}>{this.state.log}</div>
+          </div>
           <a
             href="/track"
             onClick={this.toggleSection2}
@@ -296,34 +400,26 @@ class Track extends Component {
           >
             + TRACKING HISTORY
           </a>
-          <div
-            style={{ height: "200px" }}
-            className={` ${view2} response-logs tab2`}
-          >
-            <div className={`${view2} chart-container`}>
-              <HistoryChart
-                style={{ marginBottom: "30px" }}
-                tempData={this.state.tempHistory}
-                HumidData={this.state.HumidData}
-                chartData={this.state.chartData}
-                temp={this.state.tempHistory}
-                humid={this.state.humidHistory}
-                timestamp={this.state.timeLogs}
-              />
+          <div className={`${view2} history-container`}>
+            <div
+            style={{marginBottom: '20px'}}
+              className={` response-logs tab2`}
+            >
+                <div className={`chart-container`}>
+
+                  <HistoryChart
+                    tempData={this.state.tempHistory}
+                    HumidData={this.state.HumidData}
+                    chartData={this.state.chartData}
+                    temp={this.state.tempHistory}
+                    humid={this.state.humidHistory}
+                    timestamp={this.state.timeLogs}
+                  />
+                </div>
+                <div className="map-container">
+                  <Map location={this.state.coords}/> 
+                </div>
             </div>
-              <MapContainer
-                style={{width: '100%'}}
-                center={[51.505, -0.09]}
-                zoom={9}
-                scrollWheelZoom={false}
-              >
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <Marker position={[30.3, 31.18]}>
-                  <Popup>
-                    A pretty CSS3 popup. <br /> Easily customizable.
-                  </Popup>
-                </Marker>
-              </MapContainer>
           </div>
         </div>
       </form>
