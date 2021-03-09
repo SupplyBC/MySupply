@@ -336,7 +336,7 @@ input[type="text"], input[type="number"], select {
   margin-right: 20px;
 }
 
-.form-container .response-logs {
+.form-container .summary-container .response-logs {
   display: grid;
   grid-template-columns: 10fr 10fr;
   gap: 10px 50px;
@@ -402,6 +402,15 @@ input[type="text"], input[type="number"], select {
  .form-collection p {
    font: 13px;
  }
+
+
+ .form-container .history-container .response-logs {
+   display: grid;
+   grid-template-columns: 4fr 4fr;
+   grid-template-rows: 1fr;
+   gap:10px;
+ }
+
 
 /* AddProduct.js */
 
@@ -479,8 +488,8 @@ input[type="text"], input[type="number"], select {
   position: relative;
   border:none;
   background-color: white;
-  margin: 20px;
-  padding: 10px 20px;
+  margin-bottom: 20px;
+  padding: 5px 10px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 700;
@@ -798,13 +807,12 @@ input[type="text"], input[type="number"], select {
   }
 
 
-  .form-container .response-logs {
+  .form-container .summary-container .response-logs {
     display: grid;
     grid-template-columns: 4fr 4fr;
     grid-auto-rows: 1fr;
     font-size: 12px;
     gap: 10px;
-    margin-right: 10px;
   }
 
   .track-record-container img {
@@ -837,7 +845,12 @@ input[type="text"], input[type="number"], select {
   .newform-container .hide {
     display: none;
   }
+  
   .response-logs .hide {
+    display: none;
+  }
+
+  .chart-container .hide {
     display: none;
   }
 
@@ -880,7 +893,7 @@ input[type="text"], input[type="number"], select {
   
   }
 
- .form-container  .tab2   {
+ /* .form-container .two  .tab2   {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -889,7 +902,7 @@ input[type="text"], input[type="number"], select {
     font-size: 14px;
     height: 500px;
     margin: 0;
-  }
+  } */
 
   .chart-container{
     display:flex;
@@ -898,6 +911,12 @@ input[type="text"], input[type="number"], select {
     height: 300px !important;
   }
 
+  .form-container .history-container .response-logs {
+
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    font-size: 12px;
+  }
 
   
   /* 
