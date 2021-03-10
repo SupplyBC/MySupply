@@ -1,82 +1,111 @@
-import React, { Component , useState } from "react";
+import React, { Component, useState } from "react";
 import { Line } from "react-chartjs-2";
-import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
-import 'leaflet-defaulticon-compatibility';
+import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
+import "leaflet-defaulticon-compatibility";
 import { latLng } from "leaflet";
 
 function UpdateMap(props) {
-  const [position, setPosition] = useState(null)
+  let statusColor = "";
+  const current = props.location;
+  const [position, setPosition] = useState(null);
+  let markerRef;
+
   const map = useMapEvents({
 
+
+    resize: () => {
+      map.flyTo(latLng(current), 8);
+      // map.locate();
+      setPosition(latLng(current));
+    },
+
+    contextmenu: () => {
+     markerRef.openPopup();
   
-    click: () => {
-      map.locate()
-     
     },
-    locationfound: (location) => {
-          setPosition(location.latlng)
-          // console.log(props.location)
-          // console.log(location.latlng);
-          // console.log(latLng(props.location))
-          
-          // map.flyTo(location.latlng, map.getZoom())
-          map.flyTo(latLng(props.location), map.getZoom())
-    },
-
-   })
-
-   map.whenReady( () => {
-    //  console.log(props.location)
+  });
+  map.whenReady(() => {
     setTimeout(() => {
       map.invalidateSize();
-   }, 1); 
-     
-   })
+    }, 1);
+  });
 
-  // return null
+  if (props.state === "ABNORMAL") {
+    statusColor = "alert-text";
+  } else {
+    statusColor = "good-text";
+  }
+
+   markerRef = ref => {
+    if (ref) {
+      ref.openPopup()
+    }
+  }
 
   return position === null ? null : (
-    <Marker position={latLng(props.location)}>
+    <Marker ref={markerRef} position={latLng(props.location)}>
       <Popup>
-        <p>Current Shipment Location</p>
-        <p><strong> STATUS: </strong></p>
+        <div className="pop-up-container">
+          <p>Current Shipment Location</p>
+          <hr className="custom-hr-full"></hr>
+          <p>
+            <strong>{props.request.toUpperCase()}.</strong>
+          </p>
+          <p>
+            <strong>
+              STATUS: <span className={`${statusColor}`}>
+                {props.state}
+              </span>{" "}
+            </strong>
+          </p>
+        </div>
       </Popup>
     </Marker>
   );
-
-  
 }
 
 class Map extends Component {
+  state = { currentLocation: null };
+  componentWillMount = async () => {
+    this.setState({ currentLocation: this.props.location });
+  };
 
-    componentDidMount = async() => {  
-}
-   
   render() {
+    
     return (
       <MapContainer
-      style={{width: '100%'}}
-      center={[51.505, -0.09]}
-      zoom={6}
-      minZoom = {3}
-      maxZoom = {12}
-      dragging={true}
-      animate={true}
-      scrollWheelZoom={false}
-      easeLinearity={0.4}
-    >
-      <UpdateMap location={this.props.location}/>
-      <TileLayer
-        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-    </MapContainer>
-
+        center={[21.943046, 50.230324]}
+        zoom={5}
+        tap={true}
+        minZoom={5}
+        maxZoom={15}
+        dragging={true}
+        animate={true}
+        scrollWheelZoom={false}
+        easeLinearity={0.4}
+      >
+        <TileLayer
+          attribution='&copy; <a href="http://osm.org/copyright">Mapbox</a>'
+          // url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://api.mapbox.com/styles/v1/mohamedkaramm/ckm2fc4rq8eu217rzz5kmw3kh/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9oYW1lZGthcmFtbSIsImEiOiJja20yODVqMm80bGdxMm9uMWx5dWxzNGw4In0.ReVGLE7NEDUxlHH-PiGKnQ"
+        />
+         <UpdateMap
+          request={this.props.requestState}
+          state={this.props.state}
+          location={this.props.location}
+        />
+      </MapContainer>
     );
   }
 }
-
 
 class HistoryChart extends Component {
   constructor(props) {
@@ -151,7 +180,7 @@ class TrackRecord extends Component {
               SHIPMENT VERIFIED
             </li>
             <hr className="custom-hr-full" />
-            <li className="log-item">{this.props.description}.</li>
+            <li className="log-item">{this.props.description}</li>
             {/* <li className="log-item">
               <strong>TEMP:</strong> {this.props.temp} °C 
             </li>
@@ -167,9 +196,6 @@ class TrackRecord extends Component {
       );
   }
 }
-
-
-
 
 class Track extends Component {
   state = {
@@ -221,15 +247,16 @@ class Track extends Component {
     let tempHistory = trackHistory.temp;
     let humidHistory = trackHistory.humid;
 
-    let locationInfo = await this.props.contract.methods.getShipmentLocation(id).call();
+    let locationInfo = await this.props.contract.methods
+      .getShipmentLocation(id)
+      .call();
     console.log(locationInfo);
-    let currentLocation = locationInfo[locationInfo.length -1];
-    console.log(currentLocation)
+    let currentLocation = locationInfo[locationInfo.length - 1];
+    console.log(currentLocation);
     let lat = parseFloat(currentLocation.Latitude);
     let long = parseFloat(currentLocation.Longitude);
-    let coords = [lat,long]
-    this.setState({coords});
-  
+    let coords = [lat, long];
+    this.setState({ coords });
 
     let events = await this.props.contract.getPastEvents("DataSent", {
       fromBlock: 0,
@@ -255,17 +282,32 @@ class Track extends Component {
     // send data to chart
     this.getChartData(tempHistory, humidHistory, timeLogs);
 
-    let mapEvents = await this.props.contract.getPastEvents("ShipmentStateUpdate", {
-      fromBlock: 0,
-    });
-    
-    let stateLogs = mapEvents.map( (log) => {
-        let shipStatus = log.returnValues.state;
-        console.log(this.props.Web3.utils.hexToAscii(shipStatus));
+    let mapEvents = await this.props.contract.getPastEvents(
+      "ShipmentStateUpdate",
+      {
+        fromBlock: 0,
+      }
+    );
 
-        return true;
-    })
+    let stateLogs = mapEvents[mapEvents.length - 1];
     console.log(stateLogs);
+    let currentState = stateLogs.returnValues.state;
+    console.log(currentState);
+    this.setState({ currentState });
+
+    let reqEvents = await this.props.contract.getPastEvents(
+      "requestStateUpdate",
+      {
+        fromBlock: 0,
+      }
+    );
+
+    let requestLogs = reqEvents[reqEvents.length - 1];
+    console.log(requestLogs);
+    let reqCurrentState = requestLogs.returnValues.state;
+    console.log(reqCurrentState);
+    this.setState({ reqCurrentState });
+
     if (response.length === 0) {
       this.setState({
         msg: "No tracking logs are available for this request, please try again later!".toUpperCase(),
@@ -391,7 +433,7 @@ class Track extends Component {
             + TRACKING SUMMARY
           </a>
           <div className={`${view1} summary-container`}>
-          <div className={`response-logs tab`}>{this.state.log}</div>
+            <div className={`response-logs tab`}>{this.state.log}</div>
           </div>
           <a
             href="/track"
@@ -402,23 +444,26 @@ class Track extends Component {
           </a>
           <div className={`${view2} history-container`}>
             <div
-            style={{marginBottom: '20px'}}
+              style={{ marginBottom: "20px" }}
               className={` response-logs tab2`}
             >
-                <div className={`chart-container`}>
-
-                  <HistoryChart
-                    tempData={this.state.tempHistory}
-                    HumidData={this.state.HumidData}
-                    chartData={this.state.chartData}
-                    temp={this.state.tempHistory}
-                    humid={this.state.humidHistory}
-                    timestamp={this.state.timeLogs}
-                  />
-                </div>
-                <div className="map-container">
-                  <Map location={this.state.coords}/> 
-                </div>
+              <div className={`chart-container`}>
+                <HistoryChart
+                  tempData={this.state.tempHistory}
+                  HumidData={this.state.HumidData}
+                  chartData={this.state.chartData}
+                  temp={this.state.tempHistory}
+                  humid={this.state.humidHistory}
+                  timestamp={this.state.timeLogs}
+                />
+              </div>
+              <div data-tap-disabled="true" className="map-container">
+                <Map
+                  requestState={this.state.reqCurrentState}
+                  state={this.state.currentState}
+                  location={this.state.coords}
+                />
+              </div>
             </div>
           </div>
         </div>
