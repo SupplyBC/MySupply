@@ -19,8 +19,6 @@ function UpdateMap(props) {
   let markerRef;
 
   const map = useMapEvents({
-
-
     resize: () => {
       map.flyTo(latLng(current), 8);
       // map.locate();
@@ -28,8 +26,7 @@ function UpdateMap(props) {
     },
 
     contextmenu: () => {
-     markerRef.openPopup();
-  
+      markerRef.openPopup();
     },
   });
   map.whenReady(() => {
@@ -44,11 +41,11 @@ function UpdateMap(props) {
     statusColor = "good-text";
   }
 
-   markerRef = ref => {
+  markerRef = (ref) => {
     if (ref) {
-      ref.openPopup()
+      ref.openPopup();
     }
-  }
+  };
 
   return position === null ? null : (
     <Marker ref={markerRef} position={latLng(props.location)}>
@@ -61,9 +58,7 @@ function UpdateMap(props) {
           </p>
           <p>
             <strong>
-              STATUS: <span className={`${statusColor}`}>
-                {props.state}
-              </span>{" "}
+              STATUS: <span className={`${statusColor}`}>{props.state}</span>{" "}
             </strong>
           </p>
         </div>
@@ -79,7 +74,6 @@ class Map extends Component {
   };
 
   render() {
-    
     return (
       <MapContainer
         center={[21.943046, 50.230324]}
@@ -97,7 +91,7 @@ class Map extends Component {
           // url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           url="https://api.mapbox.com/styles/v1/mohamedkaramm/ckm2fc4rq8eu217rzz5kmw3kh/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9oYW1lZGthcmFtbSIsImEiOiJja20yODVqMm80bGdxMm9uMWx5dWxzNGw4In0.ReVGLE7NEDUxlHH-PiGKnQ"
         />
-         <UpdateMap
+        <UpdateMap
           request={this.props.requestState}
           state={this.props.state}
           location={this.props.location}
@@ -176,7 +170,6 @@ class TrackRecord extends Component {
             <li className="timestamp log-item"> {timestamp}</li>
             <li className="head log-item"> {this.props.request}</li>
             <li style={{ fontStyle: "normal" }} className="timestamp log-item">
-              {" "}
               SHIPMENT VERIFIED
             </li>
             <hr className="custom-hr-full" />
@@ -194,6 +187,94 @@ class TrackRecord extends Component {
           </ul>
         </div>
       );
+  }
+}
+
+class Notification extends Component {
+  state = { eventList: null, abnormalConditions: null, notifyElements: null , msg: '' };
+  constructor(props) {
+    super(props);
+    this.onRefresh = this.onRefresh.bind(this);
+  }
+
+  onRefresh = async () => {
+    const eventList = await this.props.contract.getPastEvents(
+      "ShipmentStateUpdate",
+      {
+        fromBlock: 0,
+      }
+    );
+    const abnormalConditions = eventList.filter((item) => {
+      return item.returnValues.state === "ABNORMAL";
+    });
+    this.setState({msg: 'Found no notifications.'.toUpperCase})
+    if(abnormalConditions.length === 0) {
+      this.setState({msg: 'Found no notifications.'.toUpperCase})
+    }
+    setTimeout(() => {
+      this.setState({ msg: "" });
+    }, 3000);
+
+
+    const notifyElements = abnormalConditions.map((item, index) => {
+      let request = item.returnValues.requestNo;
+      let time = new Date(item.returnValues.timestamp * 1000).toString();
+      const dateArr = time.split(" ", 5);
+      const timestamp = dateArr.join(" ");
+      let state = item.returnValues.state;
+
+      return (
+        <div className="notification" key={index}>
+          <h4 className="head">ABNORMAL READINGS NOTIFICATION</h4>
+          <hr className="custom-hr-full"></hr>
+          <p className="subhead">
+            An abnormal sensor reading is detected coming from source (tracking
+            no) <strong> {request} </strong>
+            at <strong> {timestamp} </strong> local time, shipment's current
+            status is <strong> {state}. </strong>
+          </p>
+        </div>
+      );
+    });
+
+    console.log(eventList);
+    console.log(abnormalConditions);
+    console.log(notifyElements);
+    this.setState({ eventList, abnormalConditions, notifyElements });
+  };
+
+  render() {
+    return (
+      <div className="notification-panel">
+        <button
+          style={{
+            display: "inline",
+            marginRight: "10px",
+            padding: "0",
+            textAlign: "left",
+          }}
+          onClick={this.onRefresh}
+          className="btn-alt"
+        >
+          VIEW ALL NOTIFICATIONS
+        </button>
+        <div className="msg">{this.state.msg}</div>
+        <div className="notification-content">{this.state.notifyElements}</div>
+      </div>
+    );
+  }
+}
+
+class NotificationList extends Component {
+  render() {
+    return (
+      <ul style={{ padding: "0", margin: "0" }}>
+        <Notification
+          account={this.props.account}
+          contract={this.props.contract}
+        />
+      </ul>
+    );
   }
 }
 
@@ -308,7 +389,12 @@ class Track extends Component {
     console.log(reqCurrentState);
     this.setState({ reqCurrentState });
 
-    if (response.length === 0) {
+    if (
+      response.length === 0 ||
+      trackHistory.length === 0 ||
+      locationInfo.length === 0 ||
+      requestLogs.length === 0
+    ) {
       this.setState({
         msg: "No tracking logs are available for this request, please try again later!".toUpperCase(),
         wholeActive: false,
@@ -400,74 +486,88 @@ class Track extends Component {
     this.state.isTab1Active ? (view1 = "show") : (view1 = "hide");
     this.state.isTab2Active ? (view2 = "show") : (view2 = "hide");
     return (
-      <form onSubmit={this.handleSubmit} className="form-container">
-        <div className="form-row">
-          <h4>Track Requested Shipments </h4>
-          <label style={{ marginRight: "5px" }}> Tracking Number : </label>
-          <input
-            type="text"
-            placeholder="e.g 101"
-            value={this.state.requestID}
-            ref={this.requestIdRef}
-            onChange={this.handleChange}
-            required="required"
-          />
+      <div>
+        <form onSubmit={this.handleSubmit} className="form-container">
+          <div className="form-row">
+            <h4>Track Requested Shipments </h4>
+            <label style={{ marginRight: "5px" }}> Tracking Number : </label>
+            <input
+              type="text"
+              placeholder="e.g 101"
+              value={this.state.requestID}
+              ref={this.requestIdRef}
+              onChange={this.handleChange}
+              required="required"
+            />
 
-          <input
-            style={{ cursor: "pointer" }}
-            type="submit"
-            className="btn"
-            value="VIEW STATUS"
-          />
-        </div>
-
-        <div style={{ margin: "10px 0px" }} className="query-result">
-          {this.state.msg}
-        </div>
-        <div className={` ${wholeView} accordion-tabs`}>
-          <a
-            href="/track"
-            onClick={this.toggleSection1}
-            className={` accordion-toggle one `}
-          >
-            + TRACKING SUMMARY
-          </a>
-          <div className={`${view1} summary-container`}>
-            <div className={`response-logs tab`}>{this.state.log}</div>
+            <input
+              style={{ cursor: "pointer" }}
+              type="submit"
+              className="btn"
+              value="VIEW STATUS"
+            />
           </div>
-          <a
-            href="/track"
-            onClick={this.toggleSection2}
-            className={` accordion-toggle two `}
-          >
-            + TRACKING HISTORY
-          </a>
-          <div className={`${view2} history-container`}>
-            <div
-              style={{ marginBottom: "20px" }}
-              className={` response-logs tab2`}
+
+          <div style={{ margin: "10px 0px" }} className="query-result">
+            {this.state.msg}
+          </div>
+          <div className={` ${wholeView} accordion-tabs`}>
+            <a
+              href="/track"
+              onClick={this.toggleSection1}
+              className={` accordion-toggle one `}
             >
-              <div className={`chart-container`}>
-                <HistoryChart
-                  tempData={this.state.tempHistory}
-                  HumidData={this.state.HumidData}
-                  chartData={this.state.chartData}
-                  temp={this.state.tempHistory}
-                  humid={this.state.humidHistory}
-                  timestamp={this.state.timeLogs}
-                />
-              </div>
-              <div data-tap-disabled="true" className="map-container">
-                <Map
-                  requestState={this.state.reqCurrentState}
-                  state={this.state.currentState}
-                  location={this.state.coords}
-                />
+              + TRACKING SUMMARY
+            </a>
+            <div className={`${view1} summary-container`}>
+              <div className={`response-logs tab`}>{this.state.log}</div>
+            </div>
+            <a
+              href="/track"
+              onClick={this.toggleSection2}
+              className={` accordion-toggle two `}
+            >
+              + TRACKING HISTORY
+            </a>
+            <div className={`${view2} history-container`}>
+              <div
+                style={{ marginBottom: "20px" }}
+                className={` response-logs tab2`}
+              >
+                <div className={`chart-container`}>
+                  <HistoryChart
+                    tempData={this.state.tempHistory}
+                    HumidData={this.state.HumidData}
+                    chartData={this.state.chartData}
+                    temp={this.state.tempHistory}
+                    humid={this.state.humidHistory}
+                    timestamp={this.state.timeLogs}
+                  />
+                </div>
+                <div data-tap-disabled="true" className="map-container">
+                  <Map
+                    requestState={this.state.reqCurrentState}
+                    state={this.state.currentState}
+                    location={this.state.coords}
+                  />
+                </div>
               </div>
             </div>
           </div>
+        </form>
+        <hr className="custom-hr-full"></hr>
+        <div className="notification-center-container">
+          <h3>NOTIFICATION CENTER</h3>
+          <div className="notifications-center">
+            <div className="notifications">
+              <NotificationList
+                account={this.props.account}
+                contract={this.props.contract}
+              />
+            </div>
+          </div>
         </div>
-      </form>
+      </div>
     );
   }
 }
