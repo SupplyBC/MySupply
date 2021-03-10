@@ -73,9 +73,9 @@ contract NewDemoTest {
     mapping (uint => uint)           requestCost;    // requestId and Total Cost.
     mapping (uint => Location[])     requestLocations; //request id and locations
     mapping (address => mapping (address => BankAccount) ) userBankAccounts; // bankAddr -> userAddr -> userAcc
-    event   DataSent (string DataCategory , string indexed dataValues , uint indexed timestamp  );
-    event   ShipmentStateUpdate (uint indexed requestNo, string indexed state, uint indexed timestamp);
-    event   requestStateUpdate (address indexed who, uint indexed timestamp , string indexed state);
+    event   DataSent (string DataCategory , string dataValues , uint indexed timestamp  );
+    event   ShipmentStateUpdate (uint indexed requestNo, string  state, uint indexed timestamp);
+    event   requestStateUpdate (address indexed who, uint indexed timestamp , string  state);
   
     
     
@@ -253,6 +253,7 @@ contract NewDemoTest {
     function getProductById(string memory _id) public view returns(Product memory) {
         return productList[_id];
     }
+    
     function getProductSpecs(string memory _product) public view returns(Specs[] memory) {
         return productSpecs[_product];
     }
