@@ -323,6 +323,9 @@ input[type="text"], input[type="number"], select {
 
 /* TrackForm.js */
 
+.pop-up-container p {
+  margin: 2px;
+}
 .leaflet-container {
   height: 400px;
   width: 100%;
