@@ -1,16 +1,3 @@
-/*
-    THIS CONTRACT IMPLEMENTATION ALLOWS A USER TO:
-    
-    1- Add products with their specs. (manufacturer)
-    2- Create materials. (suppplier).
-    3- Request materials from suppliers. (manufacturer)
-    4- Track requests status. (manufacturer)
-*/
-
-// contract address: 0xDF68a904750D4236299199859D54fa18C6b7FE04 
-// productId: plus01
-// tracking no: 116887 , 117212 , 117537
-
 // "SPDX-License-Identifier: UNLICENSED"
 pragma solidity >=0.6.2;
 pragma experimental ABIEncoderV2;  
@@ -61,7 +48,7 @@ contract NewDemoTest {
     
     
     address     admin;
-    address     payable bank = 0xB1D4d13a22F21ECD91d728D9cfD12C4Dadef2Bb0;
+    address     payable bank;
     uint        trackNoCount = 115912;
     uint        tempThreshold = 40;
     uint        humidityThreshold = 50;
@@ -84,10 +71,11 @@ contract NewDemoTest {
     mapping (string => Cost)         standardProductCosts;
     mapping (string => Cost)         actualProductCosts;
     mapping (uint => uint)           requestCost;    // requestId and Total Cost.
+    mapping (uint => Location[])     requestLocations; //request id and locations
     mapping (address => mapping (address => BankAccount) ) userBankAccounts; // bankAddr -> userAddr -> userAcc
-    event   DataSent (string DataCategory , string indexed dataValues , uint indexed timestamp  );
-    event   ShipmentStateUpdate (uint requestNo, string state, uint timestamp);
-    event   requestStateUpdate (address indexed who, uint indexed timestamp , string indexed state);
+    event   DataSent (string DataCategory , string dataValues , uint indexed timestamp  );
+    event   ShipmentStateUpdate (uint indexed requestNo, string  state, uint indexed timestamp);
+    event   requestStateUpdate (address indexed who, uint indexed timestamp , string  state);
   
     
     
@@ -147,8 +135,6 @@ contract NewDemoTest {
        struct Log {
         address logger;
         string  requestStatus;
-        // uint    currentTemp;
-        // uint    currentHumidity;
         string  description;
         string  shipmentStatus;
         uint    logTime;
@@ -163,6 +149,11 @@ contract NewDemoTest {
         uint totalIndirectCost; // indirect manufacturing costs
         uint totalDirectCost;
         uint CostTOT; // direct material + direct labor + total indirect
+    }
+    
+    struct Location {
+        string Latitude;
+        string Longitude;
     }
     
     
@@ -262,6 +253,7 @@ contract NewDemoTest {
     function getProductById(string memory _id) public view returns(Product memory) {
         return productList[_id];
     }
+    
     function getProductSpecs(string memory _product) public view returns(Specs[] memory) {
         return productSpecs[_product];
     }
@@ -431,6 +423,10 @@ contract NewDemoTest {
         return requests[msg.sender];
     }
     
+    function getRequestById(uint _id) public view returns (Request memory) {
+        return requestList[_id];
+    }
+    
      
      // return received requests (filtering: to address) for the portal control
      
@@ -566,27 +562,7 @@ contract NewDemoTest {
     }
     
      function selfTransfer (address _to , uint _amount) public returns (bool) {
-        
-         require(userBankAccounts[bank][msg.sender].userBalance >= _amount ,
-         'You Do Not Have Enough Balance to Transfer This Amount!' );
-         
-        if (userBankAccounts[bank][msg.sender].userId == msg.sender
-            && userBankAccounts[bank][_to].isActive == true)
-        {
-            uint fromBalance = userBankAccounts[bank][msg.sender].userBalance;
-            uint toBalance = userBankAccounts[bank][_to].userBalance;
-            fromBalance -= _amount;
-            toBalance += _amount;
-            userBankAccounts[bank][msg.sender].userBalance = fromBalance;
-            userBankAccounts[bank][_to].userBalance = toBalance; 
-            return true;
-        }
-        
-        else {
-            
-            return false;
-        }
-        
+            return transfer(msg.sender, _to , _amount);
     }
     
     
@@ -613,7 +589,7 @@ contract NewDemoTest {
     //supplier
     
     function approveRequest(uint _requestId) public {
-        createLog(_requestId, 'REQUEST APPROVED', 'NORMAL' , 'REQUEST IS BEING PROCESSED' );
+        createLog(_requestId, 'REQUEST APPROVED', 'NORMAL' , 'YOUR REQUEST IS BEING PROCESSED.' );
         emit requestStateUpdate(msg.sender, block.timestamp , 'REQUEST APPROVED');
         uint payment = requestCost[_requestId]/2;
         transfer(requestList[_requestId].fromParti, msg.sender, payment);
@@ -643,10 +619,10 @@ contract NewDemoTest {
     function sendShipment(uint _requestId) public {
         string memory result = verifyShipmentState(_requestId);
         
-        createLog(_requestId, 'PACKAGE CREATED',  result , 'SHIPMENT IS READY TO LEAVE' );
+        createLog(_requestId, 'PACKAGE CREATED',  result , 'PACKAGE IS CREATED AND SHIPMENT IS READY TO LEAVE FOR SHPPING.' );
         emit requestStateUpdate(msg.sender, block.timestamp , 'PACKAGE CREATED');
         
-        createLog (_requestId, 'OUT FOR SHIPPING', result , 'SHIPMENT IS ON ITS WAY');
+        createLog (_requestId, 'OUT FOR SHIPPING', result , ' YOUR SHIPMENT IS OUT FOR SHIPPING'); 
         emit requestStateUpdate(msg.sender, block.timestamp , 'PACKAGE IS OUT FOR SHIPPING');
     }
     
@@ -655,8 +631,8 @@ contract NewDemoTest {
         
         string memory result = verifyShipmentState(_requestId);
         
-        createLog (_requestId, 'SHIPPING PACKAGE', result , 'SHIPMENT IS CURRENTLY IN TRANSIT');
-        emit requestStateUpdate(msg.sender, block.timestamp , 'IN TRANSIT');
+        createLog (_requestId, 'SHIPPING PACKAGE', result , ' YOUR SHIPMENT IS CURRENTLY IN TRANSIT.');
+        emit requestStateUpdate(msg.sender, block.timestamp , 'IN GLOBAL TRANSIT');
         
     }
     
@@ -665,7 +641,7 @@ contract NewDemoTest {
         
          string memory result = verifyShipmentState(_requestId);
          
-        createLog (_requestId, 'READY FOR DELIVERY', result , 'SHIPMENT IS SET FOR LOCAL DELIVERY');
+        createLog (_requestId, 'READY FOR DELIVERY', result , 'YOUR SHIPMENT IS SET FOR DELIVERY AND IS EXPECTED TO ARRIVE SOON.');
         emit requestStateUpdate(msg.sender, block.timestamp , 'IN LOCAL TRANSIT');
         
     }
@@ -674,7 +650,7 @@ contract NewDemoTest {
     
     function receiveShipment(uint _requestId) public {
         string memory result = verifyShipmentState(_requestId);
-        createLog(_requestId, 'DELIVERED' , result , 'YOUR REQUEST HAS BEEN FULFILLED');
+        createLog(_requestId, 'DELIVERED' , result , 'YOUR SHIPMENT IS DELIVERED SUCCESSFULLY.');
         emit requestStateUpdate(msg.sender, block.timestamp , 'SHIPMENT DELIVERED');
         
         uint payment = requestCost[_requestId] - requestCost[_requestId]/2;
@@ -685,8 +661,6 @@ contract NewDemoTest {
     function createLog(
     uint _requestId,
     string memory _requestStatus,
-    // uint _currentTemp,
-    // uint _currentHumid,
     string memory _shipmentStatus,
     string memory _description
     
@@ -695,8 +669,6 @@ contract NewDemoTest {
         Log memory myLog = Log({
             logger: msg.sender,
             requestStatus: _requestStatus,
-            // currentTemp: _currentTemp,
-            // currentHumidity: _currentHumid,
             shipmentStatus: _shipmentStatus,
             description: _description,
             logTime: block.timestamp
@@ -712,7 +684,12 @@ contract NewDemoTest {
         tempArr.push(_temp);
         humidDataLogs[_id].push(_humid);
         humidArr.push(_humid);
-        emit DataSent('Humidity Data', concat(toString(_temp),toString(_humid)), block.timestamp);
+        emit DataSent('Sensors Data', concat(toString(_temp),toString(_humid)), block.timestamp);
+        if(_temp >= tempThreshold || _humid >= humidityThreshold) {
+            emit ShipmentStateUpdate (_id, 'ABNORMAL' , block.timestamp);
+        } else {
+             emit ShipmentStateUpdate (_id, 'NORMAL' , block.timestamp);
+        }
     }
     
     function getShipmentTrackData (uint _id) public view returns (uint[] memory temp, uint[] memory humid) {
@@ -724,6 +701,19 @@ contract NewDemoTest {
         return trackLogs[_request];
     }
     
+    
+    function setShipmentLocation (uint _id, string memory _lat , string memory _long) public {
+        Location memory loc = Location({
+            Latitude: _lat,
+            Longitude: _long
+        });
+        
+        requestLocations[_id].push(loc);
+    }
+    
+    function getShipmentLocation (uint _id) public view returns (Location[] memory) {
+        return requestLocations[_id];
+    }
     
     // END OF TRACKING STUFF
     

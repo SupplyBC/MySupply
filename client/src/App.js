@@ -135,8 +135,10 @@ class App extends Component {
             render={ (props) => (
               <Track
                 {...props}
+                Web3={this.state.web3}
                 account={this.state.accounts}
                 contract={this.state.contract}
+                
               />
             )}
           />

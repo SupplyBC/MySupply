@@ -152,7 +152,6 @@ class AddMaterial extends Component {
         }, 2000);
       });
     this.setState({
-      proID: "",
       matName: "",
       matType: "",
       matStr: "",
