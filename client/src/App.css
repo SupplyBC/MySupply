@@ -365,6 +365,7 @@ input[type="text"], input[type="number"], select {
 
 .notification .subhead {
   font-size: 1.1em;
+  color: #f2f2f2;
 }
 
 .pop-up-container p {
@@ -387,6 +388,11 @@ input[type="text"], input[type="number"], select {
   display: grid;
   grid-template-columns: 10fr 10fr;
   gap: 10px 50px;
+}
+
+.response-logs .chart-container {
+  margin-right: 20px;
+  margin-left: -20px;
 }
 
 .track-record-container {
@@ -1002,7 +1008,7 @@ input[type="text"], input[type="number"], select {
 
 .notification .head {
   margin: 3px;
-  color: #ad231f;
+  color: #721714;
   font-weight: 700;
   font-size: 1em;
 
@@ -1010,6 +1016,7 @@ input[type="text"], input[type="number"], select {
 
 .notification .subhead {
   font-size: 0.9em;
+  
 }
 
 
