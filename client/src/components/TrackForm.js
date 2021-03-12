@@ -81,7 +81,7 @@ class Map extends Component {
         tap={true}
         minZoom={5}
         maxZoom={15}
-        dragging={true}
+        dragging={false}
         animate={true}
         scrollWheelZoom={false}
         easeLinearity={0.4}
