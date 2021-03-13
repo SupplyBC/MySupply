@@ -35,29 +35,30 @@ html, body {
 }
  /* UTILS  */
 
-@font-face {
+ @font-face {
   font-family: 'Oxygen';
-  src: local('Oxygen'), url(./fonts/Oxygen-Regular.ttf) format('truetype');
+  src: local('Oxygen'), url(./assets/fonts/Oxygen-Regular.ttf) format('truetype');
 }
 
 @font-face {
   font-family: 'Oxygen';
   font-weight: 300;
-  src: local('Oxygen'), url(./fonts/Oxygen-Light.ttf) format('truetype');
+  src: local('Oxygen'), url(./assets/fonts/Oxygen-Light.ttf) format('truetype');
 }
 
 @font-face {
   font-family: 'Oxygen';
   font-weight: 700;
-  src: local('Oxygen'), url(./fonts/Oxygen-Bold.ttf) format('truetype');
-}
+  src: local('Oxygen'), url(./assets/fonts/Oxygen-Bold.ttf) format('truetype');
+} 
+
 
 link:focus {
   border:none;
 }
 
 * {
-  font-family: Oxygen;
+  font-family: Oxygen, Roboto , Arial;
 }
 
 input, select {
