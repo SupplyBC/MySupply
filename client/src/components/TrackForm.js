@@ -1,4 +1,5 @@
 import React, { Component, useState } from "react";
+import { BrowserRouter, Route, NavLink } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import {
   MapContainer,
@@ -58,7 +59,7 @@ function UpdateMap(props) {
           </p>
           <p>
             <strong>
-              STATUS: <span className={`${statusColor}`}>{props.state}</span>{" "}
+              STATUS: <span className={`${statusColor}`}>{props.state}</span>
             </strong>
           </p>
         </div>
@@ -203,6 +204,53 @@ class Notification extends Component {
 onSubmit = async(e) => {
     e.preventDefault();
     console.log(this.state.id)
+    let reqNo = this.state.id;
+
+    const eventList = await this.props.contract.getPastEvents(
+      "ShipmentStateUpdate",
+      {
+        fromBlock: 0,
+      }
+    );
+    
+    const abnormalConditionsFiltered = eventList.filter((item) => {
+      return (item.returnValues.state === "ABNORMAL" && item.returnValues.requestNo === reqNo) ;
+    });
+    this.setState({msg: 'Found no notifications.'.toUpperCase})
+    if(abnormalConditionsFiltered.length === 0) {
+      this.setState({msg: 'Found no notifications.'.toUpperCase})
+    }
+    setTimeout(() => {
+      this.setState({ msg: "" });
+    }, 3000);
+
+    abnormalConditionsFiltered.reverse();
+
+
+    const notifyElements= abnormalConditionsFiltered.map((item, index) => {
+      let request = item.returnValues.requestNo;
+      let time = new Date(item.returnValues.timestamp * 1000).toString();
+      const dateArr = time.split(" ", 5);
+      const timestamp = dateArr.join(" ");
+      let state = item.returnValues.state;
+
+      return (
+        <div className="notification" key={index}>
+          <h4 className="head">ABNORMAL READINGS NOTIFICATION</h4>
+          <hr className="custom-hr-full"></hr>
+          <p className="subhead">
+            <em>An abnormal sensor reading is detected coming from source (tracking
+            no) </em><strong> {request} </strong>
+            <em>at</em> <strong> {timestamp} </strong> <em> local time, shipment's current
+            status is</em> <strong> {state}. </strong>
+          </p>
+        </div>
+      );
+    });
+
+    console.log(eventList);
+    console.log(abnormalConditionsFiltered);
+    this.setState({ eventList, abnormalConditionsFiltered, notifyElements});
 }
 
 onChange = async(e) => {
@@ -228,6 +276,8 @@ onRefresh = async () => {
       this.setState({ msg: "" });
     }, 3000);
 
+    abnormalConditions.reverse();
+
 
     const notifyElements = abnormalConditions.map((item, index) => {
       let request = item.returnValues.requestNo;
@@ -241,10 +291,10 @@ onRefresh = async () => {
           <h4 className="head">ABNORMAL READINGS NOTIFICATION</h4>
           <hr className="custom-hr-full"></hr>
           <p className="subhead">
-            An abnormal sensor reading is detected coming from source (tracking
-            no) <strong> {request} </strong>
-            at <strong> {timestamp} </strong> local time, shipment's current
-            status is <strong> {state}. </strong>
+            <em>An abnormal sensor reading is detected coming from source (tracking
+            no) </em><strong> {request} </strong>
+            <em>at</em> <strong> {timestamp} </strong> <em> local time, shipment's current
+            status is</em> <strong> {state}. </strong>
           </p>
         </div>
       );
@@ -259,29 +309,29 @@ onRefresh = async () => {
   render() {
     return (
       <div className="notification-panel">
+          <div className="view-all-container">
+            <button
+              style={{
+                marginRight: "10px",
+                textAlign: "center",
+              }}
+              onClick={this.onRefresh}
+              className="btn"
+            >
+              VIEW ALL NOTIFICATIONS
+            </button>
+          </div>
         <div className="panel-control">
          <form onSubmit={this.onSubmit} className="form-row">
-          <label>Filter by Tracking No</label>
           <input 
           type="number"
           value={this.state.id}
           ref={this.idRef}
           onChange={this.onChange}
-          placeholder="e.g. 101" />
+          placeholder="Filter by tracking no (e.g. 101)" />
           <input className="btn" type="submit" value="APPLY"/>
         </form>
-        <button
-          style={{
-            display: "inline",
-            marginRight: "10px",
-            padding: "0",
-            textAlign: "left",
-          }}
-          onClick={this.onRefresh}
-          className="btn-alt"
-        >
-          VIEW ALL NOTIFICATIONS
-        </button>
+        
         </div>
         <div className="msg">{this.state.msg}</div>
         <div className="notification-content">{this.state.notifyElements}</div>
@@ -293,17 +343,28 @@ onRefresh = async () => {
 class NotificationList extends Component {
   render() {
     return (
-      <ul style={{ padding: "0", margin: "0" }}>
-        <Notification
-          account={this.props.account}
-          contract={this.props.contract}
-        />
-      </ul>
+      <div>
+      
+      <div className="notification-center-container">
+          <h4>Notification Center</h4>
+          <div className="notifications-center">
+            <ul style={{ padding: "0"}}>
+          
+              <Notification
+                account={this.props.account}
+                contract={this.props.contract}
+              />
+            </ul>
+          </div>
+      </div>
+      
+     
+      </div>
     );
   }
 }
 
-class Track extends Component {
+class Status extends Component {
   state = {
     logs: [],
     wholeActive: false,
@@ -364,14 +425,37 @@ class Track extends Component {
     let coords = [lat, long];
     this.setState({ coords });
 
-    let events = await this.props.contract.getPastEvents("DataSent", {
-      fromBlock: 0,
+    // let events = await this.props.contract.getPastEvents("DataSent", {
+    //   fromBlock: 0,
+    // });
+    // let timeLogs = events.map((log) => {
+    //   let logTime = new Date(log.returnValues.timestamp * 1000);
+    //   let hours = logTime.getUTCHours();
+    //   let minutes = logTime.getUTCMinutes().toString().padStart(2, "0");
+    //   let day = logTime.getUTCDay();
+    //   let month = logTime.getUTCMonth() + 1;
+    //   let year = logTime.getUTCFullYear();
+    //   let timestamp =
+    //     day + "/" + month + "/" + year + " " + hours + ":" + minutes;
+
+    //   // const dateArr =time.split(" ", 5);
+    //   // const timestamp = dateArr.join(" ");
+
+    //   return timestamp;
+    // });
+
+    let eventsFiltered = await this.props.contract.getPastEvents("DataSent", {
+      filter: {
+        requestNo: id,
+      },
+      fromBlock: 400,
     });
-    let timeLogs = events.map((log) => {
+
+    let timeLogsFiltered = eventsFiltered.map((log) => {
       let logTime = new Date(log.returnValues.timestamp * 1000);
       let hours = logTime.getUTCHours();
       let minutes = logTime.getUTCMinutes().toString().padStart(2, "0");
-      let day = logTime.getUTCDay();
+      let day = logTime.getUTCDate();
       let month = logTime.getUTCMonth() + 1;
       let year = logTime.getUTCFullYear();
       let timestamp =
@@ -383,10 +467,12 @@ class Track extends Component {
       return timestamp;
     });
 
-    this.setState({ trackHistory, tempHistory, humidHistory, timeLogs });
+    // console.log(events)
+    console.log(eventsFiltered)
+    this.setState({ trackHistory, tempHistory, humidHistory, timeLogsFiltered });
 
     // send data to chart
-    this.getChartData(tempHistory, humidHistory, timeLogs);
+    this.getChartData(tempHistory, humidHistory, timeLogsFiltered);
 
     let mapEvents = await this.props.contract.getPastEvents(
       "ShipmentStateUpdate",
@@ -510,88 +596,135 @@ class Track extends Component {
     this.state.wholeActive ? (wholeView = "show") : (wholeView = "hide");
     this.state.isTab1Active ? (view1 = "show") : (view1 = "hide");
     this.state.isTab2Active ? (view2 = "show") : (view2 = "hide");
-    return (
-      <div>
-        <form onSubmit={this.handleSubmit} className="form-container">
-          <div className="form-row">
-            <h4>Track Requested Shipments </h4>
-            <label style={{ marginRight: "5px" }}> Tracking Number : </label>
-            <input
-              type="text"
-              placeholder="e.g 101"
-              value={this.state.requestID}
-              ref={this.requestIdRef}
-              onChange={this.handleChange}
-              required="required"
-            />
+    return(
+      <form onSubmit={this.handleSubmit} className="form-container">
+      <div className="newform-row">
+        <div className="form-row">
+          <h4>Track Requested Shipments </h4>
+          <label style={{ marginRight: "5px" }}> Tracking Number : </label>
+          <input
+            type="text"
+            placeholder="e.g 101"
+            value={this.state.requestID}
+            ref={this.requestIdRef}
+            onChange={this.handleChange}
+            required="required"
+          />
 
-            <input
-              style={{ cursor: "pointer" }}
-              type="submit"
-              className="btn"
-              value="VIEW STATUS"
-            />
-          </div>
+          <input
+            style={{ cursor: "pointer" }}
+            type="submit"
+            className="btn"
+            value="VIEW STATUS"
+          />
+        </div>
+          
+      </div>
+      
 
-          <div style={{ margin: "10px 0px" }} className="query-result">
-            {this.state.msg}
-          </div>
-          <div className={` ${wholeView} accordion-tabs`}>
-            <a
-              href="/track"
-              onClick={this.toggleSection1}
-              className={` accordion-toggle one `}
-            >
-              + TRACKING SUMMARY
-            </a>
-            <div className={`${view1} summary-container`}>
-              <div className={`response-logs tab`}>{this.state.log}</div>
+      <div style={{ margin: "10px 0px" }} className="query-result">
+        {this.state.msg}
+      </div>
+      <div className={` ${wholeView} accordion-tabs`}>
+        <a
+          href="/track"
+          onClick={this.toggleSection1}
+          className={` accordion-toggle one `}
+        >
+          + TRACKING SUMMARY
+        </a>
+        <div className={`${view1} summary-container`}>
+          <div className={`response-logs tab`}>{this.state.log}</div>
+        </div>
+        <a
+          href="/track"
+          onClick={this.toggleSection2}
+          className={` accordion-toggle two `}
+        >
+          + TRACKING HISTORY
+        </a>
+        <div className={`${view2} history-container`}>
+          <div
+            style={{ marginBottom: "20px" }}
+            className={` response-logs tab2`}
+          >
+            <div className={`chart-container`}>
+              <HistoryChart
+                tempData={this.state.tempHistory}
+                HumidData={this.state.HumidData}
+                chartData={this.state.chartData}
+                temp={this.state.tempHistory}
+                humid={this.state.humidHistory}
+                timestamp={this.state.timeLogsFiltered}
+              />
             </div>
-            <a
-              href="/track"
-              onClick={this.toggleSection2}
-              className={` accordion-toggle two `}
-            >
-              + TRACKING HISTORY
-            </a>
-            <div className={`${view2} history-container`}>
-              <div
-                style={{ marginBottom: "20px" }}
-                className={` response-logs tab2`}
-              >
-                <div className={`chart-container`}>
-                  <HistoryChart
-                    tempData={this.state.tempHistory}
-                    HumidData={this.state.HumidData}
-                    chartData={this.state.chartData}
-                    temp={this.state.tempHistory}
-                    humid={this.state.humidHistory}
-                    timestamp={this.state.timeLogs}
-                  />
-                </div>
-                <div data-tap-disabled="true" className="map-container">
-                  <Map
-                    requestState={this.state.reqCurrentState}
-                    state={this.state.currentState}
-                    location={this.state.coords}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </form>
-        <hr className="custom-hr-full"></hr>
-        <div className="notification-center-container">
-          <h3>NOTIFICATION CENTER</h3>
-          <div className="notifications-center">
-            <div className="notifications">
-              <NotificationList
-                account={this.props.account}
-                contract={this.props.contract}
+            <div data-tap-disabled="true" className="map-container">
+              <Map
+                requestState={this.state.reqCurrentState}
+                state={this.state.currentState}
+                location={this.state.coords}
               />
             </div>
           </div>
         </div>
+      </div>
+    </form>
+    );
+  }
+}
+
+class Track extends Component {
+  render() {
+    let acc = this.props.account;
+    let cont = this.props.contract;
+    let web3 = this.props.Web3;
+
+    if (!acc || !cont || !web3) {
+      return <div> Loading..... </div>;
+    }
+    return (
+      <div>
+         <BrowserRouter>
+         <div className="product-form-container">
+           <div className="side-nav">
+             <ul className="mini-nav-list">
+               <li className="link-item">
+                 <NavLink to="/track/status">+ TRACKING REQUESTS</NavLink>
+               </li>
+               <li className="link-item">
+                 <NavLink to="/track/notifications">+ NOTIFICATION CENTER</NavLink>
+               </li>
+             </ul>
+           </div>
+           <div className="main-content">
+             <Route
+               path="/track/status"
+               exact
+               render={(props) => (
+                 <Status
+                   {...props}
+                   Web3={this.props.Web3}
+                   account={this.props.account}
+                   contract={this.props.contract}
+                 />
+               )}
+             />
+             <Route
+               path="/track/notifications"
+               exact
+               render={(props) => (
+                 <NotificationList
+                   {...props}
+                   account={this.props.account}
+                   contract={this.props.contract}
+                   Web3={this.props.Web3}
+                 />
+               )}
+             />
+            
+           </div>
+         </div>
+       </BrowserRouter>
       </div>
     );
   }
