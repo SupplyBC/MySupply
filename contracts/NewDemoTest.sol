@@ -48,7 +48,7 @@ contract NewDemoTest {
     
     
     address     admin;
-    address     payable bank;
+    address     bank;
     uint        trackNoCount = 115912;
     uint        tempThreshold = 40;
     uint        humidityThreshold = 50;
@@ -56,26 +56,31 @@ contract NewDemoTest {
     Product[]   productArr;
     uint[]      tempArr;
     uint[]      humidArr;
-    enum        Role                 {MANUFACTURER, SUPPLIER, DISTRIBUTOR, DRUG_AUTHORITY , BANK}
-    mapping (address => bool)        participants;
-    mapping (address => Product[])   products;    // manufacturer and product
-    mapping (string => Specs[])      productSpecs; // productID and material 
-    mapping (string => Product)      productList; // product by id
-    mapping (address => Material[])  materials;   //Participant(supplier) and material
-    mapping (string => Material)     materialList; // materials by id
-    mapping (address => Request[])   requests;   // participant and requests
-    mapping (uint => Request)        requestList; // requests by id
-    mapping (uint => Log[])          trackLogs; //requestId and Log
-    mapping (uint => uint[])         tempDataLogs; // requestId and temp data
-    mapping (uint => uint[])         humidDataLogs; // requestId and humid data
-    mapping (string => Cost)         standardProductCosts;
-    mapping (string => Cost)         actualProductCosts;
-    mapping (uint => uint)           requestCost;    // requestId and Total Cost.
-    mapping (uint => Location[])     requestLocations; //request id and locations
+    enum        Role                        {MANUFACTURER, SUPPLIER, DISTRIBUTOR, DRUG_AUTHORITY , BANK}
+    mapping (address => bool)               participants;
+    mapping (address => Product[])          products;    // manufacturer and product
+    mapping (string => Specs[])             productSpecs; // productID and material 
+    mapping (string => Product)             productList; // product by id
+    mapping (address => Material[])         materials;   //Participant(supplier) and material
+    mapping (string => Material)            materialList; // materials by id
+    mapping (address => Request[])          requests;   // participant and requests
+    mapping (uint => Request)               requestList; // requests by id
+    mapping (uint => Log[])                 trackLogs; //requestId and Log
+    mapping (uint => uint[])                tempDataLogs; // requestId and temp data
+    mapping (uint => uint[])                humidDataLogs; // requestId and humid data
+    mapping (string => Cost)                standardProductCosts;
+    mapping (string => Cost)                actualProductCosts;
+    mapping (uint => uint)                  requestCost;    // requestId and Cost
+    mapping (uint => Location[])            requestLocations; //request id and locations
+    mapping (uint => string)                requestShipmentMethod; //request Id and shipment method  
+    mapping (address => InventoryItem[])    inventory;   // participant and items inventory
+    mapping (string => InventoryItem)       inventoryList;   // inventory item by item id
     mapping (address => mapping (address => BankAccount) ) userBankAccounts; // bankAddr -> userAddr -> userAcc
-    event   DataSent (string DataCategory , string dataValues , uint indexed timestamp  );
+    event   DataSent            (uint indexed requestNo, string DataCategory ,string dataValues , uint indexed timestamp);
     event   ShipmentStateUpdate (uint indexed requestNo, string  state, uint indexed timestamp);
-    event   requestStateUpdate (address indexed who, uint indexed timestamp , string  state);
+    event   requestStateUpdate  (address indexed who, uint indexed timestamp , string  state);
+    event   BankTransact        (string txName, address indexed _from , address  _to , uint _amount , uint indexed timestamp);
+    
   
     
     
@@ -86,6 +91,7 @@ contract NewDemoTest {
         uint    userBalance;
         bool    isActive;
     }
+    
     
     struct Participant {
         
@@ -154,6 +160,12 @@ contract NewDemoTest {
     struct Location {
         string Latitude;
         string Longitude;
+    }
+    
+    
+    struct InventoryItem {
+      string itemId;
+      uint   amount;
     }
     
     
@@ -297,6 +309,7 @@ contract NewDemoTest {
     function setProductBudget(string memory _product, uint _budget) public {
         if(strComp(_product, products[msg.sender][0].productId)) {
             products[msg.sender][0].productBudget = _budget;
+            productList[_product].productBudget = _budget;
         }
        
     }
@@ -367,7 +380,7 @@ contract NewDemoTest {
         materials[msg.sender].push(mat);
         materialList[_id] = mat;
         materialArr.push(mat);
-        
+        addToInventory(msg.sender, _id , _amount);
         
     }
     
@@ -440,6 +453,33 @@ contract NewDemoTest {
         return requests[_participant];
     }
     
+    function addToInventory(address _participant , string memory _item , uint _amount) public {
+        InventoryItem memory itm = InventoryItem({
+            itemId: _item,
+            amount: _amount
+        });
+        
+        inventory[_participant].push(itm);
+        inventoryList[_item] = itm;
+    }
+    
+    function updateInventory(address _participant , string memory _item , uint _amount) public {
+        
+        if(strComp(_item, inventory[_participant][0].itemId) ) {
+            inventory[_participant][0].amount = _amount;
+            inventoryList[_item].amount = _amount;
+            
+        }
+    }
+    
+    function getInventory(address _participant) public view returns (InventoryItem[] memory) {
+        return inventory[_participant];
+    }
+    
+    function getInventoryList(string memory _item) public view returns (InventoryItem memory) {
+        return inventoryList[_item];
+    }
+    
     // END OF SUPPLING STUFF
         
     // BANKING STUFF GOES HERE 
@@ -447,7 +487,7 @@ contract NewDemoTest {
     // functions that has 'self' word are invokable by msg.sender
     // other functions should require admin / bank control of execution
     
-    function setAsBank(address payable _addr) public {
+    function setAsBank(address _addr) public {
         bank = _addr;
         
     }
@@ -493,6 +533,7 @@ contract NewDemoTest {
             uint balance = userBankAccounts[bank][_userAddr].userBalance;
             balance += _amount;
             userBankAccounts[bank][_userAddr].userBalance = balance;
+            emit BankTransact ('DEPOSIT', _userAddr , _userAddr , _amount , block.timestamp);
             return true;
         }
         else {
@@ -515,6 +556,7 @@ contract NewDemoTest {
             uint balance = userBankAccounts[bank][_userAddr].userBalance;
             balance -= _amount;
             userBankAccounts[bank][_userAddr].userBalance = balance;
+            emit BankTransact ('WITHDRAWAL', _userAddr , _userAddr , _amount , block.timestamp);
             return true;
         }
         else {
@@ -552,7 +594,8 @@ contract NewDemoTest {
             fromBalance -= _amount;
             toBalance += _amount;
             userBankAccounts[bank][_from].userBalance = fromBalance;
-            userBankAccounts[bank][_to].userBalance = toBalance; 
+            userBankAccounts[bank][_to].userBalance = toBalance;
+            emit BankTransact ('TRANSFER', _from , _to , _amount , block.timestamp);
             return true;
         }
         else {
@@ -581,10 +624,11 @@ contract NewDemoTest {
     
     // TRACKING STEPS:
     // 1- REQUEST IS CREATED
-    // 2- SUPPLIER APPROVE REQUEST
+    // 2- SUPPLIER APPROVE REQUEST AND ASSIGNS SHIPMENT LOCATION 
     // 3- SUPPLIER CREATE AND SEND SHIPMENT FOR GLOBAL TRANSMISSION
     // 4- GLOBAL TRANSMISSION SHIPS PACKAGE FOR LOCAL TRANSMISSION
     // 5- LOCAL TRANSMISSION SHIPS PACKAGE TO FINAL DESTINATION (MANUFACTURER)
+    // TEMP AND HUMIDITY READINGS ARE SET DURING ALL PHASES OF SHIPMENT TRANSMISSION.
     
     //supplier
     
@@ -617,6 +661,9 @@ contract NewDemoTest {
  
     // supplier 
     function sendShipment(uint _requestId) public {
+        string memory x = inventoryList[requestList[_requestId].materialID].itemId;
+        string memory y = requestList[_requestId].materialID;
+        uint newAmount = inventoryList[requestList[_requestId].materialID].amount - requestList[_requestId].amount;
         string memory result = verifyShipmentState(_requestId);
         
         createLog(_requestId, 'PACKAGE CREATED',  result , 'PACKAGE IS CREATED AND SHIPMENT IS READY TO LEAVE FOR SHPPING.' );
@@ -624,6 +671,11 @@ contract NewDemoTest {
         
         createLog (_requestId, 'OUT FOR SHIPPING', result , ' YOUR SHIPMENT IS OUT FOR SHIPPING'); 
         emit requestStateUpdate(msg.sender, block.timestamp , 'PACKAGE IS OUT FOR SHIPPING');
+        
+        if(strComp(x,y)) {
+            updateInventory(msg.sender,requestList[_requestId].materialID, newAmount);
+        }
+        
     }
     
     // global distributor
@@ -649,12 +701,23 @@ contract NewDemoTest {
     //manufacturer
     
     function receiveShipment(uint _requestId) public {
+        string memory x = inventory[msg.sender][0].itemId;
+        string memory y = requestList[_requestId].materialID;
+        uint newAmount = inventoryList[y].amount + requestList[_requestId].amount;
+        
         string memory result = verifyShipmentState(_requestId);
         createLog(_requestId, 'DELIVERED' , result , 'YOUR SHIPMENT IS DELIVERED SUCCESSFULLY.');
         emit requestStateUpdate(msg.sender, block.timestamp , 'SHIPMENT DELIVERED');
         
         uint payment = requestCost[_requestId] - requestCost[_requestId]/2;
         transfer(requestList[_requestId].fromParti, msg.sender, payment);
+        
+       
+        if(strComp(x,y)) {
+            updateInventory(msg.sender,requestList[_requestId].materialID, newAmount);
+        } else {
+             addToInventory(msg.sender,requestList[_requestId].materialID, newAmount);
+        }
     }
     
     
@@ -684,7 +747,7 @@ contract NewDemoTest {
         tempArr.push(_temp);
         humidDataLogs[_id].push(_humid);
         humidArr.push(_humid);
-        emit DataSent('Sensors Data', concat(toString(_temp),toString(_humid)), block.timestamp);
+        emit DataSent(_id ,'Sensors Data', concat(toString(_temp),toString(_humid)), block.timestamp);
         if(_temp >= tempThreshold || _humid >= humidityThreshold) {
             emit ShipmentStateUpdate (_id, 'ABNORMAL' , block.timestamp);
         } else {
@@ -713,6 +776,14 @@ contract NewDemoTest {
     
     function getShipmentLocation (uint _id) public view returns (Location[] memory) {
         return requestLocations[_id];
+    }
+    
+    function setShipmentMethod(uint _id , string memory _method) public {
+        requestShipmentMethod[_id] = _method;
+    }
+    
+    function getShipmentMethod(uint _id) public view returns (string memory) {
+        return requestShipmentMethod[_id];
     }
     
     // END OF TRACKING STUFF
