@@ -13,7 +13,7 @@ class InventoryItem extends Component {
         <div className="item-card">
           <img
             style={{ width: "80px" }}
-            src={require("../assets/vitamin.svg")}
+            src={require("../assets/imgs/vitamin.svg")}
             alt="material"
           />
           <h5> {this.props.item.toUpperCase()} </h5>

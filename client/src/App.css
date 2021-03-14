@@ -324,6 +324,34 @@ input[type="text"], input[type="number"], select {
 
 /* TrackForm.js */
 
+.notification-panel .form-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  width:30%;
+}
+.notification-panel .form-row input[type="number"] {
+  padding: 4px 5px;
+}
+
+.notification-panel .form-row input[type="submit"] {
+  margin-top: 4px;
+}
+
+.notification-panel .panel-control {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.notification-panel .panel-control .btn-alt {
+ margin-top: -15px;
+ font-size: 14px;
+}
 .notification-panel .refresh {
   width: 15px;
   margin-right: 5px;

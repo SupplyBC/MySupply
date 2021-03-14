@@ -140,9 +140,9 @@ class HistoryChart extends Component {
 
 function TrackImg(props) {
   if (props.status === "ABNORMAL") {
-    return <img src={require("../assets/invalid-1.svg")} alt="invalid" />;
+    return <img src={require("../assets/imgs/invalid-1.svg")} alt="invalid" />;
   } else {
-    return <img src={require("../assets/valid-3.svg")} alt="valid" />;
+    return <img src={require("../assets/imgs/valid-3.svg")} alt="valid" />;
   }
 }
 
@@ -191,19 +191,32 @@ class TrackRecord extends Component {
 }
 
 class Notification extends Component {
-  state = { eventList: null, abnormalConditions: null, notifyElements: null , msg: '' };
+  state = { eventList: null, abnormalConditions: null, notifyElements: null , msg: '' , id: ''};
   constructor(props) {
     super(props);
+    this.idRef=React.createRef();
     this.onRefresh = this.onRefresh.bind(this);
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
-  onRefresh = async () => {
+onSubmit = async(e) => {
+    e.preventDefault();
+    console.log(this.state.id)
+}
+
+onChange = async(e) => {
+    this.setState({id: this.idRef.current.value})
+}
+
+onRefresh = async () => {
     const eventList = await this.props.contract.getPastEvents(
       "ShipmentStateUpdate",
       {
         fromBlock: 0,
       }
     );
+    
     const abnormalConditions = eventList.filter((item) => {
       return item.returnValues.state === "ABNORMAL";
     });
@@ -241,11 +254,22 @@ class Notification extends Component {
     console.log(abnormalConditions);
     console.log(notifyElements);
     this.setState({ eventList, abnormalConditions, notifyElements });
-  };
+};
 
   render() {
     return (
       <div className="notification-panel">
+        <div className="panel-control">
+         <form onSubmit={this.onSubmit} className="form-row">
+          <label>Filter by Tracking No</label>
+          <input 
+          type="number"
+          value={this.state.id}
+          ref={this.idRef}
+          onChange={this.onChange}
+          placeholder="e.g. 101" />
+          <input className="btn" type="submit" value="APPLY"/>
+        </form>
         <button
           style={{
             display: "inline",
@@ -258,6 +282,7 @@ class Notification extends Component {
         >
           VIEW ALL NOTIFICATIONS
         </button>
+        </div>
         <div className="msg">{this.state.msg}</div>
         <div className="notification-content">{this.state.notifyElements}</div>
       </div>
@@ -369,7 +394,7 @@ class Track extends Component {
         fromBlock: 0,
       }
     );
-
+    console.log(mapEvents)
     let stateLogs = mapEvents[mapEvents.length - 1];
     console.log(stateLogs);
     let currentState = stateLogs.returnValues.state;

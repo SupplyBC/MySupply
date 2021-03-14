@@ -67,7 +67,7 @@ class App extends Component {
   render() {
     if (!this.state.web3) {
       return <div style={{textAlign:'center' , margin: '50px auto', padding: '10px'}}>
-        <img src={require("./assets/spinner.gif")}  alt='loading'/>
+        <img src={require("./assets/imgs/spinner.gif")}  alt='loading'/>
         </div>;
     }
     let toggle
@@ -81,7 +81,7 @@ class App extends Component {
             <img
             alt = "hamburger-menu"
             width = "20px"
-            src={require("../src/assets/hamburger-menu.svg")}/>
+            src={require("../src/assets/imgs/hamburger-menu.svg")}/>
             </button>
             <ul id = "my-nav" className={`nav-list ${toggle}`}>
               <li className="nav-item">

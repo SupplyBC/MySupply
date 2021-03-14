@@ -330,6 +330,14 @@ class ManageAccount extends Component {
   }
 }
 
+class TxHistory extends Component {
+  render() {
+    return(
+      <h4> TRANSACTIONS LOGS</h4>
+    );
+  }
+}
+
 class BankAccounts extends Component {
   // constructor(props) {
   //     super(props);
@@ -354,6 +362,9 @@ class BankAccounts extends Component {
               <li className="link-item">
                 <NavLink to="/bank-account/manage">+ MANAGE ACCOUNT</NavLink>
               </li>
+              <li className="link-item">
+                <NavLink to="/bank-account/tx-history">+ TRANSACTIONS HISTORY</NavLink>
+              </li>
             </ul>
           </div>
           <div className="main-content">
@@ -373,6 +384,18 @@ class BankAccounts extends Component {
               exact
               render={(props) => (
                 <ManageAccount
+                  {...props}
+                  account={this.props.accounts}
+                  contract={this.props.contract}
+                  web3={this.props.web3}
+                />
+              )}
+            />
+             <Route
+              path="/bank-account/tx-history"
+              exact
+              render={(props) => (
+                <TxHistory
                   {...props}
                   account={this.props.accounts}
                   contract={this.props.contract}
