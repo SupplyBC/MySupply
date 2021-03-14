@@ -323,17 +323,43 @@ input[type="text"], input[type="number"], select {
 }
 
 /* TrackForm.js */
+.newform-row {
+  width: 90%;
+  padding: 5px 0px;
+  margin-left: -60px;
+}
+.newform-row .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+}
+
+.newform-row .form-row input[type="submit"] {
+  width: 22%;
+  margin-top: 10px;
+}
+.newform-row .form-row input[type="text"] {
+  width: 52%;
+}
+
+.view-all-container {
+  margin-bottom: 10px;
+}
+
 
 .notification-panel .form-row {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   margin-bottom: 20px;
-  width:30%;
+  width:40%;
 }
 .notification-panel .form-row input[type="number"] {
   padding: 4px 5px;
+  width:70%;
+  margin-right: 8px;
 }
 
 .notification-panel .form-row input[type="submit"] {
@@ -348,17 +374,11 @@ input[type="text"], input[type="number"], select {
   margin-bottom: 20px;
 }
 
-.notification-panel .panel-control .btn-alt {
- margin-top: -15px;
- font-size: 14px;
-}
-.notification-panel .refresh {
-  width: 15px;
-  margin-right: 5px;
-}
-
-.notification-panel .btn-alt:hover {
-  border-bottom: 1px solid black;
+/* 
+.view-all-container {
+  margin-top: -17px;
+} */
+.notification-panel .btn:hover {
   opacity: 0.7;
 }
 
@@ -367,12 +387,12 @@ input[type="text"], input[type="number"], select {
   flex-direction: column;
   gap: 0px;
   text-align: left;
-  padding: 10px;
+  padding: 5px 18px;
 }
 
 .notification-content {
   padding: 10px;
-  width: 40%;
+  width: 57%;
 }
 
 .notification {
@@ -1015,7 +1035,7 @@ input[type="text"], input[type="number"], select {
   display: flex;
   flex-direction: column;
   gap: 0px;
-  text-align: left;
+  text-align: center;
   padding: 10px;
 }
 
@@ -1048,6 +1068,64 @@ input[type="text"], input[type="number"], select {
   
 }
 
+.notification-panel .form-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 5px;
+  width:80%;
+}
+.notification-panel .form-row input[type="number"] {
+  padding: 5px 5px;
+  width: 70%
+}
+
+.notification-panel .form-row label {
+  display: none;
+}
+
+.notification-panel .panel-control {
+  text-align: center;
+  flex-direction: column;
+  gap: 0px;
+  margin-bottom: 20px;
+  font-size: 0.9em;
+}
+
+.notification-panel .panel-control .btn-alt {
+ margin-top: 15px;
+}
+
+/* .notification-panel .refresh {
+  width: 15px;
+  margin-right: 5px;
+} */
+
+/* .view-all-container {
+  margin-bottom: 10px;
+} */
+
+.newform-row {
+  margin-left: 0px
+}
+.newform-row .form-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.newform-row .form-row input[type="submit"] {
+  width: 40%;
+  margin-top: 10px;
+}
+.newform-row .form-row input[type="text"] {
+  width: 80%;
+}
 
   
   /* 
