@@ -11,7 +11,7 @@ class Header extends Component {
 
         return (
             <div className='container'>
-                <h1 className= 'logo'><a href="/">MEDICAL SUPPLY CHAIN</a></h1>
+                <h1 className= 'logo'><a href="/">PHARMA CHAIN</a></h1>
                 <div className='flex-container'>
                     <div className = 'sm-font'> YOUR ACCOUNT: </div>
                     <div className = 'italic centered'> 

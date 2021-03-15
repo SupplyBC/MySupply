@@ -741,7 +741,6 @@ class SendShipment extends Component {
   onChange = async(e) => {
     this.setState({
       requestId: this.requestIdRef.current.value,
-      method: this.methodRef.current.value
     })
     
 

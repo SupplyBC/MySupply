@@ -50,7 +50,7 @@ class CreateAccount extends Component {
           type="text"
           placeholder="e.g. MY COMPANY PHARMACEUTICAL INDUSTRIES"
           value={this.state.accName}
-          required = "required"
+          required="required"
         />
         <div>
           <input className="btn" type="submit" value="CREATE ACCOUNT" />
@@ -109,7 +109,7 @@ class Deposit extends Component {
           type="number"
           placeholder="e.g. 125000"
           value={this.state.depositAmount}
-          required = "required"
+          required="required"
         />
         <div>
           <input className="btn" type="submit" value="DEPOSIT" />
@@ -168,7 +168,7 @@ class Withdraw extends Component {
           type="number"
           placeholder="e.g. 125000"
           value={this.state.withdrawalAmount}
-          required = "required"
+          required="required"
         />
         <div>
           <input className="btn" type="submit" value="WITHDRAW" />
@@ -230,7 +230,7 @@ class Transfer extends Component {
           type="number"
           placeholder="e.g. 125000"
           value={this.state.transferAmount}
-          required = "required"
+          required="required"
         />
         <label> Transfer to: </label>
         <input
@@ -239,7 +239,7 @@ class Transfer extends Component {
           type="text"
           placeholder="e.g. 0x9F04c9437De819788e7f35D25ed236A6EfA1653B"
           value={this.state.toAddr}
-          required = "required"
+          required="required"
         />
         <div>
           <input className="btn" type="submit" value="TRANSFER" />
@@ -263,14 +263,23 @@ class ManageAccount extends Component {
     const balance = await this.props.contract.methods
       .getBalance(this.props.account[0])
       .call();
-      const balanceUSD = parseInt(balance,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'})
+    const balanceUSD = parseInt(balance, 10).toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
     const userInfo = await this.props.contract.methods
       .getAccountDetails(this.props.account[0])
       .call();
     const addr = userInfo.userId;
     const name = userInfo.userName;
     const accState = userInfo.isActive;
-    this.setState({ bank, balanceUSD, userAddr: addr, userName: name, accState });
+    this.setState({
+      bank,
+      balanceUSD,
+      userAddr: addr,
+      userName: name,
+      accState,
+    });
   };
   // constructor(props) {
   //   super(props);
@@ -331,9 +340,90 @@ class ManageAccount extends Component {
 }
 
 class TxHistory extends Component {
+  state = { txLog: null, sortSelection: "" };
+
+  constructor(props) {
+    super(props);
+    this.sortRef = React.createRef();
+    this.onChange = this.onChange.bind(this);
+  }
+
+  componentDidMount = async () => {
+   
+    const txEvents = await this.props.contract.getPastEvents("BankTransact", {
+      filter: {
+        _from: this.props.account[0],
+      },
+      fromBlock: 0,
+    });
+    console.log(txEvents);
+
+    const txs = txEvents.reverse().map((item, index) => {
+      let type = item.returnValues.txName;
+      let from = item.returnValues._from;
+      let to = item.returnValues._to;
+      let amount = parseInt(
+        item.returnValues._amount,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let time = new Date(item.returnValues.timestamp * 1000).toString();
+      const dateArr = time.split(" ", 5);
+      const timestamp = dateArr.join(" ");
+
+      console.log(type, from, to, amount, timestamp);
+      return (
+        <div className="tx-container" key={index}>
+          <div className="head">
+            <p className="head-title">{type}</p>
+            <span className="time">{timestamp}</span>
+          </div>
+          <hr className="custom-hr-full"></hr>
+          <div className="content">
+            <p>
+              <strong>VALUE: </strong> <em>{amount}</em>
+            </p>
+            <p>
+              <strong>FROM: </strong> <em>{from}</em>
+            </p>
+            <p>
+              <strong>TO: </strong> <em>{to}</em>
+            </p>
+          </div>
+        </div>
+      );
+    });
+
+    this.setState({ txLog: txs });
+    console.log(txs);
+  };
+
+  onChange = async (e) => {
+
+    if(this.sortRef.current.value === 'new') {
+      this.setState({txLog: this.state.txLog.reverse()})
+    } else {
+      this.setState({txLog: this.state.txLog.reverse()})
+    }
+}
   render() {
-    return(
-      <h4> TRANSACTIONS LOGS</h4>
+    return (
+      <div className="newform-container">
+        <div className="panel">
+          <h4> Transactions History</h4>
+          <form className="sort-form">
+            <label>SORT: </label>
+            <select ref={this.sortRef} onChange={this.onChange}>
+              <option id="1" value="new">
+                NEW TO OLD
+              </option>
+              <option id="2" value="old">
+                OLD TO NEW
+              </option>
+            </select>
+          </form>
+        </div>
+        <div className="tx-content">{this.state.txLog}</div>
+      </div>
     );
   }
 }
@@ -363,7 +453,9 @@ class BankAccounts extends Component {
                 <NavLink to="/bank-account/manage">+ MANAGE ACCOUNT</NavLink>
               </li>
               <li className="link-item">
-                <NavLink to="/bank-account/tx-history">+ TRANSACTIONS HISTORY</NavLink>
+                <NavLink to="/bank-account/tx-history">
+                  + TRANSACTIONS HISTORY
+                </NavLink>
               </li>
             </ul>
           </div>
@@ -391,7 +483,7 @@ class BankAccounts extends Component {
                 />
               )}
             />
-             <Route
+            <Route
               path="/bank-account/tx-history"
               exact
               render={(props) => (

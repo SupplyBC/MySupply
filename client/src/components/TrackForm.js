@@ -141,9 +141,40 @@ class HistoryChart extends Component {
 
 function TrackImg(props) {
   if (props.status === "ABNORMAL") {
-    return <img src={require("../assets/imgs/invalid-1.svg")} alt="invalid" />;
+    return <img className="verification-img" src={require("../assets/imgs/invalid-1.svg")} alt="invalid" />;
   } else {
-    return <img src={require("../assets/imgs/valid-3.svg")} alt="valid" />;
+    return <img className="verification-img" src={require("../assets/imgs/valid-3.svg")} alt="valid" />;
+  }
+ 
+}
+
+function ShipImg(props) {
+  
+  if (props.request === 'REQUEST APPROVED' || props.request === 'DELIVERED' ) {
+    if (props.status === 'NORMAL') {
+      return <img className="method-img" src={require("../assets/imgs/valid.svg")} alt="invalid" />;
+    }
+    else {
+      return <img className="method-img" src={require("../assets/imgs/invalid.svg")} alt="valid" />;
+    }
+    
+  } else if (props.request === 'PACKAGE CREATED') {
+    return <img className="method-img" src={require("../assets/imgs/box.svg")} alt="valid" />;
+  } else if (props.request === 'SHIPPING PACKAGE') {
+    if (props.method === 'airplane') {
+      return <img className="method-img" src={require("../assets/imgs/plane.svg")} alt="airplane"/>
+    } else if (props.method === 'ship') {
+      return <img className="method-img" src={require("../assets/imgs/cargo-ship.svg")} alt="ship" />
+    } else if (props.method === 'truck') {
+      return <img className="method-img" src={require("../assets/imgs/delivery-truck.svg")} alt="truck" />
+    }
+    else {
+      return <img className="method-img" src={require("../assets/imgs/valid.svg")} alt="valid" />;
+    }
+  } else if (props.request === 'OUT FOR SHIPPING' || 'READY FOR DELIVERY') {
+    return <img className="method-img" src={require("../assets/imgs/delivery-truck.svg")} alt="truck" />
+  } else {
+    return <img className="method-img" src={require("../assets/imgs/valid.svg")} alt="valid" />;
   }
 }
 
@@ -166,12 +197,18 @@ class TrackRecord extends Component {
     )
       return (
         <div className="track-record-container">
-          <TrackImg status={this.props.ship} />
+
+          <ShipImg 
+          status={this.props.ship} 
+          request={this.props.request} 
+          method={this.props.shipMethod}/>
+
           <ul className="record-list">
             <li className="timestamp log-item"> {timestamp}</li>
             <li className="head log-item"> {this.props.request}</li>
             <li style={{ fontStyle: "normal" }} className="timestamp log-item">
               SHIPMENT VERIFIED
+              <TrackImg status={this.props.ship} />
             </li>
             <hr className="custom-hr-full" />
             <li className="log-item">{this.props.description}</li>
@@ -517,6 +554,9 @@ class Status extends Component {
       this.setState({ msg: "" });
     }, 3000);
 
+    const shippingMethod = await this.props.contract.methods.getShipmentMethod(id).call();
+    this.setState({shippingMethod})
+
     let log = response.map((item, index) => {
       const shipmentStatus = item.shipmentStatus;
       const requestStatus = item.requestStatus;
@@ -540,6 +580,8 @@ class Status extends Component {
           ship={this.state.shipmentStatus}
           logger={this.state.loggedBy}
           description={this.state.description}
+          eventState = {this.state.reqCurrentState}
+          shipMethod={this.state.shippingMethod}
         />
       );
     });
@@ -550,6 +592,7 @@ class Status extends Component {
       isTab1Active: true,
     });
   };
+
 
   getChartData = async (temp, humid, timestamp) => {
     this.setState({
