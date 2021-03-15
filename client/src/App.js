@@ -85,27 +85,27 @@ class App extends Component {
             </button>
             <ul id = "my-nav" className={`nav-list ${toggle}`}>
               <li className="nav-item">
-                <NavLink onClick={this.collapseMenu} to="/add-product">ADD PRODUCT</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/add-product">PRODUCT MANAGEMENT</NavLink>
               </li>
               <li className="nav-item">
                 
-                <NavLink onClick={this.collapseMenu} to="/supply">REQUEST MATERIAL</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/supply">SUPPLY MANAGEMENT</NavLink>
               </li>
               <li className="nav-item">
                 
-                <NavLink onClick={this.collapseMenu} to="/track">TRACK REQUESTS</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/track">TRACKING</NavLink>
               </li>
               <li className="nav-item">
                 
-              <NavLink onClick={this.collapseMenu} to="/inventory">VIEW INVENTORY</NavLink>
+              {/* <NavLink onClick={this.collapseMenu} to="/inventory">VIEW INVENTORY</NavLink>
+              </li>
+              <li className="nav-item"> */}
+                
+                <NavLink onClick={this.collapseMenu} to="/financial-log">COST MANAGEMENT</NavLink>
               </li>
               <li className="nav-item">
                 
-                <NavLink onClick={this.collapseMenu} to="/financial-log">FINANCIAL LOG</NavLink>
-              </li>
-              <li className="nav-item">
-                
-                <NavLink onClick={this.collapseMenu} to="/bank-account">MANAGE BANK ACCOUNTS</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/bank-account">BANK ACCOUNT MANAGEMENT</NavLink>
               </li>
             </ul>
           </div>
@@ -129,6 +129,7 @@ class App extends Component {
             )}
           />
           <Route path="/inventory" exact component={Inventory} />
+          
           <Route
             path="/track"
             exact

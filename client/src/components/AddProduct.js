@@ -264,7 +264,7 @@ class AddMaterial extends Component {
             PACKAGING
           </option>
         </select>
-        <label> Material Amount: </label>
+        <label> Material Amount (mg) :</label>
         <input
           value={this.state.matAmount}
           onChange={this.handleChange}
@@ -272,7 +272,7 @@ class AddMaterial extends Component {
           type="number"
           placeholder="e.g. 10"
         />
-        <label> Material Strength: </label>
+        <label> Material Strength (%) : </label>
         <input
           value={this.state.matStr}
           onChange={this.handleChange}

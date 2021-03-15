@@ -603,7 +603,7 @@ class CreateMaterial extends Component {
           </option>
         </select>
 
-        <label> Material Strength: </label>
+        <label> Material Strength (%): </label>
         <input
           value={this.state.matStr}
           onChange={this.onChange}
@@ -611,7 +611,7 @@ class CreateMaterial extends Component {
           type="number"
           placeholder="e.g. 10"
         />
-        <label> Material Amount: </label>
+        <label> Material Amount (mg): </label>
         <input
           value={this.state.matAmount}
           onChange={this.onChange}
@@ -720,8 +720,6 @@ class SendShipment extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const requestNo = this.state.requestId;
-    console.log(requestNo);
-
 
     //todo transact here
     await this.props.contract.methods.sendShipment(requestNo)
@@ -734,6 +732,7 @@ class SendShipment extends Component {
     });
 
 
+
     this.setState({requestId: ''})
 
     
@@ -741,7 +740,8 @@ class SendShipment extends Component {
 
   onChange = async(e) => {
     this.setState({
-      requestId: this.requestIdRef.current.value
+      requestId: this.requestIdRef.current.value,
+      method: this.methodRef.current.value
     })
     
 
@@ -759,6 +759,7 @@ class SendShipment extends Component {
         placeholder = "e.g. 101"
         required= "required"
         />
+        
         <div>
         <input type="submit" className="btn" value="SEND SHIPMENT" />
         </div>
@@ -1064,13 +1065,87 @@ class SetLocation extends Component {
   }
 }
 
+class SetShippingMethod extends Component {
+  state = {msg: '', requestId: '' , method: ''}
 
+  constructor(props) {
+    super(props);
+    this.requestIdRef = React.createRef();
+    this.methodRef = React.createRef();
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+  
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const requestNo = this.state.requestId;
+    const shipMethod = this.state.method;
+    
+    await this.props.contract.methods.setShipmentMethod(requestNo,shipMethod)
+    .send({from: this.props.account[0]})
+    .once("receipt", (receipt) => {
+      this.setState({ msg: "Updated shipping method successfully!" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    });
+
+
+    this.setState({requestId: '', method: ''})
+  }
+
+  onChange = async(e) => {
+    this.setState({
+      requestId: this.requestIdRef.current.value,
+      method: this.methodRef.current.value
+    });
+  }
+
+  render() {
+    return (
+      <form onSubmit={this.onSubmit} className="newform-container">
+      <h4> Set Shipping Method</h4>
+      <label> Tracking Number: </label>
+      <input 
+        type="text"
+        value = {this.state.requestId}
+        ref = {this.requestIdRef}
+        onChange = {this.onChange}
+        placeholder = "e.g. 101"
+        required = "required"
+        />
+      <label>Shipping Method</label>
+      <select ref={this.methodRef} onChange={this.onChange} >
+
+        <option id="1" value="airplane">AIRPLANE</option>
+        <option id="2" value="truck">TRUCK</option>
+        <option id="3" value="ship">SHIP</option>
+
+      </select>
+      <div>
+      <input type="submit" className="btn" value="SET METHOD" />
+      </div>
+      <div
+        style={{ marginTop: "20px" }}
+        className="notify-data-container notify-text "
+      >
+        {this.state.msg}
+      </div>
+    </form>
+      
+    );
+  }
+}
 class ManageSupply extends Component {
   render() {
     return(
       <div className="form-collection newform-container">
         <p className="sub-head" style={{textAlign:'center'}}> <strong>SUPPLY PORTAL: </strong>MANAGE SUPPLY CHAIN ACTIVITES. </p>
         <SetLocation account={this.props.account}
+          contract={this.props.contract} />
+        <hr className="custom-hr-full"></hr>
+        <SetShippingMethod account={this.props.account}
           contract={this.props.contract} />
         <hr className="custom-hr-full"></hr>
         <ApproveRequest account={this.props.account}
