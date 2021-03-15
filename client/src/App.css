@@ -459,9 +459,15 @@ input[type="text"], input[type="number"], select {
   
 }
 
-.track-record-container img {
+.track-record-container .method-img  {
   margin-left: 10px;
   width: 100px;
+  
+}
+
+.track-record-container .verification-img  {
+  margin-left: 5px;
+  width: 12px;
   
 }
 
@@ -674,6 +680,65 @@ input[type="text"], input[type="number"], select {
 
 
 /* BankAccount.js */
+.tx-content {
+  width: 60%;
+  margin-top: 20px;
+}
+.tx-container p{
+  margin:0;
+  padding:0;
+}
+.tx-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  padding: 20px 20px;
+  margin-bottom: 15px;
+  background-color: rgb(167,189,150);
+  box-shadow: 0 8px 6px -6px black;
+}
+
+.tx-container .head .head-title{
+  font-size: 1.5em;
+  font-weight: 700;
+}
+.tx-container .head  .time{
+  font-weight: thin;
+  font-size: 0.9em;
+  color: rgb(255, 255, 255);
+  font-style: italic;
+  margin:0;
+  opacity: 0.8;
+
+}
+.tx-container .content p {
+  
+  padding: 2px;
+}
+
+
+
+
+.newform-container .panel {
+  width:90%;
+}
+.newform-container .panel h4 {
+  text-align: left;
+}
+
+.newform-container .panel .sort-form{
+  display: flex;
+  text-align: left;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+}
+
+.newform-container .panel select {
+  width: 18%;
+  padding: 2px;
+}
 
 .account-details {
   padding: 3px 15px;
@@ -762,7 +827,7 @@ input[type="text"], input[type="number"], select {
     flex-direction: column;
     padding-top: 0px;
     height: 100%;
-    width: 60%;
+    width: 100%;
     background-color: rgba(0, 0, 0, 0.938);
     overflow-x: hidden;
     z-index: 1;
@@ -1126,6 +1191,53 @@ input[type="text"], input[type="number"], select {
 .newform-row .form-row input[type="text"] {
   width: 80%;
 }
+
+.tx-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+.tx-container p {
+  margin:0;
+  padding:0;
+}
+
+.tx-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3px;
+  text-align: left;
+  padding: 20px 20px;
+  margin-bottom: 15px;
+  background-color: rgb(167,189,150);
+  box-shadow: 0 8px 6px -6px black;
+}
+
+.newform-container .panel h4 {
+  text-align: center;
+}
+
+.newform-container .panel .sort-form{
+  display: flex;
+  text-align: left;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.newform-container .panel select {
+  margin-left: 5px;
+  margin-top: 7px;
+  padding: 2px;
+  width: 50%;
+}
+
 
   
   /* 
