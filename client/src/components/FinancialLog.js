@@ -15,7 +15,7 @@ class FinancialLog extends Component {
     const standard = await this.props.contract.methods
     .getStdCostPlan(proId)
     .call();
-    const stdCostData = standard.map( (costList , index) => {
+    const stdCostData = standard.map( (item , index) => {
       let matCost = parseInt(standard.directMaterialCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
       let pkgCost = parseInt(standard.packagingMaterialCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
       let laborCost = parseInt(standard.directLaborCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
@@ -31,7 +31,7 @@ class FinancialLog extends Component {
         );
         
     });
-    if(this.state.totalCost === 0) {
+    if(this.state.totalCost === '$0.00') {
       this.setState({msg: 'No Financial Data Found for the Given Product ID!'.toUpperCase()})
       this.setState({tableVisibility:false})
     } else {

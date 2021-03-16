@@ -1143,10 +1143,10 @@ class ManageSupply extends Component {
         <p className="sub-head" style={{textAlign:'center'}}> <strong>SUPPLY PORTAL: </strong>MANAGE SUPPLY CHAIN ACTIVITES. </p>
         <SetLocation account={this.props.account}
           contract={this.props.contract} />
-        <hr className="custom-hr-full"></hr>
+        <hr className="custom-hr-half"></hr>
         <SetShippingMethod account={this.props.account}
           contract={this.props.contract} />
-        <hr className="custom-hr-full"></hr>
+        <hr className="custom-hr-half"></hr>
         <ApproveRequest account={this.props.account}
           contract={this.props.contract} />
         <hr className="custom-hr-half"></hr>
@@ -1216,7 +1216,7 @@ class ManageIOT extends Component {
           placeholder = "e.g. 101"
           required = "required"
           />
-          <hr className="custom-hr-full"></hr>
+          <hr className="custom-hr-half"></hr>
           <h4> Set Temperature </h4>
           <label>  Temperature (°C):</label>
           <input type="number"

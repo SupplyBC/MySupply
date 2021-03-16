@@ -233,11 +233,58 @@ class Notification extends Component {
   constructor(props) {
     super(props);
     this.idRef=React.createRef();
-    this.onRefresh = this.onRefresh.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+componentDidMount = async(e) => {
+  const eventList = await this.props.contract.getPastEvents(
+    "ShipmentStateUpdate",
+    {
+      fromBlock: 0,
+    }
+  );
+  
+  const abnormalConditions = eventList.filter((item) => {
+    return item.returnValues.state === "ABNORMAL";
+  });
+  this.setState({msg: 'Found no notifications.'.toUpperCase})
+  if(abnormalConditions.length === 0) {
+    this.setState({msg: 'Found no notifications.'.toUpperCase})
+  }
+  setTimeout(() => {
+    this.setState({ msg: "" });
+  }, 3000);
+
+  abnormalConditions.reverse();
+
+
+  const notifyElements = abnormalConditions.map((item, index) => {
+    let request = item.returnValues.requestNo;
+    let time = new Date(item.returnValues.timestamp * 1000).toString();
+    const dateArr = time.split(" ", 5);
+    const timestamp = dateArr.join(" ");
+    let state = item.returnValues.state;
+
+    return (
+      <div className="notification" key={index}>
+        <h4 className="head">ABNORMAL READINGS NOTIFICATION</h4>
+        <hr className="custom-hr-full"></hr>
+        <p className="subhead">
+          <em>An abnormal sensor reading is detected coming from source (tracking
+          no) </em><strong> {request} </strong>
+          <em>at</em> <strong> {timestamp} </strong> <em> local time, shipment's current
+          status is</em> <strong> {state}. </strong>
+        </p>
+      </div>
+    );
+  });
+
+  console.log(eventList);
+  console.log(abnormalConditions);
+  console.log(notifyElements);
+  this.setState({ eventList, abnormalConditions, notifyElements });
+}
 onSubmit = async(e) => {
     e.preventDefault();
     console.log(this.state.id)
@@ -294,70 +341,10 @@ onChange = async(e) => {
     this.setState({id: this.idRef.current.value})
 }
 
-onRefresh = async () => {
-    const eventList = await this.props.contract.getPastEvents(
-      "ShipmentStateUpdate",
-      {
-        fromBlock: 0,
-      }
-    );
-    
-    const abnormalConditions = eventList.filter((item) => {
-      return item.returnValues.state === "ABNORMAL";
-    });
-    this.setState({msg: 'Found no notifications.'.toUpperCase})
-    if(abnormalConditions.length === 0) {
-      this.setState({msg: 'Found no notifications.'.toUpperCase})
-    }
-    setTimeout(() => {
-      this.setState({ msg: "" });
-    }, 3000);
-
-    abnormalConditions.reverse();
-
-
-    const notifyElements = abnormalConditions.map((item, index) => {
-      let request = item.returnValues.requestNo;
-      let time = new Date(item.returnValues.timestamp * 1000).toString();
-      const dateArr = time.split(" ", 5);
-      const timestamp = dateArr.join(" ");
-      let state = item.returnValues.state;
-
-      return (
-        <div className="notification" key={index}>
-          <h4 className="head">ABNORMAL READINGS NOTIFICATION</h4>
-          <hr className="custom-hr-full"></hr>
-          <p className="subhead">
-            <em>An abnormal sensor reading is detected coming from source (tracking
-            no) </em><strong> {request} </strong>
-            <em>at</em> <strong> {timestamp} </strong> <em> local time, shipment's current
-            status is</em> <strong> {state}. </strong>
-          </p>
-        </div>
-      );
-    });
-
-    console.log(eventList);
-    console.log(abnormalConditions);
-    console.log(notifyElements);
-    this.setState({ eventList, abnormalConditions, notifyElements });
-};
 
   render() {
     return (
       <div className="notification-panel">
-          <div className="view-all-container">
-            <button
-              style={{
-                marginRight: "10px",
-                textAlign: "center",
-              }}
-              onClick={this.onRefresh}
-              className="btn"
-            >
-              VIEW ALL NOTIFICATIONS
-            </button>
-          </div>
         <div className="panel-control">
          <form onSubmit={this.onSubmit} className="form-row">
           <input 
@@ -455,32 +442,25 @@ class Status extends Component {
       .getShipmentLocation(id)
       .call();
     console.log(locationInfo);
-    let currentLocation = locationInfo[locationInfo.length - 1];
-    console.log(currentLocation);
-    let lat = parseFloat(currentLocation.Latitude);
-    let long = parseFloat(currentLocation.Longitude);
-    let coords = [lat, long];
-    this.setState({ coords });
 
-    // let events = await this.props.contract.getPastEvents("DataSent", {
-    //   fromBlock: 0,
-    // });
-    // let timeLogs = events.map((log) => {
-    //   let logTime = new Date(log.returnValues.timestamp * 1000);
-    //   let hours = logTime.getUTCHours();
-    //   let minutes = logTime.getUTCMinutes().toString().padStart(2, "0");
-    //   let day = logTime.getUTCDay();
-    //   let month = logTime.getUTCMonth() + 1;
-    //   let year = logTime.getUTCFullYear();
-    //   let timestamp =
-    //     day + "/" + month + "/" + year + " " + hours + ":" + minutes;
-
-    //   // const dateArr =time.split(" ", 5);
-    //   // const timestamp = dateArr.join(" ");
-
-    //   return timestamp;
-    // });
-
+    if (locationInfo.length === 0) {
+        this.setState({
+          msg: "No tracking logs are available for this request, please try again later!".toUpperCase(),
+          wholeActive: false,
+        });
+      } else {
+        let currentLocation = locationInfo[locationInfo.length - 1];
+        console.log(currentLocation);
+        let lat = parseFloat(currentLocation.Latitude);
+        let long = parseFloat(currentLocation.Longitude);
+        let coords = [lat, long];
+        this.setState({ coords });
+        this.setState({ wholeActive: true , isTab1Active:true });
+      }
+      setTimeout(() => {
+        this.setState({ msg: "" });
+      }, 3000);
+    
     let eventsFiltered = await this.props.contract.getPastEvents("DataSent", {
       filter: {
         requestNo: id,
@@ -495,12 +475,7 @@ class Status extends Component {
       let day = logTime.getUTCDate();
       let month = logTime.getUTCMonth() + 1;
       let year = logTime.getUTCFullYear();
-      let timestamp =
-        day + "/" + month + "/" + year + " " + hours + ":" + minutes;
-
-      // const dateArr =time.split(" ", 5);
-      // const timestamp = dateArr.join(" ");
-
+      let timestamp = day + "/" + month + "/" + year + " " + hours + ":" + minutes;
       return timestamp;
     });
 
@@ -537,23 +512,6 @@ class Status extends Component {
     console.log(reqCurrentState);
     this.setState({ reqCurrentState });
 
-    if (
-      response.length === 0 ||
-      trackHistory.length === 0 ||
-      locationInfo.length === 0 ||
-      requestLogs.length === 0
-    ) {
-      this.setState({
-        msg: "No tracking logs are available for this request, please try again later!".toUpperCase(),
-        wholeActive: false,
-      });
-    } else {
-      this.setState({ wholeActive: true });
-    }
-    setTimeout(() => {
-      this.setState({ msg: "" });
-    }, 3000);
-
     const shippingMethod = await this.props.contract.methods.getShipmentMethod(id).call();
     this.setState({shippingMethod})
 
@@ -588,7 +546,6 @@ class Status extends Component {
 
     this.setState({ response, log });
     this.setState({
-      requestID: " ",
       isTab1Active: true,
     });
   };
@@ -655,7 +612,7 @@ class Status extends Component {
           />
 
           <input
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer" , textAlign: 'center' }}
             type="submit"
             className="btn"
             value="VIEW STATUS"
