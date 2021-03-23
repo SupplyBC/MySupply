@@ -75,12 +75,14 @@ select {
 }
 
 .btn-alt {
-  border: none;
+  all:unset;
+  border: 1px solid #111;
   background-color: white;
   color: #111;
   font-weight: bold;
   padding: 7px 12px;
   cursor: pointer;
+  font-size: 14px;
 }
 .responsive-menu {
   display: none;
@@ -223,7 +225,9 @@ select {
   width: 70%;
   gap: 0;
 }
-.amount-pop-up input[type="number"] {
+.newform-container .amount-pop-up input[type="number"],
+.newform-container .amount-pop-up input[type="text"]
+ {
   width: 57%;
 }
 
@@ -231,6 +235,15 @@ select {
   display: flex;
   gap: 5px;
 }
+
+.btn-group .btn-alt:hover {
+  opacity: 0.7;
+}
+
+.btn-group .btn-alt {
+  margin-top: 9px;
+}
+
 
 /* ProductForm.js */
 
@@ -962,11 +975,11 @@ select {
     flex-wrap: wrap;
   }
 
-  .amount-pop-up {
+  .newform-container .amount-pop-up {
     text-align: center;
   }
-  .amount-pop-up input[type="number"],
-  .amount-pop-up input[type="text"] {
+  .newform-container .amount-pop-up input[type="number"],
+  .newform-container .amount-pop-up input[type="text"] {
     width: 93%;
   }
 
@@ -1124,6 +1137,14 @@ select {
     padding: 2px;
     width: 50%;
   }
+
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap:0px;
+  }
+
+
 
   /* 
   
