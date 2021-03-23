@@ -118,7 +118,8 @@ class RequestMaterials extends Component {
     strength: 0,
     resultCount: 0,
     msg: " ",
-    amountToggled: false
+    amountToggled: false,
+    batchToggled: false
   };
 
   constructor(props) {
@@ -129,9 +130,17 @@ class RequestMaterials extends Component {
     this.formRef = React.createRef();
     this.matStrRef = React.createRef();
     this.idRef = React.createRef();
+    this.manuRef= React.createRef();
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
     this.addRequest = this.addRequest.bind(this);
+    this.addBatchRequest = this.addBatchRequest.bind(this);
+  }
+
+  addBatchRequest = async(e) => {
+    e.preventDefault();
+    this.setState({batchToggled: true})
+
   }
 
   addRequest = async(e) => {
@@ -158,6 +167,7 @@ class RequestMaterials extends Component {
         this.setState({ requestInfo: " " });
       }, 15000);
   }
+
   onSubmit = async (e) => {
     e.preventDefault();
     const material = this.state.materialName;
@@ -198,64 +208,7 @@ class RequestMaterials extends Component {
       );
     })
     this.setState({ resultCount: queryFilter.length ,result , amountToggled: true});
-    // if (this.props.Web3.utils.isAddress(this.state.supplier)) {
-    //   await this.props.contract.methods
-    //     .createRequest(
-    //       supplierId,
-    //       material,
-    //       matform,
-    //       matstr,
-    //       matamount
-    //     )
-    //     .send({ from: this.props.account[0] })
-    //     .once("receipt", (receipt) => {
-    //       this.setState({ msg: "Request was sent successfully!"});
-    //       setTimeout(() => {
-    //         this.setState({ msg: " " });
-    //       }, 2000);
-    //     });
-
-        // const request = await this.props.contract.methods.getMyRequests().call();
-        // const requestNo = request[request.length -1].requestId;
-
-        // this.setState({ requestInfo: "Your Tracking Number: " + requestNo});
-        //   setTimeout(() => {
-        //     this.setState({ requestInfo: " " });
-        //   }, 15000);
-
-
-    //   // if (request.length === 0) {
-    //   //   this.setState({
-    //   //     materials: materials.push(
-    //   //       "This supplier has no recently created materials!"
-    //   //     ),
-    //   //   });
-    //   // }
-
-    
-    //   this.setState({
-    //     matName: "",
-    //     proName: "",
-    //     supplier: "",
-    //     form: "",
-    //     amount: "",
-    //     strength: "",
-    //   });
-    //   // this.setState({ requests: this.state.requests + 1 });
-    // } else {
-    //   this.setState({ msg: "Please Try Again!" });
-    //   setTimeout(() => {
-    //     this.setState({ msg: " " });
-    //   }, 2000);
-    // }
-
-    // this.props.contract.methods.addProduct('1', this.state.input).send({from: this.props.accounts[0]});
-    //  const material = this.state.materialName;
-    // // const proName = this.state.proName;
-    //  const supplierId = this.state.supplier;
-    //  const matform = this.state.form;
-    //  const matamount =this.state.amount;
-    // this.setState({ supplier: "", materialName: "", amount: null, form: "" });
+  
   };
 
   onChange = (e) => {
@@ -270,14 +223,15 @@ class RequestMaterials extends Component {
   };
 
   render() {
-    let toggled;
+    let toggled, toggled2;
     let acc = this.props.account;
     let cont = this.props.contract;
     let web = this.props.Web3;
     if (!acc || !cont || !web) {
       return <div> Loading..... </div>;
     }
-    this.state.amountToggled ? toggled="show" : toggled ="hide"
+    this.state.amountToggled ? toggled = "show" : toggled = "hide"
+    this.state.batchToggled ? toggled2 = "show" : toggled2 = "hide"
     return (
       <form onSubmit={this.onSubmit} className="newform-container">
         {/* <label> Supplier ID:</label>
@@ -358,6 +312,19 @@ class RequestMaterials extends Component {
             NICKEL
           </option>
         </select>
+
+        <div 
+        className={`${toggled2} amount-pop-up`}> 
+
+        <label>Add Manufacturer Address:</label>
+        <input
+          type="text"
+          onChange={this.onChange}
+          ref={this.manuRef}
+          placeholder="e.g.0x8a57428748D955C919F1928C1F21aF0dC1f4fC9d"
+          
+        />
+          </div>
         
         <div 
         className={`${toggled} amount-pop-up`}> 
@@ -433,6 +400,12 @@ class RequestMaterials extends Component {
            className={`${toggled} btn`}
            onClick={this.addRequest}>
             REQUEST</button>
+          
+          <button
+          className={`${toggled} btn-alt`}
+          onClick={this.addBatchRequest}>
+            CREATE BATCH REQUEST
+          </button>
 
 
         </div>
