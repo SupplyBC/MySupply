@@ -583,6 +583,7 @@ select {
 }
 
 /* FinancialLog.js */
+
 .finance-container form {
   background-color: #232;
 }
@@ -626,6 +627,22 @@ select {
 
 .form-container .hide {
   display: none;
+}
+
+.financial-status-container .form-row {
+  display: flex; 
+  flex-direction: column;
+  text-align: left;
+  gap: 12px;
+}
+
+.financial-status-container .form-row input[type="text"] {
+  width: 43%;
+}
+.std-cost-container {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
 }
 
 /* BankAccount.js */
@@ -740,6 +757,10 @@ select {
 /* MEDIA QUERIES */
 
 @media only screen and (max-width: 800px) {
+  .btn,
+  .btn-alt{
+    font-size: 12.5px;
+  }
   .sub-head {
     font-size: 13px;
   }
@@ -813,10 +834,10 @@ select {
     flex-direction: column;
   }
 
-  .form-container .form-row input {
+  /* .form-container .form-row input {
     width: 90%;
     margin-top: 15px;
-  }
+  } */
 
   .product-form-container {
     display: flex;
@@ -1135,6 +1156,22 @@ select {
     flex-direction: column;
     gap: 0px;
   }
+
+  .financial-status-container .form-row {
+    text-align: center;
+    align-items: center;
+    
+  }
+  
+  .financial-status-container .form-row input[type="text"] {
+    width: 69%;
+    margin-right: 0px;
+  }
+
+  .financial-status-container .form-row input[type="submit"] {
+    margin-top:10px;
+  }
+ 
 
   /* 
   
