@@ -1,7 +1,176 @@
 import React, { Component } from "react";
+import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
-class FinancialLog extends Component {
-  state = { id: "" , tableVisibility: false };
+class SetActualCosts extends Component {
+  state = {
+    product: "",
+    directMaterialActCost: 0,
+    packagingMaterialActCost: 0,
+    laborActCost: 0,
+    manuIndirectActCost: 0,
+    mrkActCost: 0,
+    rsrhActCost: 0,
+    totalActCost: 0,
+  };
+
+  constructor(props) {
+    super(props);
+    this.proRef = React.createRef();
+    this.dirMatActRef = React.createRef();
+    this.pkgMatActRef = React.createRef();
+    this.labActRef = React.createRef();
+    this.manIndActRef = React.createRef();
+    this.mrkActRef = React.createRef();
+    this.rsrhActRef = React.createRef();
+    this.OnChange = this.onChange.bind(this);
+    this.OnSubmit = this.OnSubmit.bind(this);
+  }
+
+  OnSubmit = async (e) => {
+    e.preventDefault();
+
+    const pro = this.state.product;
+    const matAct = parseInt(this.state.directMaterialActCost, 10);
+    const pkgMatAct = parseInt(this.state.packagingMaterialActCost,10)
+    const labAct = parseInt(this.state.laborActCost, 10);
+    const manuIndirectActCost = parseInt(this.state.manuIndirectActCost, 10);
+    const totBudget = parseInt(this.state.budget,10);
+    const mrkAct = parseInt(this.state.mrkActCost,10);
+    const rsrhAct = parseInt(this.state.rsrhActCost,10);
+    
+    const totalActual = matAct + pkgMatAct + labAct + manuIndirectActCost
+                        + mrkAct + rsrhAct;
+    
+    this.setState({ totalActCost: totalActual });
+
+    console.log(pro, matAct, labAct, manuIndirectActCost, totalActual, totBudget, pkgMatAct);
+    await this.props.contract.methods.setActualCost(pro,matAct, pkgMatAct,
+      labAct, manuIndirectActCost, mrkAct , rsrhAct)
+    .send({from: this.props.account[0]}).once("receipt", (receipt) => {
+      this.setState({ msg: "Actual Costs Were Set Successfully" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 2000);
+    });
+
+    this.setState({
+      product: "",
+      directMaterialActCost: "",
+      packagingMaterialActCost: "",
+      laborActCost: "",
+      manuIndirectActCost: "",
+      mrkActCost: "",
+      rsrhActCost: "",
+    });
+
+  };
+
+  onChange = async (e) => {
+    this.setState({
+      product: this.proRef.current.value,
+      directMaterialActCost: this.dirMatActRef.current.value,
+      packagingMaterialActCost: this.pkgMatActRef.current.value,
+      laborActCost: this.labActRef.current.value,
+      manuIndirectActCost: this.manIndActRef.current.value,
+      mrkActCost: this.mrkActRef.current.value,
+      rsrhActCost: this.rsrhActRef.current.value,
+    });
+  };
+  render() {
+    return (
+      <form onSubmit={this.OnSubmit}  className="newform-container">
+      <label>Product ID:</label>
+      <input
+        type="text"
+        ref={this.proRef}
+        value={this.state.product}
+        placeholder="e.g. pro101"
+        onChange={this.OnChange}
+        required = "required"
+      />
+
+      <h4> Set Actual Costs </h4>
+
+      <label>Raw Materials: </label>
+      <input
+        type="number"
+        ref={this.dirMatActRef}
+        value={this.state.directMaterialActCost}
+        placeholder="e.g. 5000"
+        onChange={this.OnChange}
+        required = "required"
+      />
+
+      <label>Packaging Materials: </label>
+      <input
+        type="number"
+        ref={this.pkgMatActRef}
+        value={this.state.packagingMaterialActCost}
+        placeholder="e.g. 5000"
+        onChange={this.OnChange}
+        required = "required"
+      />
+
+      <label>Direct Labor: </label>
+      <input
+        type="number"
+        ref={this.labActRef}
+        value={this.state.laborActCost}
+        placeholder="e.g. 5000"
+        onChange={this.OnChange}
+        required = "required"
+      />
+
+      <label>Manufacturing Overhead (Indirect Costs): </label>
+      <input
+        type="number"
+        ref={this.manIndActRef}
+        value={this.state.manuIndirectActCost}
+        placeholder="e.g. 5000"
+        onChange={this.OnChange}
+        required = "required"
+      />
+
+      <label>Marketing: </label>
+      <input
+        type="number"
+        ref={this.mrkActRef}
+        value={this.state.mrkActCost}
+        placeholder="e.g. 5000"
+        onChange={this.OnChange}
+        required = "required"
+      />
+
+      <label>Research: </label>
+      <input
+        type="number"
+        ref={this.rsrhActRef}
+        value={this.state.rsrhActCost}
+        placeholder="e.g. 5000"
+        onChange={this.OnChange}
+        required = "required"
+      />
+
+
+      <input
+        type="submit"
+        className="btn"
+        value="SET ACTUAL COSTS"
+      />
+
+
+      <div style={{marginTop:'20px'}} className = "notify-text">
+        {this.state.msg}
+
+      </div>
+    </form>
+    );
+  }
+}
+
+class CalculateVariance extends Component {
+  state = { id: "", tableVisibility: false };
+
   constructor(props) {
     super(props);
     this.productIdRef = React.createRef();
@@ -13,36 +182,136 @@ class FinancialLog extends Component {
     e.preventDefault();
     const proId = this.state.id;
     const standard = await this.props.contract.methods
-    .getStdCostPlan(proId)
-    .call();
-    const stdCostData = standard.map( (item , index) => {
-      let matCost = parseInt(standard.directMaterialCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
-      let pkgCost = parseInt(standard.packagingMaterialCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
-      let laborCost = parseInt(standard.directLaborCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
-      let indirectManuCost = parseInt(standard.totalIndirectCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
-      let mrkCost = parseInt(standard.marketingCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
-      let rsrchCost= parseInt(standard.researchCost,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
-      let totalCost = parseInt(standard.CostTOT,10).toLocaleString('en-US',{style: 'currency', currency: 'USD'});
+      .getStdCostPlan(proId)
+      .call();
+    const stdCostData = standard.map((item, index) => {
+      let matCost = parseInt(
+        standard.directMaterialCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let pkgCost = parseInt(
+        standard.packagingMaterialCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let laborCost = parseInt(
+        standard.directLaborCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let indirectManuCost = parseInt(
+        standard.totalIndirectCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let mrkCost = parseInt(standard.marketingCost, 10).toLocaleString(
+        "en-US",
+        { style: "currency", currency: "USD" }
+      );
+      let rsrchCost = parseInt(
+        standard.researchCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let totalCost = parseInt(standard.CostTOT, 10).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
       // let stdCostList = costList.standard.packagingMaterialCost;
-      this.setState({ standard , proId, matCost, pkgCost, laborCost,
-        indirectManuCost, mrkCost , rsrchCost, totalCost });
-        return(
-          true
-        );
-        
+      this.setState({
+        standard,
+        proId,
+        matCost,
+        pkgCost,
+        laborCost,
+        indirectManuCost,
+        mrkCost,
+        rsrchCost,
+        totalCost,
+      });
+      return true;
     });
-    if(this.state.totalCost === '$0.00') {
-      this.setState({msg: 'No Financial Data Found for the Given Product ID!'.toUpperCase()})
-      this.setState({tableVisibility:false})
+
+    const actual =  await this.props.contract.methods
+    .getActualCost(proId)
+    .call();
+
+    const actualCostData = actual.map((item,index) => {
+
+      let matActCost = parseInt(
+        actual.directMaterialCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let pkgActCost = parseInt(
+        actual.packagingMaterialCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let laborActCost = parseInt(
+        actual.directLaborCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let indirectManuActCost = parseInt(
+        actual.totalIndirectCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let mrkActCost = parseInt(actual.marketingCost, 10).toLocaleString(
+        "en-US",
+        { style: "currency", currency: "USD" }
+      );
+      let rsrchActCost = parseInt(
+        actual.researchCost,
+        10
+      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let totalActCost = parseInt(actual.CostTOT, 10).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      this.setState({
+        actual,
+        matActCost,
+        pkgActCost,
+        laborActCost,
+        indirectManuActCost,
+        mrkActCost,
+        rsrchActCost,
+        totalActCost,
+      });
+      return true;
+
+    });
+
+    // const stdValues = this.state.standard.map((item) => {
+    //   const stdValuesArr = parseInt(item,10);
+    //   return stdValuesArr;
+    // })
+    // const actValues = this.state.actual.map((item) => {
+    //   const actValuesArr = parseInt(item,10);
+    //   return actValuesArr;
+    // })
+
+    // console.log(stdValues,actValues);
+    // const staticBudgetVariance = () => {
+    //   const staticBudVar = [];
+    //   for(let i=0; i<stdValues.length; i++) {
+    //     const diff = stdValues[i] - actValues[i];
+    //     staticBudVar[i] = diff;
+    //   }
+    //   return staticBudVar;
+    // }
+
+    // const staticBudgetVar = staticBudgetVariance(stdValues,actValues)
+    // this.setState({staticBudgetVar})
+
+
+    if (this.state.totalCost === "$0.00" || this.state.totalActCost === "$0.00" ) {
+      this.setState({
+        msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
+      });
+      this.setState({ tableVisibility: false });
     } else {
-      this.setState({tableVisibility:true})
+      this.setState({ tableVisibility: true });
     }
 
     setTimeout(() => {
       this.setState({ msg: " " });
     }, 3000);
-    this.setState({stdCostData});
-   
+    this.setState({ stdCostData, actualCostData });
   };
 
   onChange = async (e) => {
@@ -52,14 +321,14 @@ class FinancialLog extends Component {
   };
   render() {
     let table;
-    let account = this.props.accounts;
+    let account = this.props.account;
     let contract = this.props.contract;
     if (!account || !contract) {
       return <div>Loading ..... </div>;
     }
     this.state.tableVisibility ? (table = "show") : (table = "hide");
     return (
-      <div>
+      <div className="financial-status-container">
         <form onSubmit={this.onSubmit} className="form-container">
           <div className="form-row">
             <h4>Review Financial Status</h4>
@@ -70,114 +339,152 @@ class FinancialLog extends Component {
               value={this.state.id}
               onChange={this.onChange}
               ref={this.productIdRef}
-              required = "required"
+              required="required"
             />
-
-            <input
+            <div>
+              <input
               style={{ cursor: "pointer" }}
               type="submit"
               className="btn"
               value="VIEW FINANCIAL STATUS"
             />
+            </div>
+            
           </div>
-          <div className = "query-result" > 
-          <p> {this.state.msg} </p>
+          <div className="query-result">
+            <p> {this.state.msg} </p>
           </div>
-          <div className ={`${table} costsClashContainer `} >
+          <div className={`${table} costsClashContainer `}>
             <div className="std-cost-container">
-              <h4>Standard Cost Sheet</h4> 
-              <table  className="cost-data">
+              <table className="cost-data">
                 <thead>
                   <tr>
                     <th>CRITERIA</th>
-                    <th>VALUE</th>
+                    <th>STANDARD COSTS</th>
+                    <th>STATIC-BUDGET VARIANCE</th>
+                    <th>ACTUAL COSTS</th>
                   </tr>
                 </thead>
                 <tbody>
-
-                <tr>
-                  <td> Raw Materials </td>
-                  <td>{this.state.matCost}</td>
-                </tr>
-                <tr>
-                  <td> Packaging Materials </td>
-                  <td>{this.state.pkgCost}</td>
-                </tr>
-                <tr>
-                  <td> Direct Labor </td>
-                  <td>{this.state.laborCost}</td>
-                </tr>
-                <tr>
-                  <td> Indirect Manufacturing Costs </td>
-                  <td>{this.state.indirectManuCost}</td>
-                </tr>
-                <tr>
-                  <td> Marketing </td>
-                  <td>{this.state.mrkCost}</td>
-                </tr>
-                <tr>
-                  <td> Research </td>
-                  <td>{this.state.rsrchCost}</td>
-                </tr>
+                  <tr>
+                    <td> Raw Materials </td>
+                    <td>{this.state.matCost}</td>
+                    <td>aloalaolololo</td>
+                    <td>{this.state.matActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Packaging Materials </td>
+                    <td>{this.state.pkgCost}</td>
+                    <td>{this.state.pkgActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Direct Labor </td>
+                    <td>{this.state.laborCost}</td>
+                    <td>{this.state.laborActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Indirect Manufacturing Costs </td>
+                    <td>{this.state.indirectManuCost}</td>
+                    <td>{this.state.indirectManuActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Marketing </td>
+                    <td>{this.state.mrkCost}</td>
+                    <td>{this.state.mrkActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Research </td>
+                    <td>{this.state.rsrchCost}</td>
+                    <td>{this.state.rsrchActCost}</td>
+                  </tr>
                 </tbody>
 
                 <tfoot>
                   <tr>
                     <th> TOTAL </th>
-                    <td>{this.state.totalCost} </td> 
+                    <td>{this.state.totalCost} </td>
+                    <td>{this.state.totalActCost} </td>
                   </tr>
-                </tfoot> 
-              </table>
-              </div>
-
-            <div className="actual-cost-container">
-            <h4>Actual Cost Sheet</h4> 
-            <table  className="cost-data">
-                <thead>
-                  <tr>
-                    <th>CRITERIA</th>
-                    <th>VALUE</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                <tr>
-                  <td> Raw Materials </td>
-                  <td>{this.state.matCost}</td>
-                </tr>
-                <tr>
-                  <td> Packaging Materials </td>
-                  <td>{this.state.pkgCost}</td>
-                </tr>
-                <tr>
-                  <td> Direct Labor </td>
-                  <td>{this.state.laborCost}</td>
-                </tr>
-                <tr>
-                  <td> Indirect Manufacturing Costs </td>
-                  <td>{this.state.indirectManuCost}</td>
-                </tr>
-                <tr>
-                  <td> Marketing </td>
-                  <td>{this.state.mrkCost}</td>
-                </tr>
-                <tr>
-                  <td> Research </td>
-                  <td>{this.state.rsrchCost}</td>
-                </tr>
-                </tbody>
-
-                <tfoot>
-                  <tr>
-                    <th> TOTAL </th>
-                    <td>{this.state.totalCost} </td> 
-                  </tr>
-                </tfoot> 
+                </tfoot>
               </table>
             </div>
           </div>
         </form>
       </div>
+    );
+  }
+}
+
+class FinancialLog extends Component {
+  render() {
+    return (
+      <BrowserRouter>
+        <div className="product-form-container">
+          <div className="side-nav">
+            <ul className="mini-nav-list">
+              <li className="link-item">
+                <NavLink to="/financial-log/setActualCosts">
+                  + SET ACTUAL COSTS
+                </NavLink>
+              </li>
+              <li className="link-item">
+                <NavLink to="/financial-log/variance">
+                  + REVIEW VARIANCE
+                </NavLink>
+              </li>
+            </ul>
+          </div>
+          <div className="main-content">
+            <Route
+              path="/financial-log/setActualCosts"
+              exact
+              render={(props) => (
+                <SetActualCosts
+                  {...props}
+                  account={this.props.accounts}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            <Route
+              path="/financial-log/variance"
+              exact
+              render={(props) => (
+                <CalculateVariance
+                  {...props}
+                  Web3={this.props.Web3}
+                  account={this.props.accounts}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            {/* <Route
+              path="/supply/supplier/createMaterial"
+              exact
+              render={(props) => (
+                <CreateMaterial
+                  {...props}
+                  Web3={this.props.Web3}
+                  account={this.props.account}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            <Route
+              path="/supply/supplyPortal"
+              exact
+              render={(props) => (
+                <ManageSupply
+                  {...props}
+                  Web3={this.props.Web3}
+                  account={this.props.account}
+                  contract={this.props.contract}
+                />
+              )}
+            /> */}
+          </div>
+        </div>
+      </BrowserRouter>
     );
   }
 }
