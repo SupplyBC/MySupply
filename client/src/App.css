@@ -175,7 +175,7 @@ select {
 
 .btn:hover {
   opacity: 0.8;
-  transform: scale(0.97);
+  transform: scale(1.06);
   transition: 0.2s;
 }
 
@@ -602,6 +602,7 @@ select {
 }
 .costsClashContainer table thead {
   font-weight: 700;
+  text-align: center;
   border-bottom: 1px solid #999;
 }
 
@@ -920,7 +921,8 @@ select {
     width: 70%;
   }
 
-  .product-data-container {
+  .product-data-container,
+  .costsClashContainer {
     font-size: 12px;
     width: 90%;
     overflow-x: auto;
@@ -1171,6 +1173,11 @@ select {
   .financial-status-container .form-row input[type="submit"] {
     margin-top:10px;
   }
+
+  .costsClashContainer table {
+    font-size: 12px;
+  }
+  
  
 
   /* 
