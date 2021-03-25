@@ -28,10 +28,6 @@ class App extends Component {
 
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
-      // const balance = web3.utils.fromWei(
-      // await web3.eth.getBalance(accounts[0]),
-      //   "ether"
-      // );
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = NewDemoTestContract.networks[networkId];
@@ -39,16 +35,13 @@ class App extends Component {
         NewDemoTestContract.abi,
         deployedNetwork && deployedNetwork.address
       );
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
-      // this.setState({ web3, accounts, contract: instance }, this.runExample);
+      // Set web3, accounts, and contract to the state
 
       const balance = await instance.methods.getBalance(accounts[0]).call();
       this.setState({ web3, accounts, balance, contract: instance });
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(`Failed to load Web3. Please check your web3 connection and try again!`);
-      //  console.error(error);
     }
   };
 
@@ -109,12 +102,6 @@ class App extends Component {
               </li>
             </ul>
           </div>
-
-          {/* <Route path="/" exact component={App} /> */}
-          {/* <Route path="/add-product" exact 
-        render={(props) => (
-          <AddProduct {...props} accounts={this.state.accounts} contract={this.state.contract} />
-        )} /> */}
 
           <Route
             path="/supply"

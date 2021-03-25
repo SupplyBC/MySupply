@@ -168,7 +168,15 @@ class SetActualCosts extends Component {
   }
 }
 
-class CalculateVariance extends Component {
+class SetProductionUnits extends Component {
+  render() {
+    return(
+      <div>Set Production Units</div>
+    );
+  }
+}
+
+class CalculateStaticVariance extends Component {
   state = { id: "", tableVisibility: false };
 
   constructor(props) {
@@ -185,35 +193,23 @@ class CalculateVariance extends Component {
       .getStdCostPlan(proId)
       .call();
     const stdCostData = standard.map((item, index) => {
-      let matCost = parseInt(
-        standard.directMaterialCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let pkgCost = parseInt(
-        standard.packagingMaterialCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let laborCost = parseInt(
-        standard.directLaborCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let indirectManuCost = parseInt(
-        standard.totalIndirectCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let mrkCost = parseInt(standard.marketingCost, 10).toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
-      let rsrchCost = parseInt(
-        standard.researchCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let totalCost = parseInt(standard.CostTOT, 10).toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-      // let stdCostList = costList.standard.packagingMaterialCost;
+
+      let matCostValue = parseInt(standard.directMaterialCost,10);
+      let pkgCostValue = parseInt(standard.packagingMaterialCost,10);
+      let laborCostValue = parseInt(standard.directLaborCost,10);
+      let indirectManuCostValue = parseInt(standard.totalIndirectCost,10);
+      let mrkCostValue = parseInt(standard.marketingCost,10);
+      let rsrchCostValue = parseInt(standard.researchCost,10);
+      let totalCostValue = parseInt(standard.CostTOT,10); 
+
+      let matCost = matCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let pkgCost = pkgCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let laborCost = laborCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let indirectManuCost = indirectManuCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let mrkCost = mrkCostValue.toLocaleString("en-US",{ style: "currency", currency: "USD" });
+      let rsrchCost = rsrchCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let totalCost = totalCostValue.toLocaleString("en-US", {style: "currency", currency: "USD"});
+
       this.setState({
         standard,
         proId,
@@ -224,6 +220,13 @@ class CalculateVariance extends Component {
         mrkCost,
         rsrchCost,
         totalCost,
+        matCostValue,
+        pkgCostValue,
+        laborCostValue,
+        indirectManuCostValue,
+        mrkCostValue,
+        rsrchCostValue,
+        totalCostValue,
       });
       return true;
     });
@@ -233,35 +236,23 @@ class CalculateVariance extends Component {
     .call();
 
     const actualCostData = actual.map((item,index) => {
+      let matActCostValue = parseInt(actual.directMaterialCost,10);
+      let pkgActCostValue = parseInt(actual.packagingMaterialCost,10);
+      let laborActCostValue = parseInt(actual.directLaborCost,10);
+      let indirectManuActCostValue = parseInt(actual.totalIndirectCost,10);
+      let mrkActCostValue = parseInt(actual.marketingCost,10);
+      let rsrchActCostValue = parseInt(actual.researchCost,10);
+      let totalActCostValue = parseInt(actual.CostTOT,10); 
 
-      let matActCost = parseInt(
-        actual.directMaterialCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let pkgActCost = parseInt(
-        actual.packagingMaterialCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let laborActCost = parseInt(
-        actual.directLaborCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let indirectManuActCost = parseInt(
-        actual.totalIndirectCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let mrkActCost = parseInt(actual.marketingCost, 10).toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
-      let rsrchActCost = parseInt(
-        actual.researchCost,
-        10
-      ).toLocaleString("en-US", { style: "currency", currency: "USD" });
-      let totalActCost = parseInt(actual.CostTOT, 10).toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
+      let matActCost = matActCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let pkgActCost = pkgActCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let laborActCost = laborActCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let indirectManuActCost = indirectManuActCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let mrkActCost = mrkActCostValue.toLocaleString("en-US",{ style: "currency", currency: "USD" });
+      let rsrchActCost = rsrchActCostValue.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      let totalActCost = totalActCostValue.toLocaleString("en-US", {style: "currency", currency: "USD"});
+      
+      
       this.setState({
         actual,
         matActCost,
@@ -271,33 +262,17 @@ class CalculateVariance extends Component {
         mrkActCost,
         rsrchActCost,
         totalActCost,
+        matActCostValue,
+        pkgActCostValue,
+        laborActCostValue,
+        indirectManuActCostValue,
+        mrkActCostValue,
+        rsrchActCostValue,
+        totalActCostValue,
       });
       return true;
 
     });
-
-    // const stdValues = this.state.standard.map((item) => {
-    //   const stdValuesArr = parseInt(item,10);
-    //   return stdValuesArr;
-    // })
-    // const actValues = this.state.actual.map((item) => {
-    //   const actValuesArr = parseInt(item,10);
-    //   return actValuesArr;
-    // })
-
-    // console.log(stdValues,actValues);
-    // const staticBudgetVariance = () => {
-    //   const staticBudVar = [];
-    //   for(let i=0; i<stdValues.length; i++) {
-    //     const diff = stdValues[i] - actValues[i];
-    //     staticBudVar[i] = diff;
-    //   }
-    //   return staticBudVar;
-    // }
-
-    // const staticBudgetVar = staticBudgetVariance(stdValues,actValues)
-    // this.setState({staticBudgetVar})
-
 
     if (this.state.totalCost === "$0.00" || this.state.totalActCost === "$0.00" ) {
       this.setState({
@@ -369,32 +344,49 @@ class CalculateVariance extends Component {
                   <tr>
                     <td> Raw Materials </td>
                     <td>{this.state.matCost}</td>
-                    <td>aloalaolololo</td>
+                    <td>
+                      {(this.state.matCostValue - this.state.matActCostValue).toLocaleString('en-US', {style:'currency', currency:'USD'})}
+                    </td>
                     <td>{this.state.matActCost}</td>
                   </tr>
                   <tr>
                     <td> Packaging Materials </td>
                     <td>{this.state.pkgCost}</td>
+                    <td>
+                      {(this.state.pkgCostValue - this.state.pkgActCostValue).toLocaleString('en-US', {style:'currency', currency:'USD'})}
+                    </td>
                     <td>{this.state.pkgActCost}</td>
                   </tr>
                   <tr>
                     <td> Direct Labor </td>
                     <td>{this.state.laborCost}</td>
+                    <td>
+                      {(this.state.laborCostValue - this.state.laborActCostValue).toLocaleString('en-US', {style:'currency', currency:'USD'})}
+                    </td>
                     <td>{this.state.laborActCost}</td>
                   </tr>
                   <tr>
                     <td> Indirect Manufacturing Costs </td>
                     <td>{this.state.indirectManuCost}</td>
+                    <td>
+                      {(this.state.indirectManuCostValue - this.state.indirectManuActCostValue).toLocaleString('en-US', {style:'currency', currency:'USD'})}
+                    </td>
                     <td>{this.state.indirectManuActCost}</td>
                   </tr>
                   <tr>
                     <td> Marketing </td>
                     <td>{this.state.mrkCost}</td>
+                    <td>
+                      {(this.state.mrkCostValue - this.state.mrkActCostValue).toLocaleString('en-US', {style:'currency', currency:'USD'})}
+                    </td>
                     <td>{this.state.mrkActCost}</td>
                   </tr>
                   <tr>
                     <td> Research </td>
                     <td>{this.state.rsrchCost}</td>
+                    <td>
+                      {(this.state.rsrchCostValue - this.state.rsrchActCostValue).toLocaleString('en-US', {style:'currency', currency:'USD'})}
+                    </td>
                     <td>{this.state.rsrchActCost}</td>
                   </tr>
                 </tbody>
@@ -403,6 +395,9 @@ class CalculateVariance extends Component {
                   <tr>
                     <th> TOTAL </th>
                     <td>{this.state.totalCost} </td>
+                    <td>
+                      {(this.state.totalCostValue - this.state.totalActCostValue).toLocaleString('en-US', {style:'currency', currency:'USD'}) }
+                    </td>
                     <td>{this.state.totalActCost} </td>
                   </tr>
                 </tfoot>
@@ -415,7 +410,20 @@ class CalculateVariance extends Component {
   }
 }
 
+class CalculateFlexibleVariance extends Component {
+  render() {
+    return(
+      <div>Calculate Flexible Variance</div>
+    );
+  }
+}
+
 class FinancialLog extends Component {
+
+  componentDidMount = async () => {
+    
+  }
+
   render() {
     return (
       <BrowserRouter>
@@ -424,12 +432,25 @@ class FinancialLog extends Component {
             <ul className="mini-nav-list">
               <li className="link-item">
                 <NavLink to="/financial-log/setActualCosts">
-                  + SET ACTUAL COSTS
+                  + MANAGE ACTUAL COSTS
                 </NavLink>
               </li>
               <li className="link-item">
-                <NavLink to="/financial-log/variance">
-                  + REVIEW VARIANCE
+                <NavLink to="/financial-log/setProductionUnits">
+                  + MANAGE UNITS
+                </NavLink>
+              </li>
+              <label style={{ marginTop: "10px" }}>
+                <strong> REVIEW VARIANCE </strong>
+              </label>
+              <li className="link-item">
+                <NavLink to="/financial-log/staticVariance">
+                  + STATIC-BUDGET 
+                </NavLink>
+              </li>
+              <li className="link-item">
+                <NavLink to="/financial-log/flexibleVariance">
+                  + FLEXIBLE-BUDGET 
                 </NavLink>
               </li>
             </ul>
@@ -447,10 +468,33 @@ class FinancialLog extends Component {
               )}
             />
             <Route
-              path="/financial-log/variance"
+              path="/financial-log/setProductionUnits"
               exact
               render={(props) => (
-                <CalculateVariance
+                <SetProductionUnits
+                  {...props}
+                  account={this.props.accounts}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            <Route
+              path="/financial-log/staticVariance"
+              exact
+              render={(props) => (
+                <CalculateStaticVariance
+                  {...props}
+                  Web3={this.props.Web3}
+                  account={this.props.accounts}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            <Route
+              path="/financial-log/flexibleVariance"
+              exact
+              render={(props) => (
+                <CalculateFlexibleVariance
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.accounts}
