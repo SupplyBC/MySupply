@@ -18,7 +18,7 @@ class CreateAccount extends Component {
     console.log(accountName);
 
     await this.props.contract.methods
-      .selfCreateBankAccount(accountName)
+      .createBankAccount(this.props.account[0],accountName)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "account was created successfully!" });
@@ -80,7 +80,7 @@ class Deposit extends Component {
     const amount = parseInt(this.state.depositAmount, 10);
 
     await this.props.contract.methods
-      .selfDeposit(amount)
+      .deposit(this.props.account[0],amount)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "deposit was completed successfully!" });
@@ -139,7 +139,7 @@ class Withdraw extends Component {
     e.preventDefault();
     const amount = parseInt(this.state.withdrawalAmount, 10);
     await this.props.contract.methods
-      .selfWithdraw(amount)
+      .withdraw(this.props.account[0],amount)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Withdrawal completed successfully!" });
@@ -200,7 +200,7 @@ class Transfer extends Component {
     const to = this.state.toAddr;
     const amount = parseInt(this.state.transferAmount, 10);
     await this.props.contract.methods
-      .selfTransfer(to, amount)
+      .transfer(this.props.account[0],to, amount)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Transfer was completed successfully!" });

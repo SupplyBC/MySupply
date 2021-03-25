@@ -496,6 +496,18 @@ class CreateCostPlan extends Component {
     );
   }
 }
+class ReviewProduct extends Component {
+  render() {
+    let account = this.props.account;
+    let contract = this.props.contract;
+    if (!account || !contract) {
+      return <div>Loading ..... </div>;
+    }
+    return(
+      <div>Review Product Status</div>
+    );
+  }
+}
 
 class AddProduct extends Component {
   render() {
@@ -523,6 +535,10 @@ class AddProduct extends Component {
               <li className="link-item">
                 
                 <NavLink to="/add-product/costPlan">+ CREATE COST PLAN</NavLink>
+              </li>
+              <li className="link-item">
+                
+                <NavLink to="/add-product/review">+ REVIEW PRODUCTS</NavLink>
               </li>
             </ul>
           </div>
@@ -554,6 +570,17 @@ class AddProduct extends Component {
               exact
               render={(props) => (
                 <CreateCostPlan
+                  {...props}
+                  account={this.props.accounts}
+                  contract={this.props.contract}
+                />
+              )}
+            />
+            <Route
+              path="/add-product/review"
+              exact
+              render={(props) => (
+                <ReviewProduct
                   {...props}
                   account={this.props.accounts}
                   contract={this.props.contract}

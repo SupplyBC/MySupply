@@ -1227,92 +1227,11 @@ class ManageIOT extends Component {
 }
 
 class SupplyForm extends Component {
-  // state = {materialName: '' , materialsVisibility:  false , proName: '' , supplier: '' }
-
-  // constructor(props) {
-  //     super(props);
-
-  //     this.materialRef = React.createRef();
-  //     this.supplierRef = React.createRef();
-  //     this.onSubmit = this.onSubmit.bind(this)
-  //     this.onChange = this.onChange.bind(this)
-  //     this.viewMaterialBySupplierAddress = this.viewMaterialBySupplierAddress.bind(this)
-  //     this.viewSpecs = this.viewSpecs.bind(this)
-  // }
 
   componentDidMount = async () => {
-    // if (!this.props.contract || !this.props.accounts) {
-    //     return <h2> PLEASE WAIT... </h2>;
-    // }
+
   };
-
-  // onSubmit = async (e) => {
-  //     e.preventDefault();
-  //     // this.props.contract.methods.addProduct('1', this.state.input).send({from: this.props.accounts[0]});
-  //     // this.logProduct();
-  //     // const material = this.state.materialName;
-  //     // const proName = this.state.proName;
-  //     // const supplierId = this.state.supplier;
-
-  //     this.viewMaterialBySupplierAddress();
-  //   }
-
-  // onChange = (e) => {
-  //     e.preventDefault();
-  //     this.setState({
-
-  //         proName : this.productRef.current.value,
-  //         // materialName : this.materialRef.current.value,
-  //         supplier: this.supplierRef.current.value
-  //         });
-  // }
-
-  // logProduct = async () => {
-  //     const product = await this.props.contract.methods.getProductDetails('5').call();
-  //     console.table(product);
-  // }
-
-  // fakeTransact = async () => {
-  //     //await contract.methods.set(5).send({ from: accounts[0] });
-  //     this.props.contract.methods.set(5).send({from: this.props.accounts[0]})
-  //     this.setState({materialsVisibility: !this.setState.materialsVisibility });
-  //     console.log(this.state.materialsVisibility)
-  // }
-
-  // viewSpecs = async () => {
-  //   const specs = await this.props.contract.methods
-  //     .getProductSpecs(this.state.proName)
-  //     .call();
-  //   if (specs.length === 0) {
-  //     this.setState({
-  //       specs: specs.push(
-  //         "Didn't find any specs for the given product ID, please try again!"
-  //       ),
-  //     });
-  //   }
-  //   console.log(specs);
-  //   this.setState({ specs });
-  // };
-
-  // viewMaterialBySupplierAddress = async () => {
-  //   // console.log()
-  //   if (this.props.Web3.utils.isAddress(this.state.supplier)) {
-  //     const materials = await this.props.contract.methods
-  //       .getMaterialBySupplier(`${this.state.supplier}`)
-  //       .call();
-  //     if (materials.length === 0) {
-  //       this.setState({
-  //         materials: materials.push(
-  //           "This supplier has no materials created currently!"
-  //         ),
-  //       });
-  //     }
-  //     this.setState({ materials });
-  //   }
-  // };
   render() {
-    // const vis = this.state.materialsVisibility ? 'show' : 'hide';
-    // const random = Math.floor(Math.random() * 100);
     let acc = this.props.account;
     let cont = this.props.contract;
     if (!acc || !cont) {
