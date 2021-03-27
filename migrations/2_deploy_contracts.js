@@ -1,8 +1,7 @@
-// var PreProduction = artifacts.require("./PreProduction.sol");
-var NewDemoTest = artifacts.require("./NewDemoTest.sol");
-var test        = artifacts.require("./test.sol")
+var PharmaChain = artifacts.require("./PharmaChain.sol");
+var PharmaChainTracking = artifacts.require("./PharmaChainTracking.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(NewDemoTest)
-  deployer.deploy(test)
+  deployer.deploy(PharmaChain)
+  deployer.deploy(PharmaChainTracking)
 };
