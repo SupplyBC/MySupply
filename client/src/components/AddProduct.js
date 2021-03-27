@@ -27,7 +27,7 @@ class CreateProduct extends Component {
     let form = this.state.productForm;
     
 
-    await this.props.contract.methods
+    await this.props.pcContract.methods
       .addProduct(name, id, form)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -55,8 +55,10 @@ class CreateProduct extends Component {
 
   render() {
     let acc = this.props.account;
-    let cont = this.props.contract;
-    if (!acc || !cont) {
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+
+    if (!acc || !cont1 || !cont2) {
       return <div> Loading..... </div>;
     }
     return (
@@ -134,7 +136,7 @@ class AddMaterial extends Component {
     let strength = this.state.matStr;
     let form = this.state.matForm;
     let amount = this.state.matAmount;
-    await this.props.contract.methods
+    await this.props.pcContract.methods
 
       .addProductSpecs(
         this.state.proID,
@@ -173,9 +175,10 @@ class AddMaterial extends Component {
   };
   render() {
     let acc = this.props.account;
-    let cont = this.props.contract;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
 
-    if (!acc || !cont) {
+    if (!acc || !cont1 || !cont2) {
       return <div> Loading..... </div>;
     }
     return (
@@ -314,6 +317,7 @@ class AddMaterial extends Component {
 class CreateCostPlan extends Component {
   state = {
     product: "",
+    productUnitsNo: 0,
     directMaterialStdCost: 0,
     packagingMaterialStdCost: 0,
     laborStdCost: 0,
@@ -327,6 +331,7 @@ class CreateCostPlan extends Component {
   constructor(props) {
     super(props);
     this.proRef = React.createRef();
+    this.unitNoRef = React.createRef();
     this.dirMatStdRef = React.createRef();
     this.pkgMatStdRef = React.createRef();
     this.labStdRef = React.createRef();
@@ -344,6 +349,7 @@ class CreateCostPlan extends Component {
     e.preventDefault();
 
     const pro = this.state.product;
+    const units = this.state.productUnitsNo;
     const matStd = parseInt(this.state.directMaterialStdCost, 10);
     const pkgMatStd = parseInt(this.state.packagingMaterialStdCost,10)
     const labStd = parseInt(this.state.laborStdCost, 10);
@@ -352,13 +358,12 @@ class CreateCostPlan extends Component {
     const mrkStd = parseInt(this.state.mrkStdCost,10);
     const rsrhStd = parseInt(this.state.rsrhStdCost,10);
     
-    const totalStandard = matStd + labStd + manuIndirectStdCost
+    const totalStandard = matStd + pkgMatStd + labStd + manuIndirectStdCost
                           + mrkStd + rsrhStd;
     
     this.setState({ totalStdCost: totalStandard });
 
-    console.log(pro, matStd, labStd, manuIndirectStdCost, totalStandard, totBudget, pkgMatStd);
-    await this.props.contract.methods.setStdCostPlan(pro,matStd, pkgMatStd,
+    await this.props.pcContract.methods.setStdCostPlan(pro, units, matStd, pkgMatStd,
       labStd, manuIndirectStdCost, mrkStd , rsrhStd, totBudget)
     .send({from: this.props.account[0]}).once("receipt", (receipt) => {
       this.setState({ msg: "Standard Cost Plan Was Set Successfully" });
@@ -369,6 +374,7 @@ class CreateCostPlan extends Component {
 
     this.setState({
       product: "",
+      productUnitsNo: "",
       directMaterialStdCost: "",
       packagingMaterialStdCost: "",
       laborStdCost: "",
@@ -383,6 +389,7 @@ class CreateCostPlan extends Component {
   onChange = async (e) => {
     this.setState({
       product: this.proRef.current.value,
+      productUnitsNo: this.unitNoRef.current.value,
       directMaterialStdCost: this.dirMatStdRef.current.value,
       packagingMaterialStdCost: this.pkgMatStdRef.current.value,
       laborStdCost: this.labStdRef.current.value,
@@ -394,6 +401,13 @@ class CreateCostPlan extends Component {
   };
 
   render() {
+    let acc = this.props.account;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+
+    if (!acc || !cont1 || !cont2) {
+      return <div> Loading..... </div>;
+    }
     return (
       <form onSubmit={this.OnSubmit}  className="newform-container">
         <label>Product ID:</label>
@@ -405,6 +419,18 @@ class CreateCostPlan extends Component {
           onChange={this.OnChange}
           required = "required"
         />
+
+        <h4> Set Production Units </h4>
+        <label>Production Units No:</label>
+        <input
+          type="number"
+          ref={this.unitNoRef}
+          value={this.state.productUnitsNo}
+          placeholder="e.g. 50,000"
+          onChange={this.OnChange}
+          required = "required"
+        />
+
 
         <h4> Set Standard Costs </h4>
 
@@ -479,8 +505,6 @@ class CreateCostPlan extends Component {
           onChange={this.onChange}
         />
 
-        {/* <div className="standard-cost-total-container"></div> */}
-
         <input
           type="submit"
           className="btn"
@@ -498,11 +522,6 @@ class CreateCostPlan extends Component {
 }
 class ReviewProduct extends Component {
   render() {
-    let account = this.props.account;
-    let contract = this.props.contract;
-    if (!account || !contract) {
-      return <div>Loading ..... </div>;
-    }
     return(
       <div>Review Product Status</div>
     );
@@ -512,8 +531,9 @@ class ReviewProduct extends Component {
 class AddProduct extends Component {
   render() {
     let account = this.props.accounts;
-    let contract = this.props.contract;
-    if (!account || !contract) {
+    let contract1 = this.props.pcContract;
+    let contract2 = this.props.pctContract;
+    if (!account || !contract1 || !contract2 ) {
       return <div>Loading ..... </div>;
     }
     return (
@@ -550,7 +570,8 @@ class AddProduct extends Component {
                 <CreateProduct
                   {...props}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -561,7 +582,8 @@ class AddProduct extends Component {
                 <AddMaterial
                   {...props}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -572,7 +594,8 @@ class AddProduct extends Component {
                 <CreateCostPlan
                   {...props}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -583,7 +606,8 @@ class AddProduct extends Component {
                 <ReviewProduct
                   {...props}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
