@@ -651,6 +651,14 @@ select {
   text-align: left;
 }
 
+.std-cost-container .cost-data tbody tr td:not(:first-of-type) {
+  text-align: center;
+}
+
+.std-cost-container .cost-data tfoot tr td:not(:first-of-type) {
+  text-align: center;
+}
+
 /* BankAccount.js */
 .tx-content {
   width: 60%;
