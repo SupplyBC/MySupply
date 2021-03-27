@@ -2,7 +2,7 @@
 pragma solidity >=0.6.2;
 pragma experimental ABIEncoderV2;  
 
-contract NewDemoTest {
+contract test {
 
 // CONTRACT CONTENT GOES HERE
     
