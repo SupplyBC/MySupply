@@ -179,11 +179,8 @@ function ShipImg(props) {
 }
 
 class TrackRecord extends Component {
+  
   state = { tempHistory: [], humidHistory: [] };
-  // constructor(props) {
-  //   super(props);
-
-  // }
 
   render() {
     let statusColor;
@@ -212,12 +209,6 @@ class TrackRecord extends Component {
             </li>
             <hr className="custom-hr-full" />
             <li className="log-item">{this.props.description}</li>
-            {/* <li className="log-item">
-              <strong>TEMP:</strong> {this.props.temp} °C 
-            </li>
-            <li className="log-item">
-              <strong>HUMIDITY:</strong>  {this.props.humid} %
-            </li> */}
             <li className="log-item">
               <strong>STATUS:</strong>
               <span className={`${statusColor}`}> {this.props.ship}</span>
@@ -238,7 +229,7 @@ class Notification extends Component {
   }
 
 componentDidMount = async(e) => {
-  const eventList = await this.props.contract.getPastEvents(
+  const eventList = await this.props.pctContract.getPastEvents(
     "ShipmentStateUpdate",
     {
       fromBlock: 0,
@@ -279,18 +270,15 @@ componentDidMount = async(e) => {
       </div>
     );
   });
-
-  console.log(eventList);
-  console.log(abnormalConditions);
-  console.log(notifyElements);
   this.setState({ eventList, abnormalConditions, notifyElements });
 }
+
 onSubmit = async(e) => {
     e.preventDefault();
     console.log(this.state.id)
     let reqNo = this.state.id;
 
-    const eventList = await this.props.contract.getPastEvents(
+    const eventList = await this.props.pctContract.getPastEvents(
       "ShipmentStateUpdate",
       {
         fromBlock: 0,
@@ -332,8 +320,6 @@ onSubmit = async(e) => {
       );
     });
 
-    console.log(eventList);
-    console.log(abnormalConditionsFiltered);
     this.setState({ eventList, abnormalConditionsFiltered, notifyElements});
 }
 
@@ -368,21 +354,19 @@ class NotificationList extends Component {
   render() {
     return (
       <div>
-      
-      <div className="notification-center-container">
-          <h4>Notification Center</h4>
-          <div className="notifications-center">
-            <ul style={{ padding: "0"}}>
-          
-              <Notification
-                account={this.props.account}
-                contract={this.props.contract}
-              />
-            </ul>
-          </div>
-      </div>
-      
-     
+        <div className="notification-center-container">
+            <h4>Notification Center</h4>
+            <div className="notifications-center">
+              <ul style={{ padding: "0"}}>
+            
+                <Notification
+                  account={this.props.account}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
+                />
+              </ul>
+            </div>
+        </div>
       </div>
     );
   }
@@ -430,18 +414,16 @@ class Status extends Component {
   handleSubmit = async (e) => {
     e.preventDefault();
     let id = parseInt(this.state.requestID, 10);
-    // await this.props.contract.methods.createLog(1, 'SHIPPED' ,'20C', '25%', 'NORMAL').send({from: this.props.account})
-    let response = await this.props.contract.methods.getTrackLogs(id).call();
-    let trackHistory = await this.props.contract.methods
+    let response = await this.props.pctContract.methods.getTrackLogs(id).call();
+    let trackHistory = await this.props.pctContract.methods
       .getShipmentTrackData(id)
       .call();
     let tempHistory = trackHistory.temp;
     let humidHistory = trackHistory.humid;
 
-    let locationInfo = await this.props.contract.methods
+    let locationInfo = await this.props.pctContract.methods
       .getShipmentLocation(id)
       .call();
-    console.log(locationInfo);
 
     if (locationInfo.length === 0) {
         this.setState({
@@ -450,7 +432,6 @@ class Status extends Component {
         });
       } else {
         let currentLocation = locationInfo[locationInfo.length - 1];
-        console.log(currentLocation);
         let lat = parseFloat(currentLocation.Latitude);
         let long = parseFloat(currentLocation.Longitude);
         let coords = [lat, long];
@@ -461,7 +442,7 @@ class Status extends Component {
         this.setState({ msg: "" });
       }, 3000);
     
-    let eventsFiltered = await this.props.contract.getPastEvents("DataSent", {
+    let eventsFiltered = await this.props.pctContract.getPastEvents("DataSent", {
       filter: {
         requestNo: id,
       },
@@ -479,27 +460,23 @@ class Status extends Component {
       return timestamp;
     });
 
-    // console.log(events)
-    console.log(eventsFiltered)
     this.setState({ trackHistory, tempHistory, humidHistory, timeLogsFiltered });
 
     // send data to chart
     this.getChartData(tempHistory, humidHistory, timeLogsFiltered);
 
-    let mapEvents = await this.props.contract.getPastEvents(
+    let mapEvents = await this.props.pctContract.getPastEvents(
       "ShipmentStateUpdate",
       {
         fromBlock: 0,
       }
     );
-    console.log(mapEvents)
+    
     let stateLogs = mapEvents[mapEvents.length - 1];
-    console.log(stateLogs);
     let currentState = stateLogs.returnValues.state;
-    console.log(currentState);
     this.setState({ currentState });
 
-    let reqEvents = await this.props.contract.getPastEvents(
+    let reqEvents = await this.props.pcContract.getPastEvents(
       "requestStateUpdate",
       {
         fromBlock: 0,
@@ -507,12 +484,10 @@ class Status extends Component {
     );
 
     let requestLogs = reqEvents[reqEvents.length - 1];
-    console.log(requestLogs);
     let reqCurrentState = requestLogs.returnValues.state;
-    console.log(reqCurrentState);
     this.setState({ reqCurrentState });
 
-    const shippingMethod = await this.props.contract.methods.getShipmentMethod(id).call();
+    const shippingMethod = await this.props.pctContract.methods.getShipmentMethod(id).call();
     this.setState({shippingMethod})
 
     let log = response.map((item, index) => {
@@ -587,10 +562,11 @@ class Status extends Component {
   render() {
     let view1, view2, wholeView;
     let acc = this.props.account;
-    let cont = this.props.contract;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
     let web3 = this.props.Web3;
 
-    if (!acc || !cont || !web3) {
+    if (!acc || !cont1 || !cont2 || !web3) {
       return <div> Loading..... </div>;
     }
     this.state.wholeActive ? (wholeView = "show") : (wholeView = "hide");
@@ -676,10 +652,11 @@ class Status extends Component {
 class Track extends Component {
   render() {
     let acc = this.props.account;
-    let cont = this.props.contract;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
     let web3 = this.props.Web3;
 
-    if (!acc || !cont || !web3) {
+    if (!acc || !cont1 || !cont2 || !web3) {
       return <div> Loading..... </div>;
     }
     return (
@@ -704,7 +681,8 @@ class Track extends Component {
                  <Status
                    {...props}
                    Web3={this.props.Web3}
-                   account={this.props.account}
+                   pcContract={this.props.pcContract}
+                   pctContract={this.props.pctContract}
                    contract={this.props.contract}
                  />
                )}
@@ -716,7 +694,8 @@ class Track extends Component {
                  <NotificationList
                    {...props}
                    account={this.props.account}
-                   contract={this.props.contract}
+                   pcContract={this.props.pcContract}
+                   pctContract={this.props.pctContract}
                    Web3={this.props.Web3}
                  />
                )}

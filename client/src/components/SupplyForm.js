@@ -14,10 +14,8 @@ class QueryProductSpecs extends Component {
 
   onSubmit = async (e) => {
     e.preventDefault();
-
-    // this.props.contract.methods.addProduct('1', this.state.input).send({from: this.props.accounts[0]});
     this.btnRef.current.setAttribute("disabled", "disabled");
-    const specs = await this.props.contract.methods
+    const specs = await this.props.pcContract.methods
       .getProductSpecs(this.state.proName)
       .call();
 
@@ -60,8 +58,9 @@ class QueryProductSpecs extends Component {
   render() {
     let table;
     let acc = this.props.account;
-    let cont = this.props.contract;
-    if (!acc || !cont) {
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+    if (!acc || !cont1 || !cont2) {
       return <div> Loading..... </div>;
     }
     this.state.tableVisibility ? (table = "show") : (table = "hide");
@@ -148,10 +147,10 @@ class RequestMaterials extends Component {
     const amount = this.state.amount;
     const id = this.state.matId;
     console.log(id,amount);
-    const info = await this.props.contract.methods.getMaterialById(id).call();
+    const info = await this.props.pcContract.methods.getMaterialById(id).call();
     const toAddr = info.supplier;
     console.log(info,toAddr)
-    await this.props.contract.methods.createRequest(toAddr,id,amount)
+    await this.props.pcContract.methods.createRequest(toAddr,id,amount)
     .send({from: this.props.account[0]})
     .once("receipt", (receipt) => {
         this.setState({ msg: "Request was sent successfully!"});
@@ -159,7 +158,7 @@ class RequestMaterials extends Component {
         this.setState({ msg: " " });
       }, 3000);
     });
-    const request = await this.props.contract.methods.getMyRequests().call();
+    const request = await this.props.pcContract.methods.getMyRequests().call();
     const requestNo = request[request.length -1].requestId;
 
     this.setState({ requestInfo: "Your Tracking Number: " + requestNo});
@@ -171,15 +170,7 @@ class RequestMaterials extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const material = this.state.materialName;
-    // const proName = this.state.proName;
-    // const supplierId = this.state.supplier;
-    // const matform = this.state.form;
-    // const matamount = this.state.amount;
-    // const matstr = this.state.strength;
-
-    console.log(material);
-    const query = await this.props.contract.methods.getMaterials().call();
-    console.log(query);
+    const query = await this.props.pcContract.methods.getMaterials().call();
     const queryFilter = query.filter( item => {
       return item.materialName.includes(material) 
     });
@@ -225,34 +216,16 @@ class RequestMaterials extends Component {
   render() {
     let toggled, toggled2;
     let acc = this.props.account;
-    let cont = this.props.contract;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
     let web = this.props.Web3;
-    if (!acc || !cont || !web) {
+    if (!acc || !cont1 || !cont2 || !web) {
       return <div> Loading..... </div>;
     }
     this.state.amountToggled ? toggled = "show" : toggled = "hide"
     this.state.batchToggled ? toggled2 = "show" : toggled2 = "hide"
     return (
       <form onSubmit={this.onSubmit} className="newform-container">
-        {/* <label> Supplier ID:</label>
-
-        <input
-          type="text"
-          id="supplier-id"
-          ref={this.supplierRef}
-          placeholder="e.g. 0x49A504f461b36A9337Ddaf1f63c3A3AAD0242E81"
-          autoComplete="off"
-          value={this.state.supplier}
-          onChange={this.onChange}
-          required = "required"
-        /> */}
-
-        {/* <button
-                    style= {{cursor:'pointer'}}
-                    className="btn"
-                    type="submit"
-                    onClick = {this.getProductSpecs}
-                    >SEARCH FOR MATERIAL </button> */}
 
         <label> Material Name: </label>
         <select
@@ -350,44 +323,6 @@ class RequestMaterials extends Component {
           />
           </div>
 
-        {/* <label> Material Form: </label>
-        <select
-          name="requested-mat-form"
-          onChange={this.handleChange}
-          ref={this.formRef}
-        >
-          <option id="pow" value="powder">
-            POWDER
-          </option>
-          <option id="liq" value="liquid">
-            LIQUID
-          </option>
-          <option id="na" value="n/a">
-            N/A
-          </option>
-        </select>
-        <label> Material Strength: </label>
-        <input
-          value={this.state.matStr}
-          onChange={this.handleChange}
-          ref={this.matStrRef}
-          type="number"
-          placeholder="e.g. 10"
-        />
-
-        <label>Requested Amount: </label>
-
-        <input
-          type="number"
-          id="material-amount"
-          value={this.state.amount}
-          ref={this.amountRef}
-          placeholder="e.g. 1000 KGs"
-          autoComplete="off"
-          onChange={this.onChange}
-          required = "required"
-        /> */}
-
         <div className="btn-group">
           <input
             style={{ cursor: "pointer" }}
@@ -461,7 +396,7 @@ class CreateMaterial extends Component {
     const amount = this.state.matAmount;
     const cost = this.state.matUnitCost;
 
-    await this.props.contract.methods
+    await this.props.pcContract.methods
       .createMaterial(id, name, strength, form, amount, cost)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -630,8 +565,8 @@ class ApproveRequest extends Component {
     const requestNo = parseInt(this.state.requestId,10);
     console.log(requestNo);
 
-    //todo transact here
-    await this.props.contract.methods.approveRequest(requestNo)
+
+    await this.props.pctContract.methods.approveRequest(requestNo)
     .send({from: this.props.account[0]})
     .once("receipt", (receipt) => {
       this.setState({ msg: "Request was approved successfully!" });
@@ -695,7 +630,7 @@ class SendShipment extends Component {
     const requestNo = this.state.requestId;
 
     //todo transact here
-    await this.props.contract.methods.sendShipment(requestNo)
+    await this.props.pctContract.methods.sendShipment(requestNo)
     .send({from: this.props.account[0]})
     .once("receipt", (receipt) => {
       this.setState({ msg: "Updated shipment status successfully!" });
@@ -763,9 +698,7 @@ class TransitGlobal extends Component {
     console.log(requestNo);
 
 
-    //todo transact here
-
-    await this.props.contract.methods.globalTransitShipment(requestNo)
+    await this.props.pctContract.methods.globalTransitShipment(requestNo)
     .send({from: this.props.account[0]})
     .once("receipt", (receipt) => {
       this.setState({ msg: "Updated shipment status successfully!" });
@@ -833,7 +766,7 @@ class TransitLocal extends Component {
 
     //todo transact here
 
-    await this.props.contract.methods.localTransitShipment(requestNo)
+    await this.props.pctContract.methods.localTransitShipment(requestNo)
     .send({from: this.props.account[0]})
     .once("receipt", (receipt) => {
       this.setState({ msg: "Updated shipment status successfully!" });
@@ -898,10 +831,8 @@ class ReceiveShipment extends Component {
     e.preventDefault();
     const requestNo = this.state.requestId;
 
-
-    //todo transact here
     
-    await this.props.contract.methods.receiveShipment(requestNo)
+    await this.props.pctContract.methods.receiveShipment(requestNo)
     .send({from: this.props.account[0]})
     .once("receipt", (receipt) => {
       this.setState({ msg: "Updated shipment status successfully!" });
@@ -966,11 +897,8 @@ class SetLocation extends Component {
     const requestNo = this.state.requestId;
     const lat = this.state.latitude;
     const long = this.state.longitude;
-
-
-    //todo transact here
     
-    await this.props.contract.methods.setShipmentLocation(requestNo,lat,long)
+    await this.props.pctContract.methods.setShipmentLocation(requestNo,lat,long)
     .send({from: this.props.account[0]})
     .once("receipt", (receipt) => {
       this.setState({ msg: "Updated shipment location successfully!" });
@@ -1054,7 +982,7 @@ class SetShippingMethod extends Component {
     const requestNo = this.state.requestId;
     const shipMethod = this.state.method;
     
-    await this.props.contract.methods.setShipmentMethod(requestNo,shipMethod)
+    await this.props.pctContract.methods.setShipmentMethod(requestNo,shipMethod)
     .send({from: this.props.account[0]})
     .once("receipt", (receipt) => {
       this.setState({ msg: "Updated shipping method successfully!" });
@@ -1157,7 +1085,7 @@ class ManageIOT extends Component {
       const humid = this.state.humid;
       const request = parseInt(this.state.request,10);
       console.log(temp,humid)
-      await this.props.contract.methods.setShipmentTrackData(request,temp,humid)
+      await this.props.pctContract.methods.setShipmentTrackData(request,temp,humid)
       .send({from: this.props.account[0]})
       .once("receipt", (receipt) => {
         this.setState({ msg: "Updated Temp and Humidity Data Successfully!" });
@@ -1228,13 +1156,11 @@ class ManageIOT extends Component {
 
 class SupplyForm extends Component {
 
-  componentDidMount = async () => {
-
-  };
   render() {
     let acc = this.props.account;
-    let cont = this.props.contract;
-    if (!acc || !cont) {
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+    if (!acc || !cont1 || !cont2) {
       return <div> Loading..... </div>;
     }
     return (
@@ -1281,7 +1207,8 @@ class SupplyForm extends Component {
                 <QueryProductSpecs
                   {...props}
                   account={this.props.account}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -1293,7 +1220,8 @@ class SupplyForm extends Component {
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.account}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -1305,7 +1233,8 @@ class SupplyForm extends Component {
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.account}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -1317,7 +1246,8 @@ class SupplyForm extends Component {
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.account}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -1329,7 +1259,8 @@ class SupplyForm extends Component {
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.account}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />

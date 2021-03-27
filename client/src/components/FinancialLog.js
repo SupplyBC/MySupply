@@ -41,10 +41,9 @@ class SetActualCosts extends Component {
     const totalActual = matAct + pkgMatAct + labAct + manuIndirectActCost
                         + mrkAct + rsrhAct;
     
-    this.setState({ totalActCost: totalActual });
+    this.setState({ totalActCost: totalActual , totBudget});
 
-    console.log(pro, matAct, labAct, manuIndirectActCost, totalActual, totBudget, pkgMatAct);
-    await this.props.contract.methods.setActualCost(pro,matAct, pkgMatAct,
+    await this.props.pcContract.methods.setActualCost(pro,matAct, pkgMatAct,
       labAct, manuIndirectActCost, mrkAct , rsrhAct)
     .send({from: this.props.account[0]}).once("receipt", (receipt) => {
       this.setState({ msg: "Actual Costs Were Set Successfully" });
@@ -211,10 +210,10 @@ class SetFlexibleBudget extends Component {
     this.setState({ totalActCost: totalActual });
 
     console.log(pro, matAct, labAct, manuIndirectActCost, totalActual, totBudget, pkgMatAct);
-    await this.props.contract.methods.setActualCost(pro,matAct, pkgMatAct,
+    await this.props.pcContract.methods.setFlexibleCost(pro,matAct, pkgMatAct,
       labAct, manuIndirectActCost, mrkAct , rsrhAct)
     .send({from: this.props.account[0]}).once("receipt", (receipt) => {
-      this.setState({ msg: "Actual Costs Were Set Successfully" });
+      this.setState({ msg: "Flexible Costs Were Set Successfully" });
       setTimeout(() => {
         this.setState({ msg: " " });
       }, 2000);
@@ -348,7 +347,7 @@ class CalculateStaticVariance extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const proId = this.state.id;
-    const standard = await this.props.contract.methods
+    const standard = await this.props.pcContract.methods
       .getStdCostPlan(proId)
       .call();
     const stdCostData = standard.map((item, index) => {
@@ -390,7 +389,7 @@ class CalculateStaticVariance extends Component {
       return true;
     });
 
-    const actual =  await this.props.contract.methods
+    const actual =  await this.props.pcContract.methods
     .getActualCost(proId)
     .call();
 
@@ -583,7 +582,7 @@ class CalculateFlexibleVariance extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const proId = this.state.id;
-    const standard = await this.props.contract.methods
+    const standard = await this.props.pcContract.methods
       .getStdCostPlan(proId)
       .call();
     const stdCostData = standard.map((item, index) => {
@@ -625,7 +624,7 @@ class CalculateFlexibleVariance extends Component {
       return true;
     });
 
-    const actual =  await this.props.contract.methods
+    const actual =  await this.props.pcContract.methods
     .getActualCost(proId)
     .call();
 
@@ -806,12 +805,15 @@ class CalculateFlexibleVariance extends Component {
 }
 
 class FinancialLog extends Component {
-
-  componentDidMount = async () => {
-    
-  }
-
+  
   render() {
+    let acc = this.props.accounts;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+    let web3 = this.props.web3;
+    if (!acc || !cont1 || !cont2 || !web3) {
+      return <div> Loading..... </div>;
+    }
     return (
       <BrowserRouter>
         <div className="product-form-container">
@@ -850,7 +852,8 @@ class FinancialLog extends Component {
                 <SetActualCosts
                   {...props}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -861,7 +864,8 @@ class FinancialLog extends Component {
                 <SetFlexibleBudget
                   {...props}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -873,7 +877,8 @@ class FinancialLog extends Component {
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -885,34 +890,11 @@ class FinancialLog extends Component {
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
-            {/* <Route
-              path="/supply/supplier/createMaterial"
-              exact
-              render={(props) => (
-                <CreateMaterial
-                  {...props}
-                  Web3={this.props.Web3}
-                  account={this.props.account}
-                  contract={this.props.contract}
-                />
-              )}
-            />
-            <Route
-              path="/supply/supplyPortal"
-              exact
-              render={(props) => (
-                <ManageSupply
-                  {...props}
-                  Web3={this.props.Web3}
-                  account={this.props.account}
-                  contract={this.props.contract}
-                />
-              )}
-            /> */}
           </div>
         </div>
       </BrowserRouter>

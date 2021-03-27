@@ -15,9 +15,7 @@ class CreateAccount extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const accountName = this.state.accName;
-    console.log(accountName);
-
-    await this.props.contract.methods
+    await this.props.pcContract.methods
       .createBankAccount(this.props.account[0],accountName)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -79,7 +77,7 @@ class Deposit extends Component {
     e.preventDefault();
     const amount = parseInt(this.state.depositAmount, 10);
 
-    await this.props.contract.methods
+    await this.props.pcContract.methods
       .deposit(this.props.account[0],amount)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -138,7 +136,7 @@ class Withdraw extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const amount = parseInt(this.state.withdrawalAmount, 10);
-    await this.props.contract.methods
+    await this.props.pcContract.methods
       .withdraw(this.props.account[0],amount)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -199,7 +197,7 @@ class Transfer extends Component {
     e.preventDefault();
     const to = this.state.toAddr;
     const amount = parseInt(this.state.transferAmount, 10);
-    await this.props.contract.methods
+    await this.props.pcContract.methods
       .transfer(this.props.account[0],to, amount)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -259,15 +257,15 @@ class ManageAccount extends Component {
   state = { msg: "", userAddr: "", userName: "", bankAddr: "0x00", balance: 0 };
 
   componentDidMount = async () => {
-    const bank = await this.props.contract.methods.getBank().call();
-    const balance = await this.props.contract.methods
+    const bank = await this.props.pcContract.methods.getBank().call();
+    const balance = await this.props.pcContract.methods
       .getBalance(this.props.account[0])
       .call();
     const balanceUSD = parseInt(balance, 10).toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
     });
-    const userInfo = await this.props.contract.methods
+    const userInfo = await this.props.pcContract.methods
       .getAccountDetails(this.props.account[0])
       .call();
     const addr = userInfo.userId;
@@ -290,9 +288,10 @@ class ManageAccount extends Component {
 
   render() {
     let acc = this.props.account;
-    let cont = this.props.contract;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
     let web3 = this.props.web3;
-    if (!acc || !cont || !web3) {
+    if (!acc || !cont1 || !cont2 || !web3) {
       return <div> Loading..... </div>;
     }
     if (!this.state.accState) {
@@ -308,30 +307,37 @@ class ManageAccount extends Component {
       <div style={{ margin: "0", padding: "0" }} className="newform-container">
         <div className="account-details">
           <p>
-            {" "}
-            <strong>Bank ID:</strong> <em>{this.state.bank}</em>{" "}
+            
+            <strong>Bank ID:</strong> <em>{this.state.bank}</em>
           </p>
           <p>
-            {" "}
-            <strong> Account ID:</strong> <em>{this.state.userAddr}</em>{" "}
+            
+            <strong> Account ID:</strong> <em>{this.state.userAddr}</em>
           </p>
           <p>
-            {" "}
-            <strong> Username:</strong> <em>{this.state.userName}</em>{" "}
+            
+            <strong> Username:</strong> <em>{this.state.userName}</em>
           </p>
           <p>
-            {" "}
+            
             <strong> Current Balance:</strong> <em>{this.state.balanceUSD} </em>
           </p>
         </div>
         <hr className="custom-hr-full" />
-        <Deposit account={this.props.account} contract={this.props.contract} />
+        <Deposit 
+        account={this.props.account}
+        pcContract={this.props.pcContract}
+        pctContract={this.props.pctContract} />
         <hr className="custom-hr-half" />
-        <Withdraw account={this.props.account} contract={this.props.contract} />
+        <Withdraw
+        account={this.props.account}
+        pcContract={this.props.pcContract}
+        pctContract={this.props.pctContract} />
         <hr className="custom-hr-half" />
         <Transfer
           account={this.props.account}
-          contract={this.props.contract}
+          pcContract={this.props.pcContract}
+          pctContract={this.props.pctContract}
           web3={this.props.web3}
         />
       </div>
@@ -350,7 +356,7 @@ class TxHistory extends Component {
 
   componentDidMount = async () => {
    
-    const txEvents = await this.props.contract.getPastEvents("BankTransact", {
+    const txEvents = await this.props.pcContract.getPastEvents("BankTransact", {
       filter: {
         _from: this.props.account[0],
       },
@@ -429,15 +435,13 @@ class TxHistory extends Component {
 }
 
 class BankAccounts extends Component {
-  // constructor(props) {
-  //     super(props);
-  // }
 
   render() {
     let acc = this.props.accounts;
-    let cont = this.props.contract;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
     let web3 = this.props.web3;
-    if (!acc || !cont || !web3) {
+    if (!acc || !cont1 || !cont2 || !web3) {
       return <div> Loading..... </div>;
     }
 
@@ -467,7 +471,8 @@ class BankAccounts extends Component {
                 <CreateAccount
                   {...props}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                 />
               )}
             />
@@ -478,7 +483,8 @@ class BankAccounts extends Component {
                 <ManageAccount
                   {...props}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                   web3={this.props.web3}
                 />
               )}
@@ -490,7 +496,8 @@ class BankAccounts extends Component {
                 <TxHistory
                   {...props}
                   account={this.props.accounts}
-                  contract={this.props.contract}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
                   web3={this.props.web3}
                 />
               )}

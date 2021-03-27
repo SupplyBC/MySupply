@@ -41,8 +41,6 @@ class CreateProduct extends Component {
       productId: "",
       productForm: "",
     });
-    // await this.props.contract.methods.addProduct(id,name,form).send({from: this.props.accounts[0]});
-    console.log(name, id, form);
   };
 
   handleChange = async (e) => {
@@ -139,12 +137,12 @@ class AddMaterial extends Component {
     await this.props.pcContract.methods
 
       .addProductSpecs(
-        this.state.proID,
-        this.state.matName,
-        this.state.matType,
-        this.state.matStr,
-        this.state.matForm,
-        this.state.matAmount
+        proID,
+        name,
+        type,
+        strength,
+        form,
+        amount
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -160,7 +158,6 @@ class AddMaterial extends Component {
       matForm: "",
       matAmount: "",
     });
-    console.log(proID, name, type, strength, form, amount);
   };
 
   handleChange = async (e) => {

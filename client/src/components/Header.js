@@ -2,13 +2,7 @@ import React, { Component } from 'react';
 
 
 class Header extends Component {
-
-    componentDidMount = async() => {
-
-    };
-
     render() {
-
         return (
             <div className='container'>
                 <h1 className= 'logo'><a href="/">PHARMA CHAIN</a></h1>

@@ -1,10 +1,7 @@
 import React, { Component } from "react";
 
 const inventory = ["vitamin-a", "vitamin-b-complex", "plastic"];
-// const items = inventory.map(item => {
-//         return `${item} `
-// })
-// console.log(items);
+
 
 class InventoryItem extends Component {
   render() {
@@ -17,11 +14,6 @@ class InventoryItem extends Component {
             alt="material"
           />
           <h5> {this.props.item.toUpperCase()} </h5>
-          {/* <h6>
-            {this.props.stock === "OUT OF STOCK"
-              ? this.props.stock
-              : "IN STOCK:" + this.props.stock + "KG"}
-          </h6> */}
         </div>
       </div>
     );
