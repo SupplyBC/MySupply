@@ -518,9 +518,51 @@ class CreateCostPlan extends Component {
   }
 }
 class ReviewProduct extends Component {
+  state={products: null}
+  componentDidMount = async() => {
+    // const productsEvents = await this.props.pcContract.getPastEvents(
+    //   'ProductStateUpdate',
+    //   {
+
+    //     fromBlock: 0
+    //   }
+    // );
+    // const productsEventsFiltered = productsEvents.filter( (item) => {
+    //   return item.returnValues.manufacturer = this.props.account[0];
+    // })
+
+    // console.log(productsEventsFiltered);
+    // const lastState = productsEventsFiltered[productsEventsFiltered.length - 1]
+    // console.log(lastState);
+
+    // const products = productsEventsFiltered.map( (item,index) => {
+    //   let id = item.returnValues.productId;
+    //   let name = item.returnValues.productName;
+    //   let state = item.returnValues.state;
+
+    //   return(
+    //     <div key={index} className="product-review-container">
+    //       <div className="head">
+    //         <p>{name}</p>
+    //         <p>{id}</p>
+    //       </div>
+    //       <div className="state-container">
+    //         <div className="state">{state}</div>
+    //       </div>
+    //     </div>
+    //   );
+    // })
+
+    // this.setState({products , productsEventsFiltered , lastState})
+  }
   render() {
     return(
-      <div>Review Product Status</div>
+      <div className="newform-container">
+        <h4> Products Status</h4>
+        <div className="review-container">
+          {this.state.products}
+        </div>
+      </div>
     );
   }
 }

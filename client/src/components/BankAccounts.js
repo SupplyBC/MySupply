@@ -363,7 +363,6 @@ class TxHistory extends Component {
       },
       fromBlock: 0,
     });
-    console.log(txEvents);
 
     const txs = txEvents.reverse().map((item, index) => {
       let type = item.returnValues.txName;

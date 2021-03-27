@@ -43,7 +43,6 @@ class App extends Component {
         deployedNetwork2 && deployedNetwork2.address
       );
 
-      console.log(pcInstance,pctInstance)
       // Set web3, accounts, and contract to the state
 
       const balance = await pcInstance.methods.getBalance(accounts[0]).call();
