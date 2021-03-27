@@ -32,15 +32,18 @@ class App extends Component {
       const accounts = await web3.eth.getAccounts();
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = PharmaChainContract.networks[networkId];
+      const deployedNetwork1 = PharmaChainContract.networks[networkId];
+      const deployedNetwork2 = PharmaChainTrackingContract.networks[networkId];
       const pcInstance = new web3.eth.Contract(
         PharmaChainContract.abi,
-        deployedNetwork && deployedNetwork.address
+        deployedNetwork1 && deployedNetwork1.address
       );
       const pctInstance = new web3.eth.Contract(
         PharmaChainTrackingContract.abi,
-        deployedNetwork && deployedNetwork.address
+        deployedNetwork2 && deployedNetwork2.address
       );
+
+      console.log(pcInstance,pctInstance)
       // Set web3, accounts, and contract to the state
 
       const balance = await pcInstance.methods.getBalance(accounts[0]).call();
@@ -154,6 +157,8 @@ class App extends Component {
           render={(props) => (
             <FinancialLog
               {...props}
+              accounts={this.state.accounts}
+              web3 = {this.state.web3}
               pcContract={this.state.pcContract}
               pctContract={this.state.pctContract}
             />

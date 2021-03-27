@@ -239,9 +239,9 @@ componentDidMount = async(e) => {
   const abnormalConditions = eventList.filter((item) => {
     return item.returnValues.state === "ABNORMAL";
   });
-  this.setState({msg: 'Found no notifications.'.toUpperCase})
+  this.setState({msg: 'Found no notifications.'})
   if(abnormalConditions.length === 0) {
-    this.setState({msg: 'Found no notifications.'.toUpperCase})
+    this.setState({msg: 'Found no notifications.'})
   }
   setTimeout(() => {
     this.setState({ msg: "" });
@@ -288,9 +288,9 @@ onSubmit = async(e) => {
     const abnormalConditionsFiltered = eventList.filter((item) => {
       return (item.returnValues.state === "ABNORMAL" && item.returnValues.requestNo === reqNo) ;
     });
-    this.setState({msg: 'Found no notifications.'.toUpperCase})
+    this.setState({msg: 'Found no notifications.'})
     if(abnormalConditionsFiltered.length === 0) {
-      this.setState({msg: 'Found no notifications.'.toUpperCase})
+      this.setState({msg: 'Found no notifications.'})
     }
     setTimeout(() => {
       this.setState({ msg: "" });
@@ -427,7 +427,7 @@ class Status extends Component {
 
     if (locationInfo.length === 0) {
         this.setState({
-          msg: "No tracking logs are available for this request, please try again later!".toUpperCase(),
+          msg: "No tracking logs are available for this request, please try again later!",
           wholeActive: false,
         });
       } else {
@@ -565,7 +565,6 @@ class Status extends Component {
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
     let web3 = this.props.Web3;
-
     if (!acc || !cont1 || !cont2 || !web3) {
       return <div> Loading..... </div>;
     }
@@ -594,13 +593,14 @@ class Status extends Component {
             value="VIEW STATUS"
           />
         </div>
-          
+      </div>
+
+      <div className="special-query-result query-result">
+        {this.state.msg}
       </div>
       
 
-      <div style={{ margin: "10px 0px" }} className="query-result">
-        {this.state.msg}
-      </div>
+      
       <div className={` ${wholeView} accordion-tabs`}>
         <a
           href="/track"
@@ -680,6 +680,7 @@ class Track extends Component {
                render={(props) => (
                  <Status
                    {...props}
+                   account={this.props.account}
                    Web3={this.props.Web3}
                    pcContract={this.props.pcContract}
                    pctContract={this.props.pctContract}

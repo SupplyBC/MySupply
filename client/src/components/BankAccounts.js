@@ -35,8 +35,9 @@ class CreateAccount extends Component {
   };
   render() {
     let acc = this.props.account;
-    let cont = this.props.contract;
-    if (!acc || !cont) {
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+    if (!acc || !cont1 || !cont2) {
       return <div> Loading..... </div>;
     }
     return (
@@ -441,6 +442,7 @@ class BankAccounts extends Component {
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
     let web3 = this.props.web3;
+    
     if (!acc || !cont1 || !cont2 || !web3) {
       return <div> Loading..... </div>;
     }

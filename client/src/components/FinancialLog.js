@@ -4,6 +4,7 @@ import { BrowserRouter, Route, NavLink } from "react-router-dom";
 class SetActualCosts extends Component {
   state = {
     product: "",
+    productUnitsNo: 0,
     directMaterialActCost: 0,
     packagingMaterialActCost: 0,
     laborActCost: 0,
@@ -16,6 +17,7 @@ class SetActualCosts extends Component {
   constructor(props) {
     super(props);
     this.proRef = React.createRef();
+    this.unitNoRef = React.createRef();
     this.dirMatActRef = React.createRef();
     this.pkgMatActRef = React.createRef();
     this.labActRef = React.createRef();
@@ -30,6 +32,7 @@ class SetActualCosts extends Component {
     e.preventDefault();
 
     const pro = this.state.product;
+    const units = this.state.productUnitsNo;
     const matAct = parseInt(this.state.directMaterialActCost, 10);
     const pkgMatAct = parseInt(this.state.packagingMaterialActCost,10)
     const labAct = parseInt(this.state.laborActCost, 10);
@@ -43,7 +46,7 @@ class SetActualCosts extends Component {
     
     this.setState({ totalActCost: totalActual , totBudget});
 
-    await this.props.pcContract.methods.setActualCost(pro,matAct, pkgMatAct,
+    await this.props.pcContract.methods.setActualCost( pro ,units, matAct, pkgMatAct,
       labAct, manuIndirectActCost, mrkAct , rsrhAct)
     .send({from: this.props.account[0]}).once("receipt", (receipt) => {
       this.setState({ msg: "Actual Costs Were Set Successfully" });
@@ -54,6 +57,7 @@ class SetActualCosts extends Component {
 
     this.setState({
       product: "",
+      productUnitsNo: "", 
       directMaterialActCost: "",
       packagingMaterialActCost: "",
       laborActCost: "",
@@ -67,6 +71,7 @@ class SetActualCosts extends Component {
   onChange = async (e) => {
     this.setState({
       product: this.proRef.current.value,
+      productUnitsNo: this.unitNoRef.current.value,
       directMaterialActCost: this.dirMatActRef.current.value,
       packagingMaterialActCost: this.pkgMatActRef.current.value,
       laborActCost: this.labActRef.current.value,
@@ -87,6 +92,18 @@ class SetActualCosts extends Component {
         onChange={this.OnChange}
         required = "required"
       />
+
+      <h4> Set Production Units </h4>
+      <label>Actual Production Units No: </label>
+      <input
+          type="number"
+          ref={this.unitNoRef}
+          value={this.state.productUnitsNo}
+          placeholder="e.g. 50,000"
+          onChange={this.OnChange}
+          required = "required"
+        />
+
 
       <h4> Set Actual Costs </h4>
 
@@ -170,6 +187,7 @@ class SetActualCosts extends Component {
 class SetFlexibleBudget extends Component {
   state = {
     product: "",
+    productUnitsNo: 0,
     directMaterialActCost: 0,
     packagingMaterialActCost: 0,
     laborActCost: 0,
@@ -182,6 +200,7 @@ class SetFlexibleBudget extends Component {
   constructor(props) {
     super(props);
     this.proRef = React.createRef();
+    this.unitNoRef = React.createRef();
     this.dirMatActRef = React.createRef();
     this.pkgMatActRef = React.createRef();
     this.labActRef = React.createRef();
@@ -196,6 +215,7 @@ class SetFlexibleBudget extends Component {
     e.preventDefault();
 
     const pro = this.state.product;
+    const units = this.state.productUnitsNo;
     const matAct = parseInt(this.state.directMaterialActCost, 10);
     const pkgMatAct = parseInt(this.state.packagingMaterialActCost,10)
     const labAct = parseInt(this.state.laborActCost, 10);
@@ -207,10 +227,9 @@ class SetFlexibleBudget extends Component {
     const totalActual = matAct + pkgMatAct + labAct + manuIndirectActCost
                         + mrkAct + rsrhAct;
     
-    this.setState({ totalActCost: totalActual });
+    this.setState({ totalActCost: totalActual , totBudget });
 
-    console.log(pro, matAct, labAct, manuIndirectActCost, totalActual, totBudget, pkgMatAct);
-    await this.props.pcContract.methods.setFlexibleCost(pro,matAct, pkgMatAct,
+    await this.props.pcContract.methods.setFlexibleCost(pro, units, matAct, pkgMatAct,
       labAct, manuIndirectActCost, mrkAct , rsrhAct)
     .send({from: this.props.account[0]}).once("receipt", (receipt) => {
       this.setState({ msg: "Flexible Costs Were Set Successfully" });
@@ -221,6 +240,7 @@ class SetFlexibleBudget extends Component {
 
     this.setState({
       product: "",
+      productUnitsNo: "",
       directMaterialActCost: "",
       packagingMaterialActCost: "",
       laborActCost: "",
@@ -255,7 +275,18 @@ class SetFlexibleBudget extends Component {
         required = "required"
       />
 
-      <h4> Set Actual Costs </h4>
+      <h4> Set Production Units </h4>
+      <label>Flexible Production Units No: </label>
+      <input
+          type="number"
+          ref={this.unitNoRef}
+          value={this.state.productUnitsNo}
+          placeholder="e.g. 50,000"
+          onChange={this.OnChange}
+          required = "required"
+        />
+
+      <h4> Set Flexible Costs </h4>
 
       <label>Raw Materials: </label>
       <input
@@ -454,10 +485,13 @@ class CalculateStaticVariance extends Component {
   };
   render() {
     let table;
-    let account = this.props.account;
-    let contract = this.props.contract;
-    if (!account || !contract) {
-      return <div>Loading ..... </div>;
+    let acc = this.props.account;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+    let web3 = this.props.Web3;
+    
+    if (!acc || !cont1 || !cont2 || !web3) {
+      return <div> Loading..... </div>;
     }
     this.state.tableVisibility ? (table = "show") : (table = "hide");
     return (
@@ -690,10 +724,13 @@ class CalculateFlexibleVariance extends Component {
  
   render() {
     let table;
-    let account = this.props.account;
-    let contract = this.props.contract;
-    if (!account || !contract) {
-      return <div>Loading ..... </div>;
+    let acc = this.props.account;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+    let web3 = this.props.Web3;
+    
+    if (!acc || !cont1 || !cont2 || !web3) {
+      return <div> Loading..... </div>;
     }
     this.state.tableVisibility ? (table = "show") : (table = "hide");
     return(
@@ -875,7 +912,7 @@ class FinancialLog extends Component {
               render={(props) => (
                 <CalculateStaticVariance
                   {...props}
-                  Web3={this.props.Web3}
+                  Web3={this.props.web3}
                   account={this.props.accounts}
                   pcContract={this.props.pcContract}
                   pctContract={this.props.pctContract}
@@ -888,7 +925,7 @@ class FinancialLog extends Component {
               render={(props) => (
                 <CalculateFlexibleVariance
                   {...props}
-                  Web3={this.props.Web3}
+                  Web3={this.props.web3}
                   account={this.props.accounts}
                   pcContract={this.props.pcContract}
                   pctContract={this.props.pctContract}

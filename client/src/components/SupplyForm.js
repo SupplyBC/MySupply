@@ -1042,26 +1042,40 @@ class ManageSupply extends Component {
     return(
       <div className="form-collection newform-container">
         <p className="sub-head" style={{textAlign:'center'}}> <strong>SUPPLY PORTAL: </strong>MANAGE SUPPLY CHAIN ACTIVITES. </p>
-        <SetLocation account={this.props.account}
-          contract={this.props.contract} />
+        <SetLocation 
+        account={this.props.account}
+        pcContract={this.props.pcContract}
+        pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <SetShippingMethod account={this.props.account}
-          contract={this.props.contract} />
+        <SetShippingMethod 
+        account={this.props.account}
+        pcContract={this.props.pcContract}
+        pctContract={this.props.pctContract}/>
         <hr className="custom-hr-half"></hr>
-        <ApproveRequest account={this.props.account}
-          contract={this.props.contract} />
+        <ApproveRequest 
+        account={this.props.account}
+        pcContract={this.props.pcContract}
+        pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <SendShipment account={this.props.account}
-          contract={this.props.contract} />
+        <SendShipment 
+        account={this.props.account}
+        pcContract={this.props.pcContract}
+        pctContract={this.props.pctContract}/>
         <hr className="custom-hr-half"></hr>
-        <TransitGlobal account={this.props.account}
-          contract={this.props.contract} />
+        <TransitGlobal 
+        account={this.props.account}
+        pcContract={this.props.pcContract}
+        pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <TransitLocal account={this.props.account}
-          contract={this.props.contract} />
+        <TransitLocal 
+        account={this.props.account}
+        pcContract={this.props.pcContract}
+        pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <ReceiveShipment account={this.props.account}
-          contract={this.props.contract} />
+        <ReceiveShipment 
+        account={this.props.account}
+        pcContract={this.props.pcContract}
+        pctContract={this.props.pctContract} />
 
       </div>
     );
