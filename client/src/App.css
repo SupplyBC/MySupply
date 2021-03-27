@@ -296,6 +296,11 @@ select {
 
 /* TrackForm.js */
 
+.special-query-result {
+  margin: 10px 0px 10px -40px;
+  width: 90%;
+  text-align: left
+}
 .newform-row {
   width: 90%;
   padding: 5px 0px;
@@ -1178,6 +1183,10 @@ select {
     font-size: 12px;
   }
   
+  .special-query-result {
+    margin: 10px 0px;
+    text-align: center
+  }
  
 
   /* 
