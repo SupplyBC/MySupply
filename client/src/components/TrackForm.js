@@ -26,9 +26,9 @@ function UpdateMap(props) {
       setPosition(latLng(current));
     },
 
-    contextmenu: () => {
-      markerRef.openPopup();
-    },
+    // contextmenu: () => {
+    //   markerRef.openPopup();
+    // },
   });
   map.whenReady(() => {
     setTimeout(() => {

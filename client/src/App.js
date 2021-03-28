@@ -7,7 +7,6 @@ import Inventory from "./components/Inventory";
 import AddProduct from "./components/AddProduct";
 import FinancialLog from "./components/FinancialLog";
 import BankAccounts from "./components/BankAccounts";
-// import NewDemoTestContract from "./contracts/NewDemoTest.json";
 import PharmaChainContract from "./contracts/PharmaChain.json";
 import PharmaChainTrackingContract from "./contracts/PharmaChainTracking.json";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
