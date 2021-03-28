@@ -1,4 +1,4 @@
-# My-Supply-Dapp
+# Pharma-Chain
 
 ### About Project
 A **Blockchain Decentralized Application** developed using *Truffle Framework* that aims to enhance **Supply Chain Cost Management** Processes through
