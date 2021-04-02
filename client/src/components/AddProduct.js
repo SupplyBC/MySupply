@@ -25,7 +25,6 @@ class CreateProduct extends Component {
     let name = this.state.productName;
     let id = this.state.productId;
     let form = this.state.productForm;
-    
 
     await this.props.pcContract.methods
       .addProduct(name, id, form)
@@ -136,14 +135,7 @@ class AddMaterial extends Component {
     let amount = this.state.matAmount;
     await this.props.pcContract.methods
 
-      .addProductSpecs(
-        proID,
-        name,
-        type,
-        strength,
-        form,
-        amount
-      )
+      .addProductSpecs(proID, name, type, strength, form, amount)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Added product specification successfully!" });
@@ -297,7 +289,11 @@ class AddMaterial extends Component {
           </option>
         </select>
         <div>
-          <input className="btn" type="submit" value="ADD PRODUCT SPECIFICATION" />
+          <input
+            className="btn"
+            type="submit"
+            value="ADD PRODUCT SPECIFICATION"
+          />
         </div>
 
         <div
@@ -348,26 +344,37 @@ class CreateCostPlan extends Component {
     const pro = this.state.product;
     const units = this.state.productUnitsNo;
     const matStd = parseInt(this.state.directMaterialStdCost, 10);
-    const pkgMatStd = parseInt(this.state.packagingMaterialStdCost,10)
+    const pkgMatStd = parseInt(this.state.packagingMaterialStdCost, 10);
     const labStd = parseInt(this.state.laborStdCost, 10);
     const manuIndirectStdCost = parseInt(this.state.manuIndirectStdCost, 10);
-    const totBudget = parseInt(this.state.budget,10);
-    const mrkStd = parseInt(this.state.mrkStdCost,10);
-    const rsrhStd = parseInt(this.state.rsrhStdCost,10);
-    
-    const totalStandard = matStd + pkgMatStd + labStd + manuIndirectStdCost
-                          + mrkStd + rsrhStd;
-    
+    const totBudget = parseInt(this.state.budget, 10);
+    const mrkStd = parseInt(this.state.mrkStdCost, 10);
+    const rsrhStd = parseInt(this.state.rsrhStdCost, 10);
+
+    const totalStandard =
+      matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
+
     this.setState({ totalStdCost: totalStandard });
 
-    await this.props.pcContract.methods.setStdCostPlan(pro, units, matStd, pkgMatStd,
-      labStd, manuIndirectStdCost, mrkStd , rsrhStd, totBudget)
-    .send({from: this.props.account[0]}).once("receipt", (receipt) => {
-      this.setState({ msg: "Standard Cost Plan Was Set Successfully" });
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 2000);
-    });
+    await this.props.pcContract.methods
+      .setStdCostPlan(
+        pro,
+        units,
+        matStd,
+        pkgMatStd,
+        labStd,
+        manuIndirectStdCost,
+        mrkStd,
+        rsrhStd,
+        totBudget
+      )
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Standard Cost Plan Was Set Successfully" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 2000);
+      });
 
     this.setState({
       product: "",
@@ -378,9 +385,8 @@ class CreateCostPlan extends Component {
       manuIndirectStdCost: "",
       mrkStdCost: "",
       rsrhStdCost: "",
-      budget: ""
+      budget: "",
     });
-
   };
 
   onChange = async (e) => {
@@ -406,7 +412,7 @@ class CreateCostPlan extends Component {
       return <div> Loading..... </div>;
     }
     return (
-      <form onSubmit={this.OnSubmit}  className="newform-container">
+      <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
         <input
           type="text"
@@ -414,7 +420,7 @@ class CreateCostPlan extends Component {
           value={this.state.product}
           placeholder="e.g. pro101"
           onChange={this.OnChange}
-          required = "required"
+          required="required"
         />
 
         <h4> Set Production Units </h4>
@@ -425,9 +431,8 @@ class CreateCostPlan extends Component {
           value={this.state.productUnitsNo}
           placeholder="e.g. 50,000"
           onChange={this.OnChange}
-          required = "required"
+          required="required"
         />
-
 
         <h4> Set Standard Costs </h4>
 
@@ -438,7 +443,7 @@ class CreateCostPlan extends Component {
           value={this.state.directMaterialStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
-          required = "required"
+          required="required"
         />
 
         <label>Packaging Materials: </label>
@@ -448,7 +453,7 @@ class CreateCostPlan extends Component {
           value={this.state.packagingMaterialStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
-          required = "required"
+          required="required"
         />
 
         <label>Direct Labor: </label>
@@ -458,7 +463,7 @@ class CreateCostPlan extends Component {
           value={this.state.laborStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
-          required = "required"
+          required="required"
         />
 
         <label>Manufacturing Overhead (Indirect Costs): </label>
@@ -468,7 +473,7 @@ class CreateCostPlan extends Component {
           value={this.state.manuIndirectStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
-          required = "required"
+          required="required"
         />
 
         <label>Marketing: </label>
@@ -478,7 +483,7 @@ class CreateCostPlan extends Component {
           value={this.state.mrkStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
-          required = "required"
+          required="required"
         />
 
         <label>Research: </label>
@@ -488,7 +493,7 @@ class CreateCostPlan extends Component {
           value={this.state.rsrhStdCost}
           placeholder="e.g. 5000"
           onChange={this.OnChange}
-          required = "required"
+          required="required"
         />
 
         <h4> Set Product Budget </h4>
@@ -508,59 +513,168 @@ class CreateCostPlan extends Component {
           value="CREATE STANDARD COST PLAN"
         />
 
-
-        <div style={{marginTop:'20px'}} className = "notify-text">
+        <div style={{ marginTop: "20px" }} className="notify-text">
           {this.state.msg}
-
         </div>
       </form>
     );
   }
 }
 class ReviewProduct extends Component {
-  state={products: null}
-  componentDidMount = async() => {
-    // const productsEvents = await this.props.pcContract.getPastEvents(
-    //   'ProductStateUpdate',
-    //   {
+  state = { products: null, product: "", vis: false };
 
-    //     fromBlock: 0
-    //   }
-    // );
-    // const productsEventsFiltered = productsEvents.filter( (item) => {
-    //   return item.returnValues.manufacturer = this.props.account[0];
-    // })
+  constructor(props) {
+    super(props);
+    this.proRef = React.createRef();
+    this.OnSubmit = this.OnSubmit.bind(this);
+    this.OnChange = this.OnChange.bind(this);
+  }
 
-    // console.log(productsEventsFiltered);
-    // const lastState = productsEventsFiltered[productsEventsFiltered.length - 1]
-    // console.log(lastState);
+  componentDidMount = async () => {
+    await this.getData();
+  };
 
-    // const products = productsEventsFiltered.map( (item,index) => {
-    //   let id = item.returnValues.productId;
-    //   let name = item.returnValues.productName;
-    //   let state = item.returnValues.state;
+  OnSubmit = async (e) => {
+    e.preventDefault();
+    const name = this.state.product;
+    const products = await this.props.pcContract.methods
+      .getProductsByManu(this.props.account[0])
+      .call();
+    const pros = products.filter((item) => {
+      // return item.productId === name;
+      return item.productId === name;
+    });
 
-    //   return(
-    //     <div key={index} className="product-review-container">
-    //       <div className="head">
-    //         <p>{name}</p>
+    const proId = pros.map((item) => {
+      const id = item.productName;
+      this.setState({ id });
+      return id;
+    });
+
+    const proName = pros.map((item) => {
+      const name = item.productId;
+      this.setState({ name });
+      return name;
+    });
+
+    this.setState({ proId, proName });
+
+
+    
+
+    if (this.state.id === undefined) {
+      this.setState({msg: 'Please Select a Product!'})
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    } else {
+      const details = await this.props.pcContract.methods
+      .getProductPhase(this.state.id)
+      .call();
+
+    const lastDetail = details[details.length - 1];
+    this.setState({ lastDetail , vis:true });
+    if( details.length === 0 || pros.length === 0 ) {
+      this.setState({msg: 'No Data Found, Please try again later' , vis:false})
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+      
+    }  
+    }
+  
+
+    
+    
+  };
+
+  OnChange = async (e) => {
+    this.setState({
+      product: this.proRef.current.value,
+    });
+  };
+
+  getData = async () => {
+    const products = await this.props.pcContract.methods
+      .getProductsByManu(this.props.account[0])
+      .call();
+
+    const names = products.map((item, index) => {
+      const name = item.productId;
+      return (
+        <option key={index} id={index}>
+          {name}
+        </option>
+      );
+    });
+    this.setState({ names });
+    // console.log(products);
+
+    // const info = products.map((item, index) => {
+    //   let id = item.productName;
+    //   // let name = item.productId;
+    //   return id;
+    // });
+
+    // for (let i = 0; i < products.length; i++) {
+    //   const hey = this.props.pcContract.methods
+    //     .getProductPhase(info[i])
+    //     .call()
+    //     .then(console.log);
+    //   const lasthey = hey[hey.length - 1];
+    //   console.log(lasthey);
+    // }
+
+    // this.setState({ info });
+
+    // const productInfo = products.map(async (item, index) => {
+    //   let id = item.productName;
+    //   let name = item.productId;
+    //   const details = await this.props.pcContract.methods
+    //     .getProductPhase(id)
+    //     .call();
+    //   return (
+    //     <div key={index} className="review">
+    //       <div className="content">
+    //         <p>PRODUCT ID</p>
     //         <p>{id}</p>
+    //         <p>PRODUCT NAME</p>
+    //         <p>{name}</p>
     //       </div>
-    //       <div className="state-container">
-    //         <div className="state">{state}</div>
-    //       </div>
+    //       <div className="status">{details}</div>
     //     </div>
     //   );
-    // })
-
-    // this.setState({products , productsEventsFiltered , lastState})
-  }
+    // });
+    // console.log(productInfo);
+    // this.setState({ productInfo });
+    // return productInfo;
+  };
   render() {
-    return(
+    let view;
+    this.state.vis ? (view = "show") : (view = "hide");
+    return (
       <div className="newform-container">
-        <h4> Products Status</h4>
-        <div className="review-container">
-          {this.state.products}
+        <h4> Product Status</h4>
+        <form onSubmit={this.OnSubmit} className="newform-container form-row">
+          <label>SELECT PRODUCT</label>
+          <select  onChange={this.OnChange} ref={this.proRef} required>
+            {this.state.names}
+          </select>
+          <input type="submit" className="btn" value="VIEW STATUS" />
+        </form>
+        <div style={{marginTop: '20px'}} className="notify">{this.state.msg}</div>
+        <div className={` ${view} review-container `}>
+          <div className="review">
+            <div className="content">
+              <p className="head">PRODUCT ID</p>
+              <p className="text">{this.state.id}</p>
+              <p className="head">PRODUCT NAME</p>
+              <p className="text">{this.state.name}</p>
+            </div>
+            <div className="status">
+            <p className="head">CURRENT STATUS</p>
+            <div className="text">{this.state.lastDetail}</div></div>
+          </div>
         </div>
       </div>
     );
@@ -572,7 +686,7 @@ class AddProduct extends Component {
     let account = this.props.accounts;
     let contract1 = this.props.pcContract;
     let contract2 = this.props.pctContract;
-    if (!account || !contract1 || !contract2 ) {
+    if (!account || !contract1 || !contract2) {
       return <div>Loading ..... </div>;
     }
     return (
@@ -586,17 +700,14 @@ class AddProduct extends Component {
                 </NavLink>
               </li>
               <li className="link-item">
-                
                 <NavLink to="/add-product/addMaterial">
                   + ADD PRODUCT SPECS
                 </NavLink>
               </li>
               <li className="link-item">
-                
                 <NavLink to="/add-product/costPlan">+ CREATE COST PLAN</NavLink>
               </li>
               <li className="link-item">
-                
                 <NavLink to="/add-product/review">+ REVIEW PRODUCTS</NavLink>
               </li>
             </ul>

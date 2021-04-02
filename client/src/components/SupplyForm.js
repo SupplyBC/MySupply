@@ -159,8 +159,9 @@ class RequestMaterials extends Component {
       }, 3000);
     });
     const request = await this.props.pcContract.methods.getMyRequests().call();
+    console.log(request);
     const requestNo = request[request.length -1].requestId;
-
+    console.log(requestNo);
     this.setState({ requestInfo: "Your Tracking Number: " + requestNo});
       setTimeout(() => {
         this.setState({ requestInfo: " " });
@@ -519,7 +520,7 @@ class CreateMaterial extends Component {
           type="number"
           placeholder="e.g. 10"
         />
-        <label> Material Amount (mg): </label>
+        <label> Material Amount (kg): </label>
         <input
           value={this.state.matAmount}
           onChange={this.onChange}
