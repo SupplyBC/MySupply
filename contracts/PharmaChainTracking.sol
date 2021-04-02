@@ -68,7 +68,6 @@ contract PharmaChainTracking {
         
         uint payment = pc.getRequestCost(_requestId)/2;
         pc.transfer(pc.getRequestById(_requestId).fromParti, msg.sender, payment);
-        // emit pc.requestStateUpdate(msg.sender, block.timestamp , 'REQUEST APPROVED');
         pc.emitRequestStateEvent('REQUEST APPROVED');
     }
     

@@ -26,50 +26,19 @@ contract PharmaChain {
         
     }
     
-    // function toString(uint _i) internal pure returns (string memory _uintAsString) {
-        
-    //     if (_i == 0) {
-    //         return "0";
-    //     }
-    //     uint j = _i;
-    //     uint len;
-    //     while (j != 0) {
-    //         len++;
-    //         j /= 10;
-    //     }
-    //     bytes memory bstr = new bytes(len);
-    //     uint k = len;
-    //     while (_i != 0) {
-    //         k = k-1;
-    //         uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-    //         bytes1 b1 = bytes1(temp);
-    //         bstr[k] = b1;
-    //         _i /= 10;
-    //     }
-    //     return string(bstr);
-    // }
-    
-    // function concat(string memory a, string memory b) internal pure returns (string memory) {
-    // string memory c = ' , ';
-    // return string(abi.encodePacked( a, c, b));
-
-    // }
-
     // END OF UTILS
 
     
     uint        trackNoCount = 115912;
     address     admin;
     address     bank;
-   
     Material[]  materialArr;
     Product[]   productArr;
-   
-    enum        Role                        {MANUFACTURER, SUPPLIER, DISTRIBUTOR, DRUG_AUTHORITY , BANK}
     mapping (address => bool)               participants;
     mapping (address => Product[])          products;    // manufacturer and product
     mapping (string => Specs[])             productSpecs; // productID and material 
     mapping (string => Product)             productList; // product by id
+    mapping (string => string[])            productPhase; // product id and phases;
     mapping (address => Material[])         materials;   //Participant(supplier) and material
     mapping (string => Material)            materialList; // materials by id
     mapping (address => Request[])          requests;   // participant and requests
@@ -88,7 +57,6 @@ contract PharmaChain {
     mapping (address => mapping (address => BankAccount) ) userBankAccounts; // bankAddr -> userAddr -> userAcc
     event   requestStateUpdate  (address indexed who, uint indexed timestamp , string  state);
     event   BankTransact        (string txName, address indexed _from , address  _to , uint _amount , uint indexed timestamp);
-    event   ProductStateUpdate  (string productId, string productName , address indexed manufacturer , string state , uint indexed timestamp);
     
     struct BankAccount {
     
@@ -96,12 +64,6 @@ contract PharmaChain {
         string  userName;
         uint    userBalance;
         bool    isActive;
-    }
-    
-    struct Participant {
-        
-        address particId;
-        Role    particRole;
     }
     
     struct Product {
@@ -201,13 +163,7 @@ contract PharmaChain {
         products[msg.sender].push(pro);
         productList[_id] = pro;
         productArr.push(pro);
-         emit ProductStateUpdate(
-        _id,
-        productList[_id].productName,
-        productList[_id].manufacturer,
-        'UNDER-RESEARCH',
-        block.timestamp
-        );
+        setProductPhase(_id, 'UNDER-RESEARCH');
     
         
     }
@@ -233,13 +189,7 @@ contract PharmaChain {
         });      
         
         productSpecs[_productID].push(spec);
-         emit ProductStateUpdate(
-        _productID,
-        productList[_productID].productName,
-        productList[_productID].manufacturer,
-        'REGISTERED',
-        block.timestamp
-        );
+        setProductPhase(_productID , 'REGISTERED');
     
         
     }
@@ -259,6 +209,14 @@ contract PharmaChain {
     
     function getProductSpecs(string memory _product) public view returns(Specs[] memory) {
         return productSpecs[_product];
+    }
+    
+    function setProductPhase(string memory _product , string memory _phase) public {
+        productPhase[_product].push(_phase);
+    }
+    
+    function getProductPhase(string memory _product) public view returns (string[] memory phases) {
+       return productPhase[_product];
     }
     
     // END OF MANUFACTURING STUFF
@@ -338,13 +296,7 @@ contract PharmaChain {
         
         actualProductCosts[_product] = actualCosts;
         actualBudgetUnits[_product] = _unitsNo;
-        emit ProductStateUpdate(
-        _product,
-        productList[_product].productName,
-        productList[_product].manufacturer,
-        'PRODUCTION-READY',
-        block.timestamp
-        );
+        setProductPhase(_product, 'PRODUCTION-READY');
     }
     
     function getActualCost(string memory _product) public view returns(Cost memory) {
