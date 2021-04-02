@@ -947,11 +947,11 @@ class FinancialLog extends Component {
                   + MANAGE FLEXIBLE BUDGET
                 </NavLink>
               </li>
-              <li className="link-item">
+              {/* <li className="link-item">
                 <NavLink to="/financial-log/setDirectCosts">
                   + MANAGE DIRECT COSTS
                 </NavLink>
-              </li>
+              </li> */}
               <label style={{ marginTop: "10px" }}>
                 <strong> REVIEW VARIANCE </strong>
               </label>
