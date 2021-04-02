@@ -914,6 +914,14 @@ class CalculateFlexibleVariance extends Component {
   }
 }
 
+// class SetDirectCosts extends Component {
+//   render() {
+//     return(
+//       <div>SET DIRECT COSTS</div>
+//     );
+//   }
+// }
+
 class FinancialLog extends Component {
   
   render() {
@@ -939,6 +947,11 @@ class FinancialLog extends Component {
                   + MANAGE FLEXIBLE BUDGET
                 </NavLink>
               </li>
+              <li className="link-item">
+                <NavLink to="/financial-log/setDirectCosts">
+                  + MANAGE DIRECT COSTS
+                </NavLink>
+              </li>
               <label style={{ marginTop: "10px" }}>
                 <strong> REVIEW VARIANCE </strong>
               </label>
@@ -952,6 +965,11 @@ class FinancialLog extends Component {
                   + FLEXIBLE-BUDGET 
                 </NavLink>
               </li>
+              {/* <li className="link-item">
+                <NavLink to="/financial-log/directCostsVariance">
+                  + DIRECT-COST VARIANCES 
+                </NavLink>
+              </li> */}
             </ul>
           </div>
           <div className="main-content">
@@ -979,6 +997,19 @@ class FinancialLog extends Component {
                 />
               )}
             />
+             {/* <Route
+              path="/financial-log/setDirectCosts"
+              exact
+              render={(props) => (
+                <SetDirectCosts
+                  {...props}
+                  Web3={this.props.web3}
+                  account={this.props.accounts}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
+                />
+              )}
+            /> */}
             <Route
               path="/financial-log/staticVariance"
               exact
@@ -1005,6 +1036,7 @@ class FinancialLog extends Component {
                 />
               )}
             />
+            
           </div>
         </div>
       </BrowserRouter>
