@@ -825,7 +825,7 @@ class CalculateFlexibleVariance extends Component {
                   </td>
                   <td>{this.state.matFlexCost}</td>
                   <td>
-                    {(this.state.matFlexCostValue - this.state.matCostValue).toLocaleString('en-US', {style:'currency', currency:'USD'})}
+                    {Math.abs(this.state.matFlexCostValue - this.state.matCostValue).toLocaleString('en-US', {style:'currency', currency:'USD'})}
                   </td>
                   <td>{this.state.matCost}</td>
                 </tr>
