@@ -23,10 +23,3 @@ integrating Ethereum Blockchain and Smart Contracts with Pharmaceutical Supply C
 3. Run Ganache and connect MetaMask to your running Ganache Network.
 4. Connect MetaMask Accounts to your Dapp.
 5. Have fun!
-
-
-
-### Progress Log
-
-17/2:
-* Project is currently under active development.
