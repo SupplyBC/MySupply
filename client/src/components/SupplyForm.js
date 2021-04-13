@@ -28,7 +28,7 @@ class QueryProductSpecs extends Component {
         <tr key={index}>
           <td> {name} </td>
           <td> {type} </td>
-          <td>{amount} mg </td>
+          <td>{amount} g </td>
           <td>{form} </td>
         </tr>
       );
@@ -193,7 +193,7 @@ class RequestMaterials extends Component {
               <li> <strong>NAME: </strong> {name}</li>
               <li> <strong>FORM: </strong> {form}</li>
               <li> <strong>UNIT COST: </strong> {cost}</li>
-              <li> <strong>IN STOCK: </strong> {availableAmount} KG</li>     
+              <li> <strong>IN STOCK: </strong> {availableAmount} g</li>     
             </ul>
             <hr className="custom-hr-full"></hr> 
           </div>
@@ -317,7 +317,7 @@ class RequestMaterials extends Component {
           id="material-amount"
           value={this.state.amount}
           ref={this.amountRef}
-          placeholder="e.g. 1000 KGs"
+          placeholder="e.g. 1000 g"
           autoComplete="off"
           onChange={this.onChange}
           required = "required"
@@ -520,7 +520,7 @@ class CreateMaterial extends Component {
           type="number"
           placeholder="e.g. 10"
         />
-        <label> Material Amount (kg): </label>
+        <label> Material Amount (g): </label>
         <input
           value={this.state.matAmount}
           onChange={this.onChange}

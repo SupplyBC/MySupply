@@ -3,7 +3,7 @@ import getWeb3 from "./getWeb3";
 import Header from "./components/Header";
 import SupplyForm from "./components/SupplyForm";
 import Track from "./components/TrackForm";
-import Inventory from "./components/Inventory";
+// import Inventory from "./components/Inventory";
 import AddProduct from "./components/AddProduct";
 import FinancialLog from "./components/FinancialLog";
 import BankAccounts from "./components/BankAccounts";
@@ -11,6 +11,16 @@ import PharmaChainContract from "./contracts/PharmaChain.json";
 import PharmaChainTrackingContract from "./contracts/PharmaChainTracking.json";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 import "./App.css";
+
+class MainMsg extends Component {
+  render() {
+    return(
+      <div className="main-msg">  
+          WELCOME TO <br></br> PHARMA CHAIN
+      </div>
+    );
+  }
+}
 
 class App extends Component {
   // state = { storageValue: 0, web3: null, accounts: null, contract: null };
@@ -109,7 +119,8 @@ class App extends Component {
               </li>
             </ul>
           </div>
-
+          
+          <Route path="/" exact component={MainMsg} />
           <Route
             path="/supply"
             exact
@@ -123,7 +134,7 @@ class App extends Component {
               />
             )}
           />
-          <Route path="/inventory" exact component={Inventory} />
+          {/* <Route path="/inventory" exact component={Inventory} /> */}
           
           <Route
             path="/track"
@@ -173,6 +184,8 @@ class App extends Component {
           )}/>
           <div> {this.state.response} </div>
         </div>
+
+        
       </BrowserRouter>
     );
   }

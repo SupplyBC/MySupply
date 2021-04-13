@@ -256,7 +256,7 @@ class AddMaterial extends Component {
             PACKAGING
           </option>
         </select>
-        <label> Material Amount (mg) :</label>
+        <label> Material Amount (g) :</label>
         <input
           value={this.state.matAmount}
           onChange={this.handleChange}
