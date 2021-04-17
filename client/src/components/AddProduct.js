@@ -338,8 +338,6 @@ class CreateCostPlan extends Component {
     this.OnSubmit = this.OnSubmit.bind(this);
   }
 
-  calculateTotalStd = async () => {};
-
   OnSubmit = async (e) => {
     e.preventDefault();
 
@@ -365,9 +363,10 @@ class CreateCostPlan extends Component {
       .setStdCostPlan(
         pro,
         units,
-        matStd,
+        matUnitCost,
         pkgMatStd,
-        labStd,
+        rate,
+        hoursNo,
         manuIndirectStdCost,
         mrkStd,
         rsrhStd,
@@ -404,6 +403,10 @@ class CreateCostPlan extends Component {
       mrkStdCost: this.mrkStdRef.current.value,
       rsrhStdCost: this.rsrhStdRef.current.value,
       budget: this.budgetRef.current.value,
+      workHoursNo: this.hoursNoRef.current.value,
+      hourlyWorkRate: this.hourlyRateRef.current.value,
+      materialUnitCost: this.materialUnitCostRef.current.value
+
     });
   };
 
@@ -444,7 +447,7 @@ class CreateCostPlan extends Component {
         <input
           type="number"
           ref={this.materialUnitCostRef}
-          value={this.state. materialUnitCost}
+          value={this.state.materialUnitCost}
           placeholder="e.g. 5"
           onChange={this.OnChange}
           required="required"
@@ -622,46 +625,6 @@ class ReviewProduct extends Component {
       );
     });
     this.setState({ names });
-    // console.log(products);
-
-    // const info = products.map((item, index) => {
-    //   let id = item.productName;
-    //   // let name = item.productId;
-    //   return id;
-    // });
-
-    // for (let i = 0; i < products.length; i++) {
-    //   const hey = this.props.pcContract.methods
-    //     .getProductPhase(info[i])
-    //     .call()
-    //     .then(console.log);
-    //   const lasthey = hey[hey.length - 1];
-    //   console.log(lasthey);
-    // }
-
-    // this.setState({ info });
-
-    // const productInfo = products.map(async (item, index) => {
-    //   let id = item.productName;
-    //   let name = item.productId;
-    //   const details = await this.props.pcContract.methods
-    //     .getProductPhase(id)
-    //     .call();
-    //   return (
-    //     <div key={index} className="review">
-    //       <div className="content">
-    //         <p>PRODUCT ID</p>
-    //         <p>{id}</p>
-    //         <p>PRODUCT NAME</p>
-    //         <p>{name}</p>
-    //       </div>
-    //       <div className="status">{details}</div>
-    //     </div>
-    //   );
-    // });
-    // console.log(productInfo);
-    // this.setState({ productInfo });
-    // return productInfo;
   };
   render() {
     let view;
@@ -672,6 +635,7 @@ class ReviewProduct extends Component {
         <form onSubmit={this.OnSubmit} className="newform-container form-row">
           <label>SELECT PRODUCT</label>
           <select  onChange={this.OnChange} ref={this.proRef} required>
+            <option id='default' style={{fontStyle: 'italic' , opacity: '0.6', color: '#777' }} value="default"> Select a Product </option>
             {this.state.names}
           </select>
           <input type="submit" className="btn" value="VIEW STATUS" />
