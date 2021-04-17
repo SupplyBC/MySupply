@@ -311,13 +311,14 @@ class CreateCostPlan extends Component {
   state = {
     product: "",
     productUnitsNo: 0,
-    directMaterialStdCost: 0,
+    materialUnitCost: 0,
     packagingMaterialStdCost: 0,
-    laborStdCost: 0,
     manuIndirectStdCost: 0,
     mrkStdCost: 0,
     rsrhStdCost: 0,
     totalStdCost: 0,
+    workHoursNo: 0,
+    hourlyWorkRate: 0,
     budget: 0,
   };
 
@@ -325,13 +326,14 @@ class CreateCostPlan extends Component {
     super(props);
     this.proRef = React.createRef();
     this.unitNoRef = React.createRef();
-    this.dirMatStdRef = React.createRef();
     this.pkgMatStdRef = React.createRef();
-    this.labStdRef = React.createRef();
     this.manIndStdRef = React.createRef();
     this.mrkStdRef = React.createRef();
     this.rsrhStdRef = React.createRef();
     this.budgetRef = React.createRef();
+    this.hoursNoRef = React.createRef();
+    this.hourlyRateRef = React.createRef();
+    this.materialUnitCostRef = React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
   }
@@ -350,6 +352,9 @@ class CreateCostPlan extends Component {
     const totBudget = parseInt(this.state.budget, 10);
     const mrkStd = parseInt(this.state.mrkStdCost, 10);
     const rsrhStd = parseInt(this.state.rsrhStdCost, 10);
+    const hoursNo = this.state.workHoursNo;
+    const rate = this.state.hourlyWorkRate;
+    const matUnitCost = this.state.materialUnitCost;
 
     const totalStandard =
       matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
@@ -379,13 +384,14 @@ class CreateCostPlan extends Component {
     this.setState({
       product: "",
       productUnitsNo: "",
-      directMaterialStdCost: "",
       packagingMaterialStdCost: "",
-      laborStdCost: "",
       manuIndirectStdCost: "",
       mrkStdCost: "",
       rsrhStdCost: "",
       budget: "",
+      workHoursNo: "",
+      hourlyWorkRate: "",
+      materialUnitCost: "",
     });
   };
 
@@ -393,9 +399,7 @@ class CreateCostPlan extends Component {
     this.setState({
       product: this.proRef.current.value,
       productUnitsNo: this.unitNoRef.current.value,
-      directMaterialStdCost: this.dirMatStdRef.current.value,
       packagingMaterialStdCost: this.pkgMatStdRef.current.value,
-      laborStdCost: this.labStdRef.current.value,
       manuIndirectStdCost: this.manIndStdRef.current.value,
       mrkStdCost: this.mrkStdRef.current.value,
       rsrhStdCost: this.rsrhStdRef.current.value,
@@ -434,14 +438,14 @@ class CreateCostPlan extends Component {
           required="required"
         />
 
-        <h4> Set Standard Costs </h4>
+        <h4> Set Standards  </h4>
 
-        <label>Raw Materials: </label>
+        <label>Unit Material Cost: </label>
         <input
           type="number"
-          ref={this.dirMatStdRef}
-          value={this.state.directMaterialStdCost}
-          placeholder="e.g. 5000"
+          ref={this.materialUnitCostRef}
+          value={this.state. materialUnitCost}
+          placeholder="e.g. 5"
           onChange={this.OnChange}
           required="required"
         />
@@ -456,12 +460,22 @@ class CreateCostPlan extends Component {
           required="required"
         />
 
-        <label>Direct Labor: </label>
+         <label>Working Hours No: </label>
         <input
           type="number"
-          ref={this.labStdRef}
-          value={this.state.laborStdCost}
-          placeholder="e.g. 5000"
+          ref={this.hoursNoRef}
+          value={this.state.workHoursNo}
+          placeholder="e.g. 2000"
+          onChange={this.OnChange}
+          required="required"
+        />
+
+        <label>Hourly Work Rate: </label>
+        <input
+          type="number"
+          ref={this.hourlyRateRef}
+          value={this.state.hourlyWorkRate}
+          placeholder="e.g. 50"
           onChange={this.OnChange}
           required="required"
         />
@@ -705,7 +719,7 @@ class AddProduct extends Component {
                 </NavLink>
               </li>
               <li className="link-item">
-                <NavLink to="/add-product/costPlan">+ CREATE COST PLAN</NavLink>
+                <NavLink to="/add-product/costPlan">+ CREATE STANDARD PLAN</NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/add-product/review">+ REVIEW PRODUCTS</NavLink>

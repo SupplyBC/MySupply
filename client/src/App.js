@@ -3,7 +3,6 @@ import getWeb3 from "./getWeb3";
 import Header from "./components/Header";
 import SupplyForm from "./components/SupplyForm";
 import Track from "./components/TrackForm";
-// import Inventory from "./components/Inventory";
 import AddProduct from "./components/AddProduct";
 import FinancialLog from "./components/FinancialLog";
 import BankAccounts from "./components/BankAccounts";
@@ -134,7 +133,6 @@ class App extends Component {
               />
             )}
           />
-          {/* <Route path="/inventory" exact component={Inventory} /> */}
           
           <Route
             path="/track"
