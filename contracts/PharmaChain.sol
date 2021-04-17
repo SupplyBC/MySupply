@@ -229,8 +229,8 @@ contract PharmaChain {
     
     string  memory _product,
     uint    _unitsNo,
-    uint    _unitMaterialCost,
     uint    _pkgMatCost,
+    uint    _unitMaterialCost,
     uint    _ratePerHr,
     uint    _workHrsNo,
     uint    _totIndirectCosts,
@@ -298,14 +298,14 @@ contract PharmaChain {
     uint _actualWorkHrsNo,
     uint _actualIndirectCost,
     uint _actualMrkCost,
-    uint _actualRsrchCost
+    uint _actualRsrchCost,
+    uint _actualMatQty
     
     ) public {
-         uint matAmount = getActualMaterialQty(_product);
-        // uint actDirectTotal =  _actualMatCost + _actualPkgMatCost + _actualLaborCost;
-        // uint actTotal =  _actualMatCost + _actualPkgMatCost + _actualLaborCost + _actualIndirectCost + _actualMrkCost + _actualRsrchCost;
+        
+        setActualMaterialQty(_product,_actualMatQty);
         Cost memory actualCosts = Cost({
-            directMaterialCost: matAmount * _unitMaterialCost,
+            directMaterialCost: _actualMatQty * _unitMaterialCost,
             packagingMaterialCost: _actualPkgMatCost,
             materialCostPerUnit: _unitMaterialCost,
             totalDirectCost: 0,
@@ -353,9 +353,7 @@ contract PharmaChain {
     uint _flexibleRsrchCost)
     public {
         
-         uint matAmount = getStdMaterialQty(_product);
-        // uint directTotal =  _matUnitCost + _pkgUnitCost +  _laborUnitCost;
-        // uint total = _matUnitCost + _pkgUnitCost +  _laborUnitCost + _indirectManuUnitCost + _flexibleMrkCost  + _flexibleRsrchCost;
+        uint matAmount = getStdMaterialQty(_product);
         Cost memory flex = Cost ({
             directMaterialCost: matAmount * _unitMaterialCost,
             packagingMaterialCost: _pkgUnitCost,
