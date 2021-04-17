@@ -343,28 +343,26 @@ class CreateCostPlan extends Component {
 
     const pro = this.state.product;
     const units = this.state.productUnitsNo;
-    const matStd = parseInt(this.state.directMaterialStdCost, 10);
     const pkgMatStd = parseInt(this.state.packagingMaterialStdCost, 10);
-    const labStd = parseInt(this.state.laborStdCost, 10);
     const manuIndirectStdCost = parseInt(this.state.manuIndirectStdCost, 10);
     const totBudget = parseInt(this.state.budget, 10);
     const mrkStd = parseInt(this.state.mrkStdCost, 10);
     const rsrhStd = parseInt(this.state.rsrhStdCost, 10);
-    const hoursNo = this.state.workHoursNo;
-    const rate = this.state.hourlyWorkRate;
-    const matUnitCost = this.state.materialUnitCost;
+    const hoursNo = parseInt(this.state.workHoursNo,10);
+    const rate = parseInt(this.state.hourlyWorkRate,10);
+    const matUnitCost = parseInt(this.state.materialUnitCost,10);
 
-    const totalStandard =
-      matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
+    // const totalStandard =
+    //   matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
 
-    this.setState({ totalStdCost: totalStandard });
+    // this.setState({ totalStdCost: totalStandard });
 
     await this.props.pcContract.methods
       .setStdCostPlan(
         pro,
         units,
-        matUnitCost,
         pkgMatStd,
+        matUnitCost,
         rate,
         hoursNo,
         manuIndirectStdCost,
@@ -463,7 +461,7 @@ class CreateCostPlan extends Component {
           required="required"
         />
 
-         <label>Working Hours No: </label>
+        <label>Working Hours No: </label>
         <input
           type="number"
           ref={this.hoursNoRef}

@@ -355,8 +355,7 @@ class RequestMaterials extends Component {
           <div style={{color: '#222', fontSize: '16px' }}><strong>{this.state.requestInfo}</strong></div>
         </div>
         <div className={`${toggled} results-counter`}>
-        <p style={{textAlign: 'left'}}> Found <strong>{this.state.resultCount} </strong> results
-            for "{this.state.materialName}". </p>
+        <p style={{textAlign: 'left'}}> Found <strong>{this.state.resultCount} </strong> results. </p>
         </div>
         <div className={`${toggled} query-result-container`}>
          
