@@ -4,12 +4,9 @@ pragma solidity >=0.6.2;
 pragma experimental ABIEncoderV2;  
 
   interface PharmaChainInterface {
-         function strComp(string memory x , string memory y ) external pure returns (bool);
-         function toString(uint _i) external pure returns (string memory _uintAsString);
-         function concat(string memory a, string memory b) external pure returns (string memory);
-         event   requestStateUpdate  (address indexed who, uint indexed timestamp , string  state);
-         event   BankTransact        (string txName, address indexed _from , address  _to , uint _amount , uint indexed timestamp);
-         event   ProductStateUpdate  (string productId, string productName , address indexed manufacturer , string state , uint indexed timestamp);
+         function   strComp(string memory x , string memory y ) external pure returns (bool);
+         event      requestStateUpdate  (address indexed who, uint indexed timestamp , string  state);
+         event      BankTransact        (string txName, address indexed _from , address  _to , uint _amount , uint indexed timestamp);
     }
 
 
@@ -29,7 +26,7 @@ contract PharmaChain {
     // END OF UTILS
 
     
-    uint        trackNoCount = 115912;
+    uint        trackNoCount = 0;
     address     admin;
     address     bank;
     Material[]  materialArr;
@@ -37,6 +34,8 @@ contract PharmaChain {
     mapping (address => bool)               participants;
     mapping (address => Product[])          products;    // manufacturer and product
     mapping (string => Specs[])             productSpecs; // productID and material 
+    mapping (string => uint)                stdMaterialQty; // std mateiral qty used in product (id) unit
+    mapping (string => uint)                actMaterialQty; //  actual material qty used in product (id) unit 
     mapping (string => Product)             productList; // product by id
     mapping (string => string[])            productPhase; // product id and phases;
     mapping (address => Material[])         materials;   //Participant(supplier) and material
@@ -80,11 +79,12 @@ contract PharmaChain {
         address supplier;
         string  materialID;
         string  materialName;
-        uint  materialStrength;
+        uint    materialStrength;
         string  materialForm;
         uint    createdAmount;
         uint    unitCost;
     }
+    
     
     struct Specs {
         string  materialName;
@@ -105,26 +105,30 @@ contract PharmaChain {
     }
     
     struct BatchRequest {
-        uint requestId;
+        uint    requestId;
         address fromParti1;
         address fromParti2;
         address toParti;
-        string materialID;
-        uint amount;
-        uint issueTime;
+        string  materialID;
+        uint    amount;
+        uint    issueTime;
     }
     
-    
+    // Cost Per Product Unit 
     struct Cost {
         uint directMaterialCost;
         uint packagingMaterialCost;
+        uint materialCostPerUnit; // cost per unit material
         uint marketingCost;
         uint researchCost;
         uint directLaborCost;
+        uint ratePerWorkHr; // rate per work hour
+        uint workHrs;       // no of work hours
         uint totalIndirectCost; // indirect manufacturing costs
         uint totalDirectCost;
         uint CostTOT; // direct material + direct labor + total indirect
     }
+    
     
     struct Location {
         string Latitude;
@@ -139,7 +143,6 @@ contract PharmaChain {
     // FUNCTIONS
     
     function emitRequestStateEvent(string memory _state) public {
-        // emit requestStateUpdate(msg.sender, block.timestamp , 'REQUEST APPROVED');
          emit requestStateUpdate(msg.sender, block.timestamp , _state);
     }
     // MANUFACTURING STUFF GOES HERE
@@ -189,8 +192,8 @@ contract PharmaChain {
         });      
         
         productSpecs[_productID].push(spec);
+        setStdMaterialQty(_productID);
         setProductPhase(_productID , 'REGISTERED');
-    
         
     }
     
@@ -226,9 +229,10 @@ contract PharmaChain {
     
     string  memory _product,
     uint    _unitsNo,
-    uint    _directMatCost,
+    uint    _unitMaterialCost,
     uint    _pkgMatCost,
-    uint    _directLaborCost,
+    uint    _ratePerHr,
+    uint    _workHrsNo,
     uint    _totIndirectCosts,
     uint    _mrkCost,
     uint    _rsrchCost,
@@ -236,15 +240,21 @@ contract PharmaChain {
     
         ) public {
     
+    // uint directTotal =  _directMatCost + _pkgMatCost +  _directLaborCost;
+    uint matAmount = getStdMaterialQty(_product);
+    // uint total = _directMatCost + _pkgMatCost +  _directLaborCost + _totIndirectCosts + _mrkCost  + _rsrchCost;
     Cost memory stdCosts = Cost({
-        directMaterialCost: _directMatCost,
-        directLaborCost: _directLaborCost,
+        directMaterialCost: matAmount * _unitMaterialCost,
+        ratePerWorkHr: _ratePerHr,
+        materialCostPerUnit: _unitMaterialCost,
+        workHrs: _workHrsNo,
+        directLaborCost: _ratePerHr * _workHrsNo,
         totalIndirectCost: _totIndirectCosts,
-        totalDirectCost: _directMatCost + _pkgMatCost +  _directLaborCost,
+        totalDirectCost: 0,
         packagingMaterialCost: _pkgMatCost,
         marketingCost: _mrkCost,
         researchCost: _rsrchCost,
-        CostTOT: _directMatCost + _pkgMatCost +  _directLaborCost + _totIndirectCosts + _mrkCost  + _rsrchCost
+        CostTOT: 0
        
     });
     
@@ -261,6 +271,10 @@ contract PharmaChain {
        
     }
     
+    function setStdMaterialQty(string memory _product) public {
+        stdMaterialQty[_product] = productSpecs[_product][0].materialAmount;
+    }
+    
     
     function getStdCostPlan(string memory _product) public view returns(Cost memory) {
         return standardProductCosts[_product];
@@ -270,28 +284,38 @@ contract PharmaChain {
         return standardBudgetUnits[_product];
     }
     
+    function getStdMaterialQty(string memory _product) public view returns (uint) {
+        return stdMaterialQty[_product];
+    }
+    
     function setActualCost(
     
     string memory _product,
     uint _unitsNo,
-    uint _actualMatCost,
     uint _actualPkgMatCost,
-    uint _actualLaborCost,
+    uint _unitMaterialCost,
+    uint _actualRatePerHr,
+    uint _actualWorkHrsNo,
     uint _actualIndirectCost,
     uint _actualMrkCost,
     uint _actualRsrchCost
     
     ) public {
+         uint matAmount = getActualMaterialQty(_product);
+        // uint actDirectTotal =  _actualMatCost + _actualPkgMatCost + _actualLaborCost;
+        // uint actTotal =  _actualMatCost + _actualPkgMatCost + _actualLaborCost + _actualIndirectCost + _actualMrkCost + _actualRsrchCost;
         Cost memory actualCosts = Cost({
-            directMaterialCost: _actualMatCost,
+            directMaterialCost: matAmount * _unitMaterialCost,
             packagingMaterialCost: _actualPkgMatCost,
-            totalDirectCost: _actualMatCost + _actualPkgMatCost + _actualLaborCost,
+            materialCostPerUnit: _unitMaterialCost,
+            totalDirectCost: 0,
+            ratePerWorkHr: _actualRatePerHr,
+            workHrs: _actualWorkHrsNo,
             marketingCost: _actualMrkCost,
             researchCost: _actualRsrchCost,
-            directLaborCost: _actualLaborCost,
+            directLaborCost: _actualRatePerHr * _actualWorkHrsNo,
             totalIndirectCost: _actualIndirectCost,
-            CostTOT: _actualMatCost + _actualPkgMatCost + _actualLaborCost + _actualIndirectCost
-                     + _actualMrkCost + _actualRsrchCost
+            CostTOT: 0
         });
         
         actualProductCosts[_product] = actualCosts;
@@ -299,9 +323,18 @@ contract PharmaChain {
         setProductPhase(_product, 'PRODUCTION-READY');
     }
     
+    
     function getActualCost(string memory _product) public view returns(Cost memory) {
         
         return actualProductCosts[_product];
+    }
+    
+    function setActualMaterialQty (string memory _product , uint _amount) public {
+        actMaterialQty[_product] = _amount;
+    }
+    
+    function getActualMaterialQty (string memory _product) public view returns (uint) {
+        return actMaterialQty[_product];
     }
     
     function getActualBudgetUnits(string memory _product) public view returns(uint units ) {
@@ -311,23 +344,30 @@ contract PharmaChain {
     function setFlexibleCosts(
     string memory _product,
     uint _unitsNo,
-    uint _matUnitCost,
     uint _pkgUnitCost,
-    uint _laborUnitCost,
+    uint _unitMaterialCost,
+    uint _ratePerHr,
+    uint _workHrsNo,
     uint _indirectManuUnitCost,
     uint _flexibleMrkCost,
     uint _flexibleRsrchCost)
     public {
+        
+         uint matAmount = getStdMaterialQty(_product);
+        // uint directTotal =  _matUnitCost + _pkgUnitCost +  _laborUnitCost;
+        // uint total = _matUnitCost + _pkgUnitCost +  _laborUnitCost + _indirectManuUnitCost + _flexibleMrkCost  + _flexibleRsrchCost;
         Cost memory flex = Cost ({
-            directMaterialCost: _matUnitCost,
+            directMaterialCost: matAmount * _unitMaterialCost,
             packagingMaterialCost: _pkgUnitCost,
-            totalDirectCost: _matUnitCost + _pkgUnitCost + _laborUnitCost,
+            totalDirectCost: 0,
+            ratePerWorkHr: _ratePerHr,
+            workHrs: _workHrsNo,
+            materialCostPerUnit: _unitMaterialCost,
             marketingCost: _flexibleMrkCost,
             researchCost: _flexibleRsrchCost,
-            directLaborCost:  _laborUnitCost,
+            directLaborCost:  _ratePerHr * _workHrsNo,
             totalIndirectCost: _indirectManuUnitCost,
-            CostTOT: _matUnitCost + _pkgUnitCost + _laborUnitCost
-                     + _indirectManuUnitCost + _flexibleMrkCost + _flexibleRsrchCost
+            CostTOT: 0
         });
         
         flexibleProductCosts[_product] = flex;
@@ -400,7 +440,7 @@ contract PharmaChain {
     uint _amount 
     )
     public {
-        trackNoCount += 1573;
+        trackNoCount += 1;
         Request memory req = Request({
            requestId: trackNoCount,
            fromParti: msg.sender,
@@ -423,7 +463,7 @@ contract PharmaChain {
     uint _amount
     ) 
     public {
-        trackNoCount += 2256;
+        trackNoCount += 1;
         BatchRequest memory batchReq = BatchRequest({
             requestId: trackNoCount,
             fromParti1: msg.sender,
