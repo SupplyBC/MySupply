@@ -11,6 +11,18 @@ import PharmaChainTrackingContract from "./contracts/PharmaChainTracking.json";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 import "./App.css";
 
+class Loader extends Component {
+  render() {
+    return(
+      <div>
+       <div style={{ backgroundColor: 'white', height: '100vh' ,textAlign:'center', margin: '0px auto', padding: '10px'}}>
+        <img style={{marginTop: '10%'}} src={require("./assets/imgs/spinner.gif")}  alt='loading'/>
+        </div>;
+      </div>
+    );
+  }
+}
+
 class MainMsg extends Component {
   render() {
     return(
@@ -75,9 +87,7 @@ class App extends Component {
 
   render() {
     if (!this.state.web3) {
-      return <div style={{textAlign:'center' , margin: '50px auto', padding: '10px'}}>
-        <img src={require("./assets/imgs/spinner.gif")}  alt='loading'/>
-        </div>;
+      return <Loader/>
     }
     let toggle
     this.state.isMenuToggled ?  toggle = '' : toggle = 'hide'
@@ -89,7 +99,7 @@ class App extends Component {
           <button onClick={this.toggleMenu} className="responsive-menu">
             <img
             alt = "hamburger-menu"
-            width = "20px"
+            width = "25px"
             src={require("../src/assets/imgs/hamburger-menu.svg")}/>
             </button>
             <ul id = "my-nav" className={`nav-list ${toggle}`}>

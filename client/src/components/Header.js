@@ -5,7 +5,7 @@ class Header extends Component {
     render() {
         return (
             <div className='container'>
-                <h1 className= 'logo'><a href="/">PHARMA CHAIN</a></h1>
+                <h1 className= 'logo'><a href="/"><span aria-label="chain" role="img">⛓️</span> PHARMA CHAIN <span aria-label="chain" role="img">⛓️</span></a></h1>
                 <div className='flex-container'>
                     <div className = 'sm-font'> YOUR ACCOUNT: </div>
                     <div className = 'italic centered'> 
