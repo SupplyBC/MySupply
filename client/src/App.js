@@ -27,7 +27,7 @@ class MainMsg extends Component {
   render() {
     return(
       <div className="main-msg">  
-          WELCOME TO <br></br> PHARMA CHAIN
+          WELCOME TO <br></br> PHARMA CHAIN <br></br> HOMEPAGE
       </div>
     );
   }
@@ -132,7 +132,7 @@ class App extends Component {
           <Route path="/" exact component={MainMsg} />
           <Route
             path="/supply"
-            exact
+            
             render={(props) => (
               <SupplyForm
                 {...props}
@@ -146,7 +146,7 @@ class App extends Component {
           
           <Route
             path="/track"
-            exact
+            // exact
             render={ (props) => (
               <Track
                 {...props}
@@ -160,7 +160,7 @@ class App extends Component {
           />
           <Route
             path="/add-product"
-            exact
+            
             render={(props) => (
               <AddProduct
                 {...props}
@@ -180,7 +180,7 @@ class App extends Component {
               pctContract={this.state.pctContract}
             />
           )}/>
-          <Route path="/bank-account" exact
+          <Route path="/bank-account" 
           render={(props) => (
             <BankAccounts
               {...props}

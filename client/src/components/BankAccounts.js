@@ -376,7 +376,6 @@ class TxHistory extends Component {
       const dateArr = time.split(" ", 5);
       const timestamp = dateArr.join(" ");
 
-      console.log(type, from, to, amount, timestamp);
       return (
         <div className="tx-container" key={index}>
           <div className="head">
@@ -386,13 +385,14 @@ class TxHistory extends Component {
           <hr className="custom-hr-full"></hr>
           <div className="content">
             <p>
-              <strong>VALUE: </strong> <em>{amount}</em>
+             <strong>VALUE</strong>
+             <em>{amount}</em>
             </p>
             <p>
-              <strong>FROM: </strong> <em>{from}</em>
+              <strong>FROM</strong> <em>{from}</em>
             </p>
             <p>
-              <strong>TO: </strong> <em>{to}</em>
+              <strong>TO</strong> <em>{to}</em>
             </p>
           </div>
         </div>
@@ -400,7 +400,6 @@ class TxHistory extends Component {
     });
 
     this.setState({ txLog: txs });
-    console.log(txs);
   };
 
   onChange = async (e) => {

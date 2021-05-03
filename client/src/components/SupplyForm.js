@@ -188,12 +188,12 @@ class RequestMaterials extends Component {
       return(
           <div key={index}>
             <ul className="query-result-list" key={index}>
-              <li> <strong>SUPPLIER: </strong> {supplier}</li>
-              <li> <strong>ID: </strong> {id}</li>
-              <li> <strong>NAME: </strong> {name}</li>
-              <li> <strong>FORM: </strong> {form}</li>
-              <li> <strong>UNIT COST: </strong> {cost}</li>
-              <li> <strong>IN STOCK: </strong> {availableAmount} g</li>     
+              <li> <strong>SUPPLIER </strong> {supplier}</li>
+              <li> <strong>ID </strong> {id}</li>
+              <li> <strong>NAME </strong> {name}</li>
+              <li> <strong>FORM </strong> {form}</li>
+              <li> <strong>UNIT COST </strong> {cost}</li>
+              <li> <strong>IN STOCK </strong> {availableAmount} g</li>     
             </ul>
             <hr className="custom-hr-full"></hr> 
           </div>
@@ -338,7 +338,7 @@ class RequestMaterials extends Component {
             REQUEST</button>
           
           <button
-          className={`${toggled} btn-alt`}
+          className={`${toggled} btn`}
           onClick={this.addBatchRequest}>
             CREATE BATCH REQUEST
           </button>
