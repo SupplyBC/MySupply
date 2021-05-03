@@ -134,9 +134,9 @@ select option {
 
 .btn-alt {
   all: unset;
-  border: 1px solid #111;
-  background-color: white;
-  color: #111;
+  border: 1px solid #133646;
+
+  color: #133646;
   font-weight: bold;
   padding: 7px 12px;
   cursor: pointer;
@@ -154,13 +154,16 @@ select option {
 .good-text {
   color: #5cb85c;
   font-weight: 700;
+  text-shadow: 0 0 1px #fff
 }
 
 .main-msg {
   line-height: 0.9;
-  margin: 90px auto;
+  margin: 150px auto;
   font-size:3em;
   font-weight: 700;
+  color: #f2f2f2;
+  text-shadow: 0 0 3px #111
 }
 p,h4 {
   color: #f2f2f2;
@@ -265,7 +268,7 @@ select {
 } 
 
 .btn:hover {
-  opacity: 0.7;
+  opacity: 0.8;
   transform: scale(1.06);
   transition: 0.2s;
 }
@@ -304,10 +307,19 @@ select {
   padding: 8px;
   display: flex;
   flex-direction: column;
+  color: #f2f2f2;
 }
 
 .query-result-list li {
   padding: 5px;
+  display: flex;
+  flex-direction: column;
+  font-size: 1.1em;
+}
+.query-result-list li strong {
+  font-size: 0.7em;
+  color: #777;
+  text-shadow: 0 0 1px #111;
 }
 
 .amount-pop-up {
@@ -425,7 +437,7 @@ select {
   width: 40%;
 }
 .notification-panel .form-row input[type="number"] {
-  padding: 4px 5px;
+  padding: 8px 5px;
   width: 70%;
   margin-right: 8px;
 }
@@ -446,6 +458,12 @@ select {
   opacity: 0.7;
 } */
 
+.query-result, .msg {
+  color: #f2f2f2;
+}
+
+
+
 .notification-center-container {
   display: flex;
   flex-direction: column;
@@ -456,21 +474,22 @@ select {
 
 .notification-content {
   padding: 10px;
-  width: 57%;
+  width: 48%;
 }
 
 .notification {
   margin-top: 20px;
   margin-bottom: 10px;
   padding: 10px;
-  background-color: #d9534f;
-  border-radius: 20px;
+  /* background-color: #d9534f; */
+  background-color: #461413;
+  border-radius: 35px;
   box-shadow: 0 8px 6px -6px black;
 }
 
 .notification .head {
   margin: 3px;
-  color: #75201d;
+  color: #ad3f3b;
   font-weight: 700;
   font-size: 1.5em;
 }
@@ -491,7 +510,6 @@ select {
 .form-row input[type="text"] {
   padding: 7px 12px;
   width: 30%;
-  padding: 5px;
   margin-right: 20px;
 }
 
@@ -501,16 +519,18 @@ select {
   gap: 10px 50px;
 }
 
-.response-logs .chart-container {
+/* .response-logs .chart-container {
   margin-right: 20px;
   margin-left: -20px;
-}
+} */
 
 .track-record-container {
   width: 100%;
   padding: 8px 16px;
   border: 1px solid rgb(92, 92, 92);
   box-shadow: 0 8px 6px -6px black;
+  background-color: #e6e6e6da;
+  border-radius: 10px;
   margin-bottom: 20px;
   display: grid;
   grid-template-columns: 1fr 3fr;
@@ -544,12 +564,14 @@ select {
 }
 
 .track-record-container .record-list .timestamp {
-  font-weight: thin;
+  font-weight: 700;
   font-size: 0.8em;
   color: #888;
   font-style: italic;
   margin: 0;
+  
 }
+
 .track-record-container .log-item {
   margin: 0;
   padding: 0;
@@ -571,6 +593,16 @@ select {
   grid-template-columns: 4fr 4fr;
   grid-template-rows: 1fr;
   gap: 10px;
+}
+
+.chart-container {
+  background-color: #e6e6e6da;
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+
+.map-container p {
+ color: #111
 }
 
 /* AddProduct.js */
@@ -604,10 +636,12 @@ select {
   text-decoration: none;
   color: #f2f2f2;
   font-weight: 700;
+  
 }
 
 .product-form-container .link-item a:hover {
   font-weight: 700;
+  border-bottom: 1px dotted #295263;
 }
 
 .newform-container {
@@ -647,18 +681,17 @@ select {
   text-align: left;
   position: relative;
   border: none;
-  background-color: white;
+  color: #f2f2f2;
   margin-bottom: 20px;
   padding: 5px 10px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 700;
   text-decoration: none;
-  color: black;
 }
 
-.accordion-toggle:visited {
-  text-decoration: black;
+.accordion-toggle:focus {
+  font-style: bold;
 }
 
 .review-container {
@@ -739,6 +772,7 @@ select {
   text-transform: uppercase;
   text-align: left;
   border-collapse: collapse;
+  color: #f2f2f2
 }
 .costsClashContainer table thead {
   font-weight: 700;
@@ -751,7 +785,7 @@ select {
   padding: 8px 25px;
 }
 .costsClashContainer tbody tr:hover {
-  background-color: #222;
+  background-color: #5398b6;
   color: #f2f2f2;
 }
 
@@ -786,6 +820,7 @@ select {
   text-align: left;
 }
 
+
 .std-cost-container .cost-data tbody tr td:not(:first-of-type) {
   text-align: center;
 }
@@ -796,7 +831,7 @@ select {
 
 /* BankAccount.js */
 .tx-content {
-  width: 60%;
+  width: 50%;
   margin-top: 20px;
 }
 .tx-container p {
@@ -810,8 +845,9 @@ select {
   text-align: left;
   padding: 20px 20px;
   margin-bottom: 15px;
-  background-color: rgb(167, 189, 150);
+  background-color: #19363E  ;
   box-shadow: 0 8px 6px -6px black;
+  border-radius: 35px;
 }
 
 .tx-container .head .head-title {
@@ -827,8 +863,21 @@ select {
   opacity: 0.8;
 }
 .tx-container .content p {
+  display: flex;
+  flex-direction: column;
   padding: 2px;
 }
+.tx-container .content p strong {
+  font-size: 0.7em;
+  color: #999
+}
+
+.tx-container .content p em {
+  font-size: 1.1em;
+}
+
+
+
 
 .newform-container .panel {
   width: 90%;
@@ -891,7 +940,7 @@ select {
 }
 .product-data-container table thead {
   color: #f2f2f2;
-  background-color: #222;
+  background-color: #295263;
   font-weight: 700;
 }
 
@@ -900,8 +949,15 @@ select {
   padding: 8px 25px;
 }
 .product-data-container tbody tr:hover {
+  background-color: #5398b6;
+  color: #f2f2f2;
+}
+
+.product-data-container tbody tr {
   background-color: rgb(221, 220, 220);
 }
+
+
 
 /* MEDIA QUERIES */
 
@@ -1280,7 +1336,6 @@ select {
     text-align: left;
     padding: 20px 20px;
     margin-bottom: 15px;
-    background-color: rgb(167, 189, 150);
     box-shadow: 0 8px 6px -6px black;
   }
 
