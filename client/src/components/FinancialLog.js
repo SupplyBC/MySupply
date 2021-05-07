@@ -141,7 +141,7 @@ class ReviewCostSheet extends Component {
                 style={{ cursor: "pointer" }}
                 type="submit"
                 className="btn"
-                value="VIEW VARIANCE"
+                value="VIEW COST SHEET"
               />
             </div>
           </div>

@@ -565,12 +565,14 @@ class ReviewProduct extends Component {
       this.setState({ id });
       return id;
     });
+    
 
     const proName = pros.map((item) => {
       const name = item.productId;
       this.setState({ name });
       return name;
     });
+
 
     this.setState({ proId, proName });
 
