@@ -1,6 +1,210 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
+class ReviewCostSheet extends Component {
+  state = { id: "", tableVisibility: false };
+
+  constructor(props) {
+    super(props);
+    this.productIdRef = React.createRef();
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const proId = this.state.id;
+
+    const actual = await this.props.pcContract.methods
+      .getActualCost(proId)
+      .call();
+
+    const actualCostData = actual.map((item, index) => {
+      let matActCostValue = parseInt(actual.directMaterialCost, 10);
+      let pkgActCostValue = parseInt(actual.packagingMaterialCost, 10);
+      let laborActCostValue = parseInt(actual.directLaborCost, 10);
+      let indirectManuActCostValue = parseInt(actual.totalIndirectCost, 10);
+      let mrkActCostValue = parseInt(actual.marketingCost, 10);
+      let rsrchActCostValue = parseInt(actual.researchCost, 10);
+      // let totalActCostValue = parseInt(actual.CostTOT,10);
+      let totalActCostValue =
+        matActCostValue +
+        pkgActCostValue +
+        laborActCostValue +
+        indirectManuActCostValue +
+        mrkActCostValue +
+        rsrchActCostValue;
+
+      let matActCost = matActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let pkgActCost = pkgActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let laborActCost = laborActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let indirectManuActCost = indirectManuActCostValue.toLocaleString(
+        "en-US",
+        { style: "currency", currency: "USD" }
+      );
+      let mrkActCost = mrkActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let rsrchActCost = rsrchActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let totalActCost = totalActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      this.setState({
+        actual,
+        matActCost,
+        pkgActCost,
+        laborActCost,
+        indirectManuActCost,
+        mrkActCost,
+        rsrchActCost,
+        totalActCost,
+        matActCostValue,
+        pkgActCostValue,
+        laborActCostValue,
+        indirectManuActCostValue,
+        mrkActCostValue,
+        rsrchActCostValue,
+        totalActCostValue,
+      });
+      return true;
+    });
+
+    if (
+      this.state.totalActCost === "$0.00"
+    ) {
+      this.setState({
+        msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
+      });
+      this.setState({ tableVisibility: false });
+    } else {
+      this.setState({ tableVisibility: true });
+    }
+
+    setTimeout(() => {
+      this.setState({ msg: " " });
+    }, 3000);
+    this.setState({actualCostData });
+  };
+
+  onChange = async (e) => {
+    this.setState({
+      id: this.productIdRef.current.value,
+    });
+  };
+  render() {
+    let table;
+    let acc = this.props.account;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+    let web3 = this.props.Web3;
+
+    if (!acc || !cont1 || !cont2 || !web3) {
+      return <div> Loading..... </div>;
+    }
+    this.state.tableVisibility ? (table = "show") : (table = "hide");
+    const totDirValue = this.state.laborActCostValue+this.state.pkgActCostValue+this.state.matActCostValue;
+    const totDir = totDirValue.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+    return (
+      <div className="financial-status-container">
+        <form onSubmit={this.onSubmit} className="form-container">
+          <div className="form-row">
+            <h4>Review Cost Sheet</h4>
+            <label style={{ marginRight: "5px" }}> Product ID: </label>
+            <input
+              type="text"
+              placeholder="e.g. pro101"
+              value={this.state.id}
+              onChange={this.onChange}
+              ref={this.productIdRef}
+              required="required"
+            />
+            <div>
+              <input
+                style={{ cursor: "pointer" }}
+                type="submit"
+                className="btn"
+                value="VIEW VARIANCE"
+              />
+            </div>
+          </div>
+          <div className="query-result">
+            <p> {this.state.msg} </p>
+          </div>
+          <div className={`${table} costsClashContainer `}>
+            <div className="std-cost-container">
+              <table className="cost-data">
+                <thead>
+                  <tr>
+                    <th>CRITERIA</th>
+                    <th>COST</th>
+                    
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td> Raw Materials </td>
+                    <td>{this.state.matActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Packaging Materials </td>
+                    <td>{this.state.pkgActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Direct Labor </td>
+                    <td>{this.state.laborActCost}</td>
+                  </tr>
+                  <tr style={{borderTop: '1px solid', borderBottom: '1px solid'}}>
+                    <td>TOTAL DIRECT COST</td>
+                    <td>{totDir}</td>
+                  </tr>
+                  <tr>
+                    <td> Indirect Manufacturing Costs </td>
+                    <td>{this.state.indirectManuActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Marketing </td>
+                    <td>{this.state.mrkActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Research </td>
+                    <td>{this.state.rsrchActCost}</td>
+                  </tr>
+                </tbody>
+
+                <tfoot>
+                  <tr>
+                    <th> TOTAL </th>
+                    <td>{this.state.totalActCost} </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+    );
+  }
+ 
+}
+
 class SetActualCosts extends Component {
   state = {
     product: "",
@@ -1636,11 +1840,11 @@ class FinancialLog extends Component {
                   + MANAGE FLEXIBLE BUDGET
                 </NavLink>
               </li>
-              {/* <li className="link-item">
-                <NavLink to="/financial-log/setDirectCosts">
-                  + MANAGE DIRECT COSTS
+              <li className="link-item">
+                <NavLink to="/financial-log/costSheet">
+                  + REVIEW COST SHEET 
                 </NavLink>
-              </li> */}
+              </li>
               <label style={{ marginTop: "10px" }}>
                 <strong> REVIEW VARIANCE </strong>
               </label>
@@ -1664,11 +1868,7 @@ class FinancialLog extends Component {
                   + QUANTITY/EFFICIENCY
                 </NavLink>
               </li>
-              {/* <li className="link-item">
-                <NavLink to="/financial-log/directCostsVariance">
-                  + DIRECT-COST VARIANCES 
-                </NavLink>
-              </li> */}
+              
             </ul>
           </div>
           <div className="main-content">
@@ -1753,6 +1953,19 @@ class FinancialLog extends Component {
               exact
               render={(props) => (
                 <CalculateQuantityVariance
+                  {...props}
+                  Web3={this.props.web3}
+                  account={this.props.accounts}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
+                />
+              )}
+            />
+            <Route
+              path="/financial-log/costSheet"
+              exact
+              render={(props) => (
+                <ReviewCostSheet
                   {...props}
                   Web3={this.props.web3}
                   account={this.props.accounts}
