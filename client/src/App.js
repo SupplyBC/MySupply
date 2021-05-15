@@ -11,13 +11,65 @@ import PharmaChainTrackingContract from "./contracts/PharmaChainTracking.json";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 import "./App.css";
 
+class ConfigureContracts extends Component {
+  state = { contractsConfigured: false };
+
+  componentDidMount = async () => {
+      const conf = await this.props.pctContract.methods
+      .setContract(this.props.contAddr)
+      .send({ from: this.props.account[0] });
+      this.setState({ conf, contractsConfigured: true });
+      localStorage.setItem("contractConfigured", this.state.contractsConfigured);
+      const persistStatus = localStorage.getItem("contractConfigured");
+      this.setState({ contractsConfigured: persistStatus });
+      this.props.setData(this.state.contractsConfigured);
+  };
+
+  configureContract = async () => {
+   
+  };
+
+  render() {
+    return (
+      <div
+        style={{
+          color: "#f2f2f2",
+          backgroundColor: "#295263",
+          height: "100vh",
+          textAlign: "center",
+          margin: "0px auto",
+          padding: "10px",
+        }}
+      >
+        <div className="animated-config">SETTING UP NECESSARY DAPP DATA</div>
+        <p className="animated-config-subtext">
+          Confirm MetaMask's Pop-up Notification to Continue.
+        </p>
+      </div>
+    );
+  }
+}
+
 class Loader extends Component {
   render() {
-    return(
+    return (
       <div>
-       <div style={{ backgroundColor: 'white', height: '100vh' ,textAlign:'center', margin: '0px auto', padding: '10px'}}>
-        <img style={{marginTop: '10%'}} src={require("./assets/imgs/spinner.gif")}  alt='loading'/>
-        </div>;
+        <div
+          style={{
+            backgroundColor: "white",
+            height: "100vh",
+            textAlign: "center",
+            margin: "0px auto",
+            padding: "10px",
+          }}
+        >
+          <img
+            style={{ marginTop: "10%" }}
+            src={require("./assets/imgs/spinner.gif")}
+            alt="loading"
+          />
+        </div>
+        ;
       </div>
     );
   }
@@ -25,9 +77,9 @@ class Loader extends Component {
 
 class MainMsg extends Component {
   render() {
-    return(
-      <div className="main-msg">  
-          WELCOME TO <br></br> PHARMA CHAIN <br></br> HOMEPAGE
+    return (
+      <div className="main-msg">
+        WELCOME TO <br></br> PHARMA CHAIN <br></br> HOMEPAGE
       </div>
     );
   }
@@ -35,7 +87,14 @@ class MainMsg extends Component {
 
 class App extends Component {
   // state = { storageValue: 0, web3: null, accounts: null, contract: null };
-  state = { web3: null, accounts: null, contract: null , isMenuToggled: false };
+  state = {
+    web3: null,
+    accounts: null,
+    contract: null,
+    isMenuToggled: false,
+    contractsConfigured: false,
+    notifyVisible: true
+  };
 
   constructor(props) {
     super(props);
@@ -43,6 +102,10 @@ class App extends Component {
     this.collapseMenu = this.collapseMenu.bind(this);
   }
 
+  getContractStatus = (state) => {
+    this.setState({ contractsConfigured: state });
+    console.log(this.state.contractsConfigured);
+  };
   componentDidMount = async () => {
     try {
       // Get network provider and web3 instance.
@@ -66,73 +129,101 @@ class App extends Component {
       // Set web3, accounts, and contract to the state
 
       const balance = await pcInstance.methods.getBalance(accounts[0]).call();
-      this.setState({ web3, accounts, balance, pcContract: pcInstance , pctContract: pctInstance });
+      this.setState({
+        web3,
+        accounts,
+        balance,
+        pcContract: pcInstance,
+        pctContract: pctInstance,
+        addr: deployedNetwork1.address,
+      });
     } catch (error) {
       // Catch any errors for any of the above operations.
-      alert(`Failed to load Web3. Please check your web3 connection and try again!`);
+      alert(
+        `Failed to load Web3. Please check your web3 connection and try again!`
+      );
     }
   };
 
   collapseMenu() {
-    
     setTimeout(() => {
-      this.setState({isMenuToggled: false});
+      this.setState({ isMenuToggled: false });
     }, 200);
-    
   }
 
   toggleMenu() {
-    this.setState({isMenuToggled: !this.state.isMenuToggled})
+    this.setState({ isMenuToggled: !this.state.isMenuToggled });
   }
 
   render() {
     if (!this.state.web3) {
-      return <Loader/>
+      return <Loader />;
     }
-    let toggle
-    this.state.isMenuToggled ?  toggle = '' : toggle = 'hide'
+    console.log(localStorage.getItem('contractConfigured'))
+    if (!localStorage.getItem('contractConfigured')) {
+      return (
+        <ConfigureContracts
+          Web3={this.state.web3}
+          account={this.state.accounts}
+          pcContract={this.state.pcContract}
+          pctContract={this.state.pctContract}
+          contAddr={this.state.addr}
+          setData={this.getContractStatus}
+        />
+      );
+    }
+    setTimeout(() => {
+      this.setState({ notifyVisible: false });
+    }, 200);;
+    let toggle;
+    this.state.isMenuToggled ? (toggle = "") : (toggle = "hide");
     return (
       <BrowserRouter>
         <div className="App">
           <Header accounts={this.state.accounts} balance={this.state.balance} />
           <div className="navbar-container">
-          <button onClick={this.toggleMenu} className="responsive-menu">
-            <img
-            alt = "hamburger-menu"
-            width = "25px"
-            src={require("../src/assets/imgs/hamburger-menu.svg")}/>
+            <button onClick={this.toggleMenu} className="responsive-menu">
+              <img
+                alt="hamburger-menu"
+                width="25px"
+                src={require("../src/assets/imgs/hamburger-menu.svg")}
+              />
             </button>
-            <ul id = "my-nav" className={`nav-list ${toggle}`}>
+            <ul id="my-nav" className={`nav-list ${toggle}`}>
               <li className="nav-item">
-                <NavLink onClick={this.collapseMenu} to="/add-product">PRODUCT MANAGEMENT</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/add-product">
+                  PRODUCT MANAGEMENT
+                </NavLink>
               </li>
               <li className="nav-item">
-                
-                <NavLink onClick={this.collapseMenu} to="/supply">SUPPLY MANAGEMENT</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/supply">
+                  SUPPLY MANAGEMENT
+                </NavLink>
               </li>
               <li className="nav-item">
-                
-                <NavLink onClick={this.collapseMenu} to="/track">TRACKING</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/track">
+                  TRACKING
+                </NavLink>
               </li>
               <li className="nav-item">
-                
-              {/* <NavLink onClick={this.collapseMenu} to="/inventory">VIEW INVENTORY</NavLink>
+                {/* <NavLink onClick={this.collapseMenu} to="/inventory">VIEW INVENTORY</NavLink>
               </li>
               <li className="nav-item"> */}
-                
-                <NavLink onClick={this.collapseMenu} to="/financial-log">COST MANAGEMENT</NavLink>
+
+                <NavLink onClick={this.collapseMenu} to="/financial-log">
+                  COST MANAGEMENT
+                </NavLink>
               </li>
               <li className="nav-item">
-                
-                <NavLink onClick={this.collapseMenu} to="/bank-account">BANK ACCOUNT MANAGEMENT</NavLink>
+                <NavLink onClick={this.collapseMenu} to="/bank-account">
+                  BANK ACCOUNT MANAGEMENT
+                </NavLink>
               </li>
             </ul>
           </div>
-          
           <Route path="/" exact component={MainMsg} />
           <Route
             path="/supply"
-            
             render={(props) => (
               <SupplyForm
                 {...props}
@@ -143,24 +234,22 @@ class App extends Component {
               />
             )}
           />
-          
+
           <Route
             path="/track"
             // exact
-            render={ (props) => (
+            render={(props) => (
               <Track
                 {...props}
                 Web3={this.state.web3}
                 account={this.state.accounts}
                 pcContract={this.state.pcContract}
                 pctContract={this.state.pctContract}
-                
               />
             )}
           />
           <Route
             path="/add-product"
-            
             render={(props) => (
               <AddProduct
                 {...props}
@@ -170,30 +259,33 @@ class App extends Component {
               />
             )}
           />
-          <Route path="/financial-log" exact
-          render={(props) => (
-            <FinancialLog
-              {...props}
-              accounts={this.state.accounts}
-              web3 = {this.state.web3}
-              pcContract={this.state.pcContract}
-              pctContract={this.state.pctContract}
-            />
-          )}/>
-          <Route path="/bank-account" 
-          render={(props) => (
-            <BankAccounts
-              {...props}
-              accounts={this.state.accounts}
-              pcContract={this.state.pcContract}
-              pctContract={this.state.pctContract}
-              web3 = {this.state.web3}
-            />
-          )}/>
+          <Route
+            path="/financial-log"
+            exact
+            render={(props) => (
+              <FinancialLog
+                {...props}
+                accounts={this.state.accounts}
+                web3={this.state.web3}
+                pcContract={this.state.pcContract}
+                pctContract={this.state.pctContract}
+              />
+            )}
+          />
+          <Route
+            path="/bank-account"
+            render={(props) => (
+              <BankAccounts
+                {...props}
+                accounts={this.state.accounts}
+                pcContract={this.state.pcContract}
+                pctContract={this.state.pctContract}
+                web3={this.state.web3}
+              />
+            )}
+          />
           <div> {this.state.response} </div>
         </div>
-
-        
       </BrowserRouter>
     );
   }

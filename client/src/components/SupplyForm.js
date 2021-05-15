@@ -352,7 +352,7 @@ class RequestMaterials extends Component {
           className="notify-data-container notify-text"
         >
           <div><strong>{this.state.msg}</strong> </div>
-          <div style={{color: '#222', fontSize: '16px' }}><strong>{this.state.requestInfo}</strong></div>
+          <div style={{fontSize: '16px' }}><strong>{this.state.requestInfo}</strong></div>
         </div>
         <div className={`${toggled} results-counter`}>
         <p style={{textAlign: 'left'}}> Found <strong>{this.state.resultCount} </strong> results. </p>

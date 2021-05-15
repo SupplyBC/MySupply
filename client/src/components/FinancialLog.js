@@ -1720,9 +1720,9 @@ class CalculateQuantityVariance extends Component {
 
     let materialCalc =
       Math.abs(
-        this.state.actQty -
+        (this.state.actQty -
          (this.state.actUnitsNo * this.state.stdQty) 
-      ) * this.state.materialUnitStdCostValue;
+      ) )* this.state.materialUnitStdCostValue;
     let laborCalc =
       Math.abs(this.state.workHrsActNo - 
         (this.state.actUnitsNo * this.state.workHrsStdNo)) *
