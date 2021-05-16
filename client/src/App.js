@@ -15,18 +15,26 @@ class ConfigureContracts extends Component {
   state = { contractsConfigured: false };
 
   componentDidMount = async () => {
+    try {
       const conf = await this.props.pctContract.methods
-      .setContract(this.props.contAddr)
-      .send({ from: this.props.account[0] });
+        .setContract(this.props.contAddr)
+        .send({ from: this.props.account[0] });
+      
+      // const bank = await this.prop.pcContract.methods
+      // .setBank(this.props.account[])
       this.setState({ conf, contractsConfigured: true });
-      localStorage.setItem("contractConfigured", this.state.contractsConfigured);
+      localStorage.setItem(
+        "contractConfigured",
+        this.state.contractsConfigured
+      );
       const persistStatus = localStorage.getItem("contractConfigured");
       this.setState({ contractsConfigured: persistStatus });
       this.props.setData(this.state.contractsConfigured);
-  };
-
-  configureContract = async () => {
-   
+    } catch (error) {
+      alert(
+        "Unexpected error occurred while trying to setup Dapp data, please refresh the page and try again."
+      );
+    }
   };
 
   render() {
@@ -43,7 +51,7 @@ class ConfigureContracts extends Component {
       >
         <div className="animated-config">SETTING UP NECESSARY DAPP DATA</div>
         <p className="animated-config-subtext">
-          Confirm MetaMask's Pop-up Notification to Continue.
+          Confirm MetaMask's Pop-up Notification(s) to Continue.
         </p>
       </div>
     );
@@ -93,7 +101,7 @@ class App extends Component {
     contract: null,
     isMenuToggled: false,
     contractsConfigured: false,
-    notifyVisible: true
+    notifyVisible: true,
   };
 
   constructor(props) {
@@ -159,8 +167,7 @@ class App extends Component {
     if (!this.state.web3) {
       return <Loader />;
     }
-    console.log(localStorage.getItem('contractConfigured'))
-    if (!localStorage.getItem('contractConfigured')) {
+    if (!localStorage.getItem("contractConfigured")) {
       return (
         <ConfigureContracts
           Web3={this.state.web3}
@@ -172,9 +179,6 @@ class App extends Component {
         />
       );
     }
-    setTimeout(() => {
-      this.setState({ notifyVisible: false });
-    }, 200);;
     let toggle;
     this.state.isMenuToggled ? (toggle = "") : (toggle = "hide");
     return (
