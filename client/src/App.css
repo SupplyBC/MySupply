@@ -162,6 +162,7 @@ select option {
 .alert-text {
   color: #d9534f;
   font-weight: 700;
+  text-shadow: 0 0 3px #111
 }
 
 .good-text {
@@ -425,7 +426,7 @@ select {
 }
 
 .form-container input[type="number"] {
-  align-self: center;
+  padding: 8px 12px;
 }
 
 /* Inventory.js */
@@ -460,6 +461,10 @@ select {
 .newform-row .form-row input[type="text"] {
   width: 52%;
 }
+.newform-row .form-row input[type="number"] {
+  width: 52%;
+}
+
 
 
 .view-all-container {
@@ -662,6 +667,10 @@ select {
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
+}
+
+.product-form-container .mini-nav-list label {
+  color: #4e95b3;
 }
 
 .product-form-container .link-item a {
