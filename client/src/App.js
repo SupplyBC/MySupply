@@ -11,6 +11,53 @@ import PharmaChainTrackingContract from "./contracts/PharmaChainTracking.json";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 import "./App.css";
 
+
+class ConfigureContracts2 extends Component {
+  state = { contractsConfigured: false };
+
+  componentDidMount = async () => {
+    try {
+      const bank = await this.props.pcContract.methods
+        .setAsBank(this.props.account[0])
+        .send({ from: this.props.account[0] });
+
+      
+      this.setState({ bank, contractsConfigured: true });
+      localStorage.setItem(
+        "contractConfigured2",
+        this.state.contractsConfigured
+      );
+      const persistStatus = localStorage.getItem("contractConfigured2");
+      this.setState({ contractsConfigured: persistStatus });
+      this.props.setData(this.state.contractsConfigured);
+    } catch (error) {
+      alert(
+        "Unexpected error occurred while trying to setup Dapp data, please refresh the page and try again."
+      );
+    }
+  };
+
+  render() {
+    return (
+      <div
+        style={{
+          color: "#f2f2f2",
+          backgroundColor: "#295263",
+          height: "100vh",
+          textAlign: "center",
+          margin: "0px auto",
+          padding: "10px",
+        }}
+      >
+        <div className="animated-config">FINISHING DAPP SETUP</div>
+        <p className="animated-config-subtext">
+          Confirm MetaMask's Pop-up Notification(s) to Continue.
+        </p>
+      </div>
+    );
+  }
+}
+
 class ConfigureContracts extends Component {
   state = { contractsConfigured: false };
 
@@ -19,15 +66,15 @@ class ConfigureContracts extends Component {
       const conf = await this.props.pctContract.methods
         .setContract(this.props.contAddr)
         .send({ from: this.props.account[0] });
-      
+
       // const bank = await this.prop.pcContract.methods
       // .setBank(this.props.account[])
       this.setState({ conf, contractsConfigured: true });
       localStorage.setItem(
-        "contractConfigured",
+        "contractConfigured1",
         this.state.contractsConfigured
       );
-      const persistStatus = localStorage.getItem("contractConfigured");
+      const persistStatus = localStorage.getItem("contractConfigured1");
       this.setState({ contractsConfigured: persistStatus });
       this.props.setData(this.state.contractsConfigured);
     } catch (error) {
@@ -101,6 +148,7 @@ class App extends Component {
     contract: null,
     isMenuToggled: false,
     contractsConfigured: false,
+    contractsConfigured2: false,
     notifyVisible: true,
   };
 
@@ -167,9 +215,21 @@ class App extends Component {
     if (!this.state.web3) {
       return <Loader />;
     }
-    if (!localStorage.getItem("contractConfigured")) {
+    if (!localStorage.getItem("contractConfigured1")) {
       return (
         <ConfigureContracts
+          Web3={this.state.web3}
+          account={this.state.accounts}
+          pcContract={this.state.pcContract}
+          pctContract={this.state.pctContract}
+          contAddr={this.state.addr}
+          setData={this.getContractStatus}
+        />
+      );
+    }
+    if ( localStorage.getItem("contractConfigured1") && !localStorage.getItem("contractConfigured2")) {
+      return (
+        <ConfigureContracts2
           Web3={this.state.web3}
           account={this.state.accounts}
           pcContract={this.state.pcContract}

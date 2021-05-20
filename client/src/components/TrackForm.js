@@ -578,7 +578,7 @@ class Status extends Component {
           <h4>Track Requested Shipments </h4>
           <label style={{ marginRight: "5px" }}> Tracking Number : </label>
           <input
-            type="text"
+            type="number"
             placeholder="e.g 101"
             value={this.state.requestID}
             ref={this.requestIdRef}

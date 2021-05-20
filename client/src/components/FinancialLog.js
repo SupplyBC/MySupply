@@ -1,7 +1,227 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
-class ReviewCostSheet extends Component {
+class ReviewStdCostSheet extends Component {
+  state = { id: "", tableVisibility: false };
+
+  constructor(props) {
+    super(props);
+    this.productIdRef = React.createRef();
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const proId = this.state.id;
+
+    const standard = await this.props.pcContract.methods
+      .getStdCostPlan(proId)
+      .call();
+
+    const stdCostData = standard.map((item, index) => {
+      let matStdCostValue = parseInt(standard.directMaterialCost, 10);
+      let pkgStdCostValue = parseInt(standard.packagingMaterialCost, 10);
+      let laborStdCostValue = parseInt(standard.directLaborCost, 10);
+      let indirectManuStdCostValue = parseInt(standard.totalIndirectCost, 10);
+      let mrkStdCostValue = parseInt(standard.marketingCost, 10);
+      let rsrchStdCostValue = parseInt(standard.researchCost, 10);
+      // let totalActCostValue = parseInt(actual.CostTOT,10);
+      let totalStdCostValue =
+        matStdCostValue +
+        pkgStdCostValue +
+        laborStdCostValue +
+        indirectManuStdCostValue +
+        mrkStdCostValue +
+        rsrchStdCostValue;
+
+      let matStdCost = matStdCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let pkgStdCost = pkgStdCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let laborStdCost = laborStdCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let indirectManuStdCost = indirectManuStdCostValue.toLocaleString(
+        "en-US",
+        { style: "currency", currency: "USD" }
+      );
+      let mrkStdCost = mrkStdCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let rsrchStdCost = rsrchStdCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let totalStdCost = totalStdCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      this.setState({
+        standard,
+        matStdCost,
+        pkgStdCost,
+        laborStdCost,
+        indirectManuStdCost,
+        mrkStdCost,
+        rsrchStdCost,
+        totalStdCost,
+        matStdCostValue,
+        pkgStdCostValue,
+        laborStdCostValue,
+        indirectManuStdCostValue,
+        mrkStdCostValue,
+        rsrchStdCostValue,
+        totalStdCostValue,
+      });
+      return true;
+    });
+
+    if (this.state.totalStdCost === "$0.00") {
+      this.setState({
+        msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
+      });
+      this.setState({ tableVisibility: false });
+    } else {
+      this.setState({ tableVisibility: true });
+    }
+
+    setTimeout(() => {
+      this.setState({ msg: " " });
+    }, 3000);
+    this.setState({ stdCostData });
+  };
+
+  onChange = async (e) => {
+    this.setState({
+      id: this.productIdRef.current.value,
+    });
+  };
+  render() {
+    let table;
+    let acc = this.props.account;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+    let web3 = this.props.Web3;
+
+    if (!acc || !cont1 || !cont2 || !web3) {
+      return <div> Loading..... </div>;
+    }
+    this.state.tableVisibility ? (table = "show") : (table = "hide");
+    const totDirValue =
+      this.state.laborStdCostValue +
+      this.state.pkgStdCostValue +
+      this.state.matStdCostValue;
+    const totDir = totDirValue.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+    return (
+      <div className="financial-status-container">
+        <form onSubmit={this.onSubmit} className="form-container">
+          <div className="form-row">
+            <h4>Review Cost Sheet</h4>
+            <label style={{ marginRight: "5px" }}> Product ID: </label>
+            <input
+              type="text"
+              placeholder="e.g. pro101"
+              value={this.state.id}
+              onChange={this.onChange}
+              ref={this.productIdRef}
+              required="required"
+            />
+            <div>
+              <input
+                style={{ cursor: "pointer" }}
+                type="submit"
+                className="btn"
+                value="VIEW STANDARD COST SHEET"
+              />
+            </div>
+          </div>
+          <div className="query-result">
+            <p> {this.state.msg} </p>
+          </div>
+          <div className={`${table} costsClashContainer `}>
+            <div className="std-cost-container">
+              <table className="cost-data">
+                <thead>
+                  <tr>
+                    <th>CRITERIA</th>
+                    <th>COST</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td> Raw Materials </td>
+                    <td>{this.state.matStdCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Packaging Materials </td>
+                    <td>{this.state.pkgStdCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Direct Labor </td>
+                    <td>{this.state.laborStdCost}</td>
+                  </tr>
+                  <tr
+                    style={{
+                      borderTop: "1px solid",
+                      borderBottom: "1px solid",
+                    }}
+                  >
+                    <td>TOTAL DIRECT COST</td>
+                    <td>{totDir}</td>
+                  </tr>
+                  <tr>
+                    <td> Indirect Manufacturing Costs (20%) </td>
+                    {/* <td>{this.state.indirectManuStdCost}</td> */}
+                  </tr>
+                  <tr>
+                    <td> Managerial and Funding Costs (30%) </td>
+                    {/* <td>{this.state.indirectManuStdCost}</td> */}
+                  </tr>
+                  <tr>
+                    <td> Shipping Costs (5%) </td>
+                    {/* <td>{this.state.indirectManuStdCost}</td> */}
+                  </tr>
+                  <tr>
+                    <td> Value Added Tax (14%) </td>
+                    {/* <td>{this.state.indirectManuStdCost}</td> */}
+                  </tr>
+                  <tr>
+                    <td> Marketing (15%) </td>
+                    <td>{this.state.mrkStdCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Research (3%)</td>
+                    <td>{this.state.rsrchStdCost}</td>
+                  </tr>
+                </tbody>
+
+                <tfoot>
+                  <tr>
+                    <th> TOTAL </th>
+                    <td>{this.state.totalStdCost} </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+    );
+  }
+}
+
+class ReviewActCostSheet extends Component {
   state = { id: "", tableVisibility: false };
 
   constructor(props) {
@@ -84,9 +304,7 @@ class ReviewCostSheet extends Component {
       return true;
     });
 
-    if (
-      this.state.totalActCost === "$0.00"
-    ) {
+    if (this.state.totalActCost === "$0.00") {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
       });
@@ -98,7 +316,7 @@ class ReviewCostSheet extends Component {
     setTimeout(() => {
       this.setState({ msg: " " });
     }, 3000);
-    this.setState({actualCostData });
+    this.setState({ actualCostData });
   };
 
   onChange = async (e) => {
@@ -117,7 +335,10 @@ class ReviewCostSheet extends Component {
       return <div> Loading..... </div>;
     }
     this.state.tableVisibility ? (table = "show") : (table = "hide");
-    const totDirValue = this.state.laborActCostValue+this.state.pkgActCostValue+this.state.matActCostValue;
+    const totDirValue =
+      this.state.laborActCostValue +
+      this.state.pkgActCostValue +
+      this.state.matActCostValue;
     const totDir = totDirValue.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
@@ -141,7 +362,7 @@ class ReviewCostSheet extends Component {
                 style={{ cursor: "pointer" }}
                 type="submit"
                 className="btn"
-                value="VIEW COST SHEET"
+                value="VIEW ACTUAL COST SHEET"
               />
             </div>
           </div>
@@ -155,7 +376,6 @@ class ReviewCostSheet extends Component {
                   <tr>
                     <th>CRITERIA</th>
                     <th>COST</th>
-                    
                   </tr>
                 </thead>
                 <tbody>
@@ -171,7 +391,12 @@ class ReviewCostSheet extends Component {
                     <td> Direct Labor </td>
                     <td>{this.state.laborActCost}</td>
                   </tr>
-                  <tr style={{borderTop: '1px solid', borderBottom: '1px solid'}}>
+                  <tr
+                    style={{
+                      borderTop: "1px solid",
+                      borderBottom: "1px solid",
+                    }}
+                  >
                     <td>TOTAL DIRECT COST</td>
                     <td>{totDir}</td>
                   </tr>
@@ -202,7 +427,6 @@ class ReviewCostSheet extends Component {
       </div>
     );
   }
- 
 }
 
 class SetActualCosts extends Component {
@@ -1633,7 +1857,7 @@ class CalculateQuantityVariance extends Component {
     const standard = await this.props.pcContract.methods
       .getStdCostPlan(proId)
       .call();
-      console.log(standard);
+    console.log(standard);
     const stdCostData = standard.map((item, index) => {
       let materialUnitStdCostValue = parseInt(standard.materialCostPerUnit);
       let hourlyStdRateValue = parseInt(standard.ratePerWorkHr, 10);
@@ -1692,14 +1916,13 @@ class CalculateQuantityVariance extends Component {
       .getActualMaterialQty(proId)
       .call();
 
-
     this.setState({ stdQty, actQty });
 
     const actUnitsNo = await this.props.pcContract.methods
-    .getActualBudgetUnits(proId)
-    .call();
+      .getActualBudgetUnits(proId)
+      .call();
 
-    this.setState({actUnitsNo});
+    this.setState({ actUnitsNo });
 
     if (
       this.state.materialUnitStdCost === "$0.00" ||
@@ -1719,14 +1942,13 @@ class CalculateQuantityVariance extends Component {
     this.setState({ stdCostData, actualCostData });
 
     let materialCalc =
-      Math.abs(
-        (this.state.actQty -
-         (this.state.actUnitsNo * this.state.stdQty) 
-      ) )* this.state.materialUnitStdCostValue;
+      Math.abs(this.state.actQty - this.state.actUnitsNo * this.state.stdQty) *
+      this.state.materialUnitStdCostValue;
     let laborCalc =
-      Math.abs(this.state.workHrsActNo - 
-        (this.state.actUnitsNo * this.state.workHrsStdNo)) *
-      this.state.hourlyStdRateValue;
+      Math.abs(
+        this.state.workHrsActNo -
+          this.state.actUnitsNo * this.state.workHrsStdNo
+      ) * this.state.hourlyStdRateValue;
     let material = materialCalc.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
@@ -1840,9 +2062,17 @@ class FinancialLog extends Component {
                   + MANAGE FLEXIBLE BUDGET
                 </NavLink>
               </li>
+              <label style={{ marginTop: "10px" }}>
+                <strong> REVIEW COST SHEET </strong>
+              </label>
               <li className="link-item">
-                <NavLink to="/financial-log/costSheet">
-                  + REVIEW COST SHEET 
+                <NavLink to="/financial-log/costSheetStd">
+                  + STANDARD 
+                </NavLink>
+              </li>
+              <li className="link-item">
+                <NavLink to="/financial-log/costSheetAct">
+                  + ACTUAL 
                 </NavLink>
               </li>
               <label style={{ marginTop: "10px" }}>
@@ -1868,7 +2098,6 @@ class FinancialLog extends Component {
                   + QUANTITY/EFFICIENCY
                 </NavLink>
               </li>
-              
             </ul>
           </div>
           <div className="main-content">
@@ -1962,10 +2191,23 @@ class FinancialLog extends Component {
               )}
             />
             <Route
-              path="/financial-log/costSheet"
+              path="/financial-log/costSheetAct"
               exact
               render={(props) => (
-                <ReviewCostSheet
+                <ReviewActCostSheet
+                  {...props}
+                  Web3={this.props.web3}
+                  account={this.props.accounts}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
+                />
+              )}
+            />
+            <Route
+              path="/financial-log/costSheetStd"
+              exact
+              render={(props) => (
+                <ReviewStdCostSheet
                   {...props}
                   Web3={this.props.web3}
                   account={this.props.accounts}

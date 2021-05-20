@@ -7,6 +7,7 @@ class CreateProduct extends Component {
     productId: "",
     productForm: "",
     msg: " ",
+    alert: false
   };
 
   constructor(props) {
@@ -18,7 +19,6 @@ class CreateProduct extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  // sendData() {  }
 
   handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,11 +26,23 @@ class CreateProduct extends Component {
     let id = this.state.productId;
     let form = this.state.productForm;
 
-    await this.props.pcContract.methods
+    const products = await this.props.pcContract.methods
+      .getProductsByManu(this.props.account[0])
+      .call();
+    const pros = products.filter((item) => {
+      return item.productName === id;
+    })
+
+    console.log(products)
+    console.log(pros)
+  
+
+    if(pros.length === 0) {
+      await this.props.pcContract.methods
       .addProduct(name, id, form)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
-        this.setState({ msg: "Product was created successfully!" });
+        this.setState({ msg: "Product was created successfully!" , alert: false });
         setTimeout(() => {
           this.setState({ msg: " " });
         }, 2000);
@@ -40,6 +52,17 @@ class CreateProduct extends Component {
       productId: "",
       productForm: "",
     });
+
+     
+    } else {
+      this.setState({ msg: "This product ID already exists , change ID and try again! " , alert: true });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 2000);
+
+    }
+
+    
   };
 
   handleChange = async (e) => {
@@ -51,6 +74,8 @@ class CreateProduct extends Component {
   };
 
   render() {
+    let beError;
+    this.state.alert? beError = "alert-text" : beError = ""
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
@@ -94,7 +119,7 @@ class CreateProduct extends Component {
         </div>
         <div
           style={{ marginTop: "20px" }}
-          className="notify-data-container notify-text "
+          className= {`notify-data-container notify-text ${beError}`}
         >
           {this.state.msg}
         </div>
@@ -112,6 +137,8 @@ class AddMaterial extends Component {
     matForm: "",
     matAmount: 0,
     msg: " ",
+    alert: false
+
   };
   constructor(props) {
     super(props);
@@ -133,8 +160,26 @@ class AddMaterial extends Component {
     let strength = this.state.matStr;
     let form = this.state.matForm;
     let amount = this.state.matAmount;
-    await this.props.pcContract.methods
 
+  
+    const products = await this.props.pcContract.methods
+      .getProductsByManu(this.props.account[0])
+      .call();
+    const pros = products.filter((item) => {
+      // return item.productId === name;
+      return item.productName === proID;
+    });
+
+    console.log(products)
+    console.log(pros)
+
+    if(pros.length === 0 ) {
+      this.setState({ msg: "Invalid Product ID, Please Try Again! " , alert: true });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 2000);
+    } else {
+      await this.props.pcContract.methods
       .addProductSpecs(proID, name, type, strength, form, amount)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -150,6 +195,13 @@ class AddMaterial extends Component {
       matForm: "",
       matAmount: "",
     });
+
+    }
+    
+
+    
+
+   
   };
 
   handleChange = async (e) => {
@@ -163,6 +215,8 @@ class AddMaterial extends Component {
     });
   };
   render() {
+    let beError;
+    this.state.alert? beError = "alert-text" : beError = ""
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
@@ -263,6 +317,7 @@ class AddMaterial extends Component {
           ref={this.matAmountRef}
           type="number"
           placeholder="e.g. 10"
+          required="required"
         />
         <label> Material Strength (%) : </label>
         <input
@@ -277,6 +332,7 @@ class AddMaterial extends Component {
           name="material-form"
           onChange={this.handleChange}
           ref={this.matFormRef}
+          required="required"
         >
           <option id="1" value="powder">
             POWDER
@@ -298,7 +354,7 @@ class AddMaterial extends Component {
 
         <div
           style={{ marginTop: "20px" }}
-          className="notify-data-container notify-text"
+          className= {`notify-data-container notify-text ${beError}`}
         >
           {this.state.msg}
         </div>

@@ -416,8 +416,8 @@ class TxHistory extends Component {
         <div className="panel">
           <h4> Transactions History</h4>
           <form className="sort-form">
-            <label>VIEW: </label>
-            <select ref={this.sortRef} onChange={this.onChange}>
+            <label>SORT AS </label>
+            <select style={{marginTop: '10px'}}ref={this.sortRef} onChange={this.onChange}>
               <option id="1" value="new">
                 NEW TO OLD
               </option>
