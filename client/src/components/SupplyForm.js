@@ -112,6 +112,7 @@ class RequestMaterials extends Component {
   state = {
     materialName: "",
     supplier: "",
+    manufacturerBatched: "",
     amount: 0,
     form: "",
     strength: 0,
@@ -129,7 +130,7 @@ class RequestMaterials extends Component {
     this.formRef = React.createRef();
     this.matStrRef = React.createRef();
     this.idRef = React.createRef();
-    this.manuRef= React.createRef();
+    this.manufacturerBatchedRef = React.createRef();
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
     this.addRequest = this.addRequest.bind(this);
@@ -139,6 +140,17 @@ class RequestMaterials extends Component {
   addBatchRequest = async(e) => {
     e.preventDefault();
     this.setState({batchToggled: true})
+    const amount = this.state.amount;
+    const id = this.state.matId;
+    const manu2 = this.state.manufacturerBatched;
+    const info = await this.props.pcContract.methods.getMaterialById(id).call();
+    const supplier = info.supplier; 
+    await this.props.pcContract.methods.createBatchRequest(
+      manu2,
+      supplier,
+      id,
+      amount
+    )
 
   }
 
@@ -183,7 +195,10 @@ class RequestMaterials extends Component {
       let cost = parseInt(item.unitCost,10).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
       let form = item.materialForm;
       let availableAmount = item.createdAmount;
-      console.log(supplier,id,name,cost);
+      let conditions = item.storageConditions;
+      let stability = item.materialStability;
+      let stabilityPeriod = item.materialStabilityPeriod;
+      console.log(supplier,id,name,cost,stability,conditions,stabilityPeriod);
 
       return(
           <div key={index}>
@@ -193,6 +208,9 @@ class RequestMaterials extends Component {
               <li> <strong>NAME </strong> {name}</li>
               <li> <strong>FORM </strong> {form}</li>
               <li> <strong>UNIT COST </strong> {cost}</li>
+              <li> <strong>STABILITY </strong> {stability? "STABLE" : "NOT STABLE"}</li>   
+              <li> <strong>STABILITY PERIOD </strong> {stabilityPeriod} years</li>   
+              <li> <strong>STORAGE CONDITIONS</strong> {stability?  {stability}: "N/A"}</li>   
               <li> <strong>IN STOCK </strong> {availableAmount} g</li>     
             </ul>
             <hr className="custom-hr-full"></hr> 
@@ -209,6 +227,7 @@ class RequestMaterials extends Component {
       matId: this.idRef.current.value,
       // supplier: this.supplierRef.current.value,
       amount: this.amountRef.current.value,
+      manufacturerBatched: this.manufacturerBatchedRef.current.value
       // form: this.formRef.current.value,
       // strength: this.matStrRef.current.value,
     });
@@ -293,8 +312,9 @@ class RequestMaterials extends Component {
         <label>Add Manufacturer Address:</label>
         <input
           type="text"
+          ref= {this.manufacturerBatchedRef}
+          value={this.state.manufacturerBatched}
           onChange={this.onChange}
-          ref={this.manuRef}
           placeholder="e.g.0x8a57428748D955C919F1928C1F21aF0dC1f4fC9d"
           
         />
@@ -374,6 +394,10 @@ class CreateMaterial extends Component {
     matStr: 0,
     matAmount: 0,
     matUnitCost: 0,
+    matConditions: "",
+    matStability: false,
+    matStabilityPeriod: "",
+    
   };
   constructor(props) {
     super(props);
@@ -383,6 +407,9 @@ class CreateMaterial extends Component {
     this.strRef = React.createRef();
     this.amountRef = React.createRef();
     this.unitCostRef = React.createRef();
+    this.matConditionsRef = React.createRef();
+    this.matStabilityRef = React.createRef();
+    this.matStabilityPeriodRef = React.createRef();
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
@@ -395,9 +422,12 @@ class CreateMaterial extends Component {
     const strength = this.state.matStr;
     const amount = this.state.matAmount;
     const cost = this.state.matUnitCost;
+    const condition = this.state.matConditions;
+    const stability = this.state.matStability;
+    const stabilityPeriod = this.state.matStabilityPeriod
 
     await this.props.pcContract.methods
-      .createMaterial(id, name, strength, form, amount, cost)
+      .createMaterial(id, name, strength, form, amount, cost,condition,stability,stabilityPeriod)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Materials Created Successfully!" });
@@ -413,6 +443,9 @@ class CreateMaterial extends Component {
       matStr: "",
       matAmount: "",
       matUnitCost: "",
+      matConditions: "",
+      matStability: Boolean,
+      matStabilityPeriod: 0,
     });
   };
 
@@ -424,7 +457,12 @@ class CreateMaterial extends Component {
       matStr: this.strRef.current.value,
       matAmount: this.amountRef.current.value,
       matUnitCost: this.unitCostRef.current.value,
+      matConditions: this.matConditionsRef.current.value,
+      matStability: this.matStabilityRef.current.value,
+      matStabilityPeriod: this.matStabilityPeriodRef.current.value
     });
+
+    console.log(this.state.matStability);
   };
   render() {
     return (
@@ -538,6 +576,39 @@ class CreateMaterial extends Component {
           placeholder="e.g. 10"
           required = "required"
         />
+        <div className='checkbox-container'
+        style={{display:'flex', flexDirection: 'row' , gap: '10px' , margin: '10px 0px'}}>
+          <input
+          type="checkbox"
+          value="true"
+          onChange = {this.onChange}
+          ref = {this.matStabilityRef}
+          required="required"
+          style={{display:'inline'}}
+          name="stability"
+          />
+          <label>Stable</label>
+
+        </div>
+       
+        <label> Stability Period (years) </label>
+        <input
+          value={this.state.matstabilityPeriod}
+          onChange={this.onChange}
+          ref={this.matStabilityPeriodRef}
+          type="number"
+          placeholder="e.g. 2"
+        />
+
+        <label> Storage Conditions / Usage Instructions: </label>
+        <input
+          value={this.state.storageConditions}
+          onChange={this.onChange}
+          ref={this.matConditionsRef}
+          type="text"
+          placeholder="e.g. Keep out of reach for children , store in a dry place."
+        />
+  
 
         <input type="submit" value="CREATE MATERIAL" className="btn" />
 

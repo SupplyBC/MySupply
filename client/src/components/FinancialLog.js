@@ -182,26 +182,26 @@ class ReviewStdCostSheet extends Component {
                   </tr>
                   <tr>
                     <td> Indirect Manufacturing Costs (20%) </td>
-                    {/* <td>{this.state.indirectManuStdCost}</td> */}
+                    <td>{this.state.indirectManuStdCost}</td>
                   </tr>
                   <tr>
                     <td> Managerial and Funding Costs (30%) </td>
-                    {/* <td>{this.state.indirectManuStdCost}</td> */}
+                    <td>{this.state.indirectManuStdCost}</td>
                   </tr>
                   <tr>
                     <td> Shipping Costs (5%) </td>
-                    {/* <td>{this.state.indirectManuStdCost}</td> */}
+                    <td>{this.state.indirectManuStdCost}</td>
                   </tr>
                   <tr>
                     <td> Value Added Tax (14%) </td>
-                    {/* <td>{this.state.indirectManuStdCost}</td> */}
+                    <td>{this.state.indirectManuStdCost}</td>
                   </tr>
                   <tr>
-                    <td> Marketing (15%) </td>
+                    <td> Marketing </td>
                     <td>{this.state.mrkStdCost}</td>
                   </tr>
                   <tr>
-                    <td> Research (3%)</td>
+                    <td> Research </td>
                     <td>{this.state.rsrchStdCost}</td>
                   </tr>
                 </tbody>
@@ -434,7 +434,6 @@ class SetActualCosts extends Component {
     product: "",
     productUnitsNo: 0,
     packagingMaterialActCost: 0,
-    manuIndirectActCost: 0,
     mrkActCost: 0,
     rsrhActCost: 0,
     totalActCost: 0,
@@ -442,6 +441,7 @@ class SetActualCosts extends Component {
     workHrsAct: 0,
     hourlyRateActCost: 0,
     matQtyAct: 0,
+    shippingActCost: 0,
   };
 
   constructor(props) {
@@ -449,13 +449,13 @@ class SetActualCosts extends Component {
     this.proRef = React.createRef();
     this.unitNoRef = React.createRef();
     this.pkgMatActRef = React.createRef();
-    this.manIndActRef = React.createRef();
     this.mrkActRef = React.createRef();
     this.rsrhActRef = React.createRef();
     this.matUnitActRef = React.createRef();
     this.workHrsActRef = React.createRef();
     this.hourlyRateActRef = React.createRef();
     this.matQtyActRef = React.createRef();
+    this.shippingActRef = React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
   }
@@ -466,7 +466,6 @@ class SetActualCosts extends Component {
     const pro = this.state.product;
     const units = this.state.productUnitsNo;
     const pkgMatAct = parseInt(this.state.packagingMaterialActCost, 10);
-    const manuIndirectActCost = parseInt(this.state.manuIndirectActCost, 10);
     // const totBudget = parseInt(this.state.budget,10);
     const mrkAct = parseInt(this.state.mrkActCost, 10);
     const rsrhAct = parseInt(this.state.rsrhActCost, 10);
@@ -474,6 +473,7 @@ class SetActualCosts extends Component {
     const hrsNoAct = parseInt(this.state.workHrsAct, 10);
     const matUnitAct = parseInt(this.state.matUnitActCost, 10);
     const matQtyAct = parseInt(this.state.matQtyAct, 10);
+    const shippingAct = parseInt(this.state.shippingActCost, 10);
 
     // const totalActual = matAct + pkgMatAct + labAct + manuIndirectActCost
     //                     + mrkAct + rsrhAct;
@@ -488,10 +488,10 @@ class SetActualCosts extends Component {
         matUnitAct,
         rateAct,
         hrsNoAct,
-        manuIndirectActCost,
         mrkAct,
         rsrhAct,
-        matQtyAct
+        matQtyAct,
+        shippingAct,
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -507,13 +507,13 @@ class SetActualCosts extends Component {
       directMaterialActCost: "",
       packagingMaterialActCost: "",
       laborActCost: "",
-      manuIndirectActCost: "",
       mrkActCost: "",
       rsrhActCost: "",
       matUnitActCost: "",
       workHrsAct: "",
       hourlyRateActCost: "",
       matQtyAct: "",
+      shippingActCost: ""
     });
   };
 
@@ -522,13 +522,13 @@ class SetActualCosts extends Component {
       product: this.proRef.current.value,
       productUnitsNo: this.unitNoRef.current.value,
       packagingMaterialActCost: this.pkgMatActRef.current.value,
-      manuIndirectActCost: this.manIndActRef.current.value,
       mrkActCost: this.mrkActRef.current.value,
       rsrhActCost: this.rsrhActRef.current.value,
       matUnitActCost: this.matUnitActRef.current.value,
       workHrsAct: this.workHrsActRef.current.value,
       hourlyRateActCost: this.hourlyRateActRef.current.value,
       matQtyAct: this.matQtyActRef.current.value,
+      shippingActCost: this.shippingActRef.current.value
     });
   };
   render() {
@@ -608,12 +608,12 @@ class SetActualCosts extends Component {
           required="required"
         />
 
-        <label>Manufacturing Overhead (Indirect Costs): </label>
+      <label>Shipping Cost: </label>
         <input
           type="number"
-          ref={this.manIndActRef}
-          value={this.state.manuIndirectActCost}
-          placeholder="e.g. 5000"
+          ref={this.shippingActRef}
+          value={this.state.shippingActCost}
+          placeholder="e.g. 50"
           onChange={this.OnChange}
           required="required"
         />
@@ -653,13 +653,13 @@ class SetFlexibleBudget extends Component {
     product: "",
     productUnitsNo: 0,
     packagingMaterialFlexCost: 0,
-    manuIndirectFlexCost: 0,
     mrkFlexCost: 0,
     rsrhFlexCost: 0,
     totalFlexCost: 0,
     workHrsFlex: 0,
     hourlyRateFlexCost: 0,
     matUnitFlexCost: 0,
+    shippingFlexCost: 0
   };
 
   constructor(props) {
@@ -667,12 +667,12 @@ class SetFlexibleBudget extends Component {
     this.proRef = React.createRef();
     this.unitNoRef = React.createRef();
     this.pkgMatFlexRef = React.createRef();
-    this.manIndFlexRef = React.createRef();
     this.mrkFlexRef = React.createRef();
     this.rsrhFlexRef = React.createRef();
     this.workHrsFlexRef = React.createRef();
     this.hourlyRateFlexRef = React.createRef();
     this.matUnitFlexRef = React.createRef();
+    this.shippingFlexRef= React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
   }
@@ -683,12 +683,12 @@ class SetFlexibleBudget extends Component {
     const pro = this.state.product;
     const units = this.state.productUnitsNo;
     const pkgMatFlex = parseInt(this.state.packagingMaterialFlexCost, 10);
-    const manuIndirectFlexCost = parseInt(this.state.manuIndirectFlexCost, 10);
     const mrkFlex = parseInt(this.state.mrkFlexCost, 10);
     const rsrhFlex = parseInt(this.state.rsrhFlexCost, 10);
     const rateFlex = parseInt(this.state.hourlyRateFlexCost, 10);
     const workHrsFlex = parseInt(this.state.workHrsFlex, 10);
     const matUnitFlex = parseInt(this.state.matUnitFlexCost, 10);
+    const shippingFlex = parseInt(this.state.shippingFlexCost,10);
 
     // const totalFlex = matFlex + pkgMatFlex + labFlex + manuIndirectFlexCost
     //                     + mrkFlex + rsrhFlex;
@@ -703,9 +703,9 @@ class SetFlexibleBudget extends Component {
         matUnitFlex,
         rateFlex,
         workHrsFlex,
-        manuIndirectFlexCost,
         mrkFlex,
-        rsrhFlex
+        rsrhFlex,
+        shippingFlex
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -716,17 +716,16 @@ class SetFlexibleBudget extends Component {
       });
 
     this.setState({
-      product: "",
       productUnitsNo: "",
       directMaterialFlexCost: "",
       packagingMaterialFlexCost: "",
       laborFlexCost: "",
-      manuIndirectFlexCost: "",
       mrkFlexCost: "",
       rsrhFlexCost: "",
       workHrsFlex: "",
       hourlyRateFlexCost: "",
       matUnitFlexCost: "",
+      shippingFlexCost: ""
     });
   };
 
@@ -735,12 +734,12 @@ class SetFlexibleBudget extends Component {
       product: this.proRef.current.value,
       productUnitsNo: this.unitNoRef.current.value,
       packagingMaterialFlexCost: this.pkgMatFlexRef.current.value,
-      manuIndirectFlexCost: this.manIndFlexRef.current.value,
       mrkFlexCost: this.mrkFlexRef.current.value,
       rsrhFlexCost: this.rsrhFlexRef.current.value,
       workHrsFlex: this.workHrsFlexRef.current.value,
       hourlyRateFlexCost: this.hourlyRateFlexRef.current.value,
       matUnitFlexCost: this.matUnitFlexRef.current.value,
+      shippingFlexCost: this.shippingFlexRef.current.value
     });
   };
   render() {
@@ -809,12 +808,12 @@ class SetFlexibleBudget extends Component {
           required="required"
         />
 
-        <label>Manufacturing Overhead (Indirect Costs): </label>
+       <label>Shipping Cost: </label>
         <input
           type="number"
-          ref={this.manIndFlexRef}
-          value={this.state.manuIndirectFlexCost}
-          placeholder="e.g. 5000"
+          ref={this.shippingFlexRef}
+          value={this.state.shippingFlexCost}
+          placeholder="e.g. 50"
           onChange={this.OnChange}
           required="required"
         />

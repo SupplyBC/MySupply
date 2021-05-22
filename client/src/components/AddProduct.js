@@ -369,13 +369,12 @@ class CreateCostPlan extends Component {
     productUnitsNo: 0,
     materialUnitCost: 0,
     packagingMaterialStdCost: 0,
-    manuIndirectStdCost: 0,
     mrkStdCost: 0,
     rsrhStdCost: 0,
     totalStdCost: 0,
     workHoursNo: 0,
     hourlyWorkRate: 0,
-    budget: 0,
+    shippingCost: 0,
   };
 
   constructor(props) {
@@ -383,15 +382,16 @@ class CreateCostPlan extends Component {
     this.proRef = React.createRef();
     this.unitNoRef = React.createRef();
     this.pkgMatStdRef = React.createRef();
-    this.manIndStdRef = React.createRef();
     this.mrkStdRef = React.createRef();
     this.rsrhStdRef = React.createRef();
     this.budgetRef = React.createRef();
     this.hoursNoRef = React.createRef();
     this.hourlyRateRef = React.createRef();
     this.materialUnitCostRef = React.createRef();
+    this.shippingCostRef = React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
+
   }
 
   OnSubmit = async (e) => {
@@ -400,13 +400,12 @@ class CreateCostPlan extends Component {
     const pro = this.state.product;
     const units = this.state.productUnitsNo;
     const pkgMatStd = parseInt(this.state.packagingMaterialStdCost, 10);
-    const manuIndirectStdCost = parseInt(this.state.manuIndirectStdCost, 10);
-    const totBudget = parseInt(this.state.budget, 10);
     const mrkStd = parseInt(this.state.mrkStdCost, 10);
     const rsrhStd = parseInt(this.state.rsrhStdCost, 10);
     const hoursNo = parseInt(this.state.workHoursNo,10);
     const rate = parseInt(this.state.hourlyWorkRate,10);
     const matUnitCost = parseInt(this.state.materialUnitCost,10);
+    const shippingCost = parseInt(this.state.shippingCost,10)
 
     // const totalStandard =
     //   matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
@@ -420,11 +419,11 @@ class CreateCostPlan extends Component {
         pkgMatStd,
         matUnitCost,
         rate,
-        hoursNo,
-        manuIndirectStdCost,
+        hoursNo,        
         mrkStd,
         rsrhStd,
-        totBudget
+        shippingCost
+        
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -435,16 +434,15 @@ class CreateCostPlan extends Component {
       });
 
     this.setState({
-      product: "",
+      
       productUnitsNo: "",
       packagingMaterialStdCost: "",
-      manuIndirectStdCost: "",
       mrkStdCost: "",
       rsrhStdCost: "",
-      budget: "",
       workHoursNo: "",
       hourlyWorkRate: "",
       materialUnitCost: "",
+      shippingCost: "",
     });
   };
 
@@ -453,13 +451,12 @@ class CreateCostPlan extends Component {
       product: this.proRef.current.value,
       productUnitsNo: this.unitNoRef.current.value,
       packagingMaterialStdCost: this.pkgMatStdRef.current.value,
-      manuIndirectStdCost: this.manIndStdRef.current.value,
       mrkStdCost: this.mrkStdRef.current.value,
       rsrhStdCost: this.rsrhStdRef.current.value,
-      budget: this.budgetRef.current.value,
       workHoursNo: this.hoursNoRef.current.value,
       hourlyWorkRate: this.hourlyRateRef.current.value,
-      materialUnitCost: this.materialUnitCostRef.current.value
+      materialUnitCost: this.materialUnitCostRef.current.value,
+      shippingCost: this.shippingCostRef.current.value
 
     });
   };
@@ -537,15 +534,16 @@ class CreateCostPlan extends Component {
           required="required"
         />
 
-        <label>Manufacturing Overhead (Indirect Costs): </label>
+         <label>Shipping Cost: </label>
         <input
           type="number"
-          ref={this.manIndStdRef}
-          value={this.state.manuIndirectStdCost}
-          placeholder="e.g. 5000"
+          ref={this.shippingCostRef}
+          value={this.state.shippingCost}
+          placeholder="e.g. 50"
           onChange={this.OnChange}
           required="required"
         />
+
 
         <label>Marketing: </label>
         <input
@@ -565,17 +563,6 @@ class CreateCostPlan extends Component {
           placeholder="e.g. 5000"
           onChange={this.OnChange}
           required="required"
-        />
-
-        <h4> Set Product Budget </h4>
-
-        <label>Product Budget:</label>
-        <input
-          type="number"
-          ref={this.budgetRef}
-          value={this.state.budget}
-          placeholder="e.g. 5000"
-          onChange={this.onChange}
         />
 
         <input
