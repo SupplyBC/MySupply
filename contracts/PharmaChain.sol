@@ -1,5 +1,5 @@
 // "SPDX-License-Identifier: UNLICENSED"
-// EVERYTHING EXCEPT TRACKING GOES HERE
+// PRODUCT MANAGEMENT AND COST MANAGEMENT GOES HERE
 pragma solidity >=0.6.2;
 pragma experimental ABIEncoderV2;  
 
@@ -71,7 +71,6 @@ contract PharmaChain {
         string  productId; //registration no.
         string  productName;
         string  productForm; // tablets or capsules
-        uint    productBudget;
         
     }
     
@@ -83,6 +82,10 @@ contract PharmaChain {
         string  materialForm;
         uint    createdAmount;
         uint    unitCost;
+        string  storageConditions;
+        bool    materialStability;
+        uint    materialManuDate;
+        uint    materialStabilityPeriod; // example 3 years
     }
     
     
@@ -119,14 +122,15 @@ contract PharmaChain {
         uint directMaterialCost;
         uint packagingMaterialCost;
         uint materialCostPerUnit; // cost per unit material
+        uint pkgCostPerUnit; // cost per unit packaging material
         uint marketingCost;
         uint researchCost;
         uint directLaborCost;
         uint ratePerWorkHr; // rate per work hour
         uint workHrs;       // no of work hours
-        uint totalIndirectCost; // indirect manufacturing costs
         uint totalDirectCost;
         uint CostTOT; // direct material + direct labor + total indirect
+        uint shippingCost; // shipping method cost 
     }
     
     
@@ -159,7 +163,6 @@ contract PharmaChain {
             productId: _id,
             productName: _name,
             productForm: _pForm,
-            productBudget: 0,
             manufacturer: msg.sender
         });
         
@@ -231,45 +234,35 @@ contract PharmaChain {
     uint    _unitsNo,
     uint    _pkgMatCost,
     uint    _unitMaterialCost,
+    uint    _unitPkgCost,
     uint    _ratePerHr,
     uint    _workHrsNo,
-    uint    _totIndirectCosts,
     uint    _mrkCost,
     uint    _rsrchCost,
-    uint    _productBudget
-    
+    uint    _shipCost
         ) public {
     
-    // uint directTotal =  _directMatCost + _pkgMatCost +  _directLaborCost;
     uint matAmount = getStdMaterialQty(_product);
-    // uint total = _directMatCost + _pkgMatCost +  _directLaborCost + _totIndirectCosts + _mrkCost  + _rsrchCost;
     Cost memory stdCosts = Cost({
         directMaterialCost: matAmount * _unitMaterialCost,
         ratePerWorkHr: _ratePerHr,
         materialCostPerUnit: _unitMaterialCost,
+        pkgCostPerUnit: _unitPkgCost,
         workHrs: _workHrsNo,
         directLaborCost: _ratePerHr * _workHrsNo,
-        totalIndirectCost: _totIndirectCosts,
         totalDirectCost: 0,
         packagingMaterialCost: _pkgMatCost,
         marketingCost: _mrkCost,
         researchCost: _rsrchCost,
+        shippingCost: _shipCost,
         CostTOT: 0
        
     });
     
     standardProductCosts[_product] = stdCosts;
     standardBudgetUnits[_product] = _unitsNo;
-    setProductBudget(_product, _productBudget);
     }
     
-    function setProductBudget(string memory _product, uint _budget) public {
-        if(strComp(_product, products[msg.sender][0].productId)) {
-            products[msg.sender][0].productBudget = _budget;
-            productList[_product].productBudget = _budget;
-        }
-       
-    }
     
     function setStdMaterialQty(string memory _product) public {
         stdMaterialQty[_product] = productSpecs[_product][0].materialAmount;
@@ -295,11 +288,12 @@ contract PharmaChain {
     uint _actualPkgMatCost,
     uint _unitMaterialCost,
     uint _actualRatePerHr,
+    uint _actualPkgUnitCost,
     uint _actualWorkHrsNo,
-    uint _actualIndirectCost,
     uint _actualMrkCost,
     uint _actualRsrchCost,
-    uint _actualMatQty
+    uint _actualMatQty,
+    uint _actualShipCost
     
     ) public {
         
@@ -308,13 +302,14 @@ contract PharmaChain {
             directMaterialCost: _actualMatQty * _unitMaterialCost,
             packagingMaterialCost: _actualPkgMatCost,
             materialCostPerUnit: _unitMaterialCost,
+            pkgCostPerUnit: _actualPkgUnitCost,
             totalDirectCost: 0,
             ratePerWorkHr: _actualRatePerHr,
             workHrs: _actualWorkHrsNo,
             marketingCost: _actualMrkCost,
             researchCost: _actualRsrchCost,
             directLaborCost: _actualRatePerHr * _actualWorkHrsNo,
-            totalIndirectCost: _actualIndirectCost,
+            shippingCost: _actualShipCost,
             CostTOT: 0
         });
         
@@ -346,11 +341,13 @@ contract PharmaChain {
     uint _unitsNo,
     uint _pkgUnitCost,
     uint _unitMaterialCost,
+    uint _unitPkgCost,
     uint _ratePerHr,
     uint _workHrsNo,
-    uint _indirectManuUnitCost,
     uint _flexibleMrkCost,
-    uint _flexibleRsrchCost)
+    uint _flexibleRsrchCost,
+    uint _flexibleShipCost
+    )
     public {
         
         uint matAmount = getStdMaterialQty(_product);
@@ -361,10 +358,11 @@ contract PharmaChain {
             ratePerWorkHr: _ratePerHr,
             workHrs: _workHrsNo,
             materialCostPerUnit: _unitMaterialCost,
+            pkgCostPerUnit: _unitPkgCost,
             marketingCost: _flexibleMrkCost,
             researchCost: _flexibleRsrchCost,
             directLaborCost:  _ratePerHr * _workHrsNo,
-            totalIndirectCost: _indirectManuUnitCost,
+            shippingCost: _flexibleShipCost,
             CostTOT: 0
         });
         
@@ -393,7 +391,10 @@ contract PharmaChain {
     uint          _str,
     string memory _form,
     uint          _amount,
-    uint          _unitCost
+    uint          _unitCost,
+    string memory _storageConditions,
+    bool          _stability,
+    uint          _stabilityPeriod
     
     ) public {
         
@@ -404,7 +405,11 @@ contract PharmaChain {
            materialForm: _form,
            materialStrength: _str,
            createdAmount: _amount,
-           unitCost:      _unitCost
+           unitCost:      _unitCost,
+           storageConditions: _storageConditions,
+           materialStability: _stability,
+           materialStabilityPeriod: _stabilityPeriod,
+           materialManuDate: block.timestamp
         });
 
         materials[msg.sender].push(mat);
