@@ -122,7 +122,6 @@ contract PharmaChain {
         uint directMaterialCost;
         uint packagingMaterialCost;
         uint materialCostPerUnit; // cost per unit material
-        uint pkgCostPerUnit; // cost per unit packaging material
         uint marketingCost;
         uint researchCost;
         uint directLaborCost;
@@ -234,7 +233,6 @@ contract PharmaChain {
     uint    _unitsNo,
     uint    _pkgMatCost,
     uint    _unitMaterialCost,
-    uint    _unitPkgCost,
     uint    _ratePerHr,
     uint    _workHrsNo,
     uint    _mrkCost,
@@ -247,7 +245,6 @@ contract PharmaChain {
         directMaterialCost: matAmount * _unitMaterialCost,
         ratePerWorkHr: _ratePerHr,
         materialCostPerUnit: _unitMaterialCost,
-        pkgCostPerUnit: _unitPkgCost,
         workHrs: _workHrsNo,
         directLaborCost: _ratePerHr * _workHrsNo,
         totalDirectCost: 0,
@@ -288,7 +285,6 @@ contract PharmaChain {
     uint _actualPkgMatCost,
     uint _unitMaterialCost,
     uint _actualRatePerHr,
-    uint _actualPkgUnitCost,
     uint _actualWorkHrsNo,
     uint _actualMrkCost,
     uint _actualRsrchCost,
@@ -302,7 +298,6 @@ contract PharmaChain {
             directMaterialCost: _actualMatQty * _unitMaterialCost,
             packagingMaterialCost: _actualPkgMatCost,
             materialCostPerUnit: _unitMaterialCost,
-            pkgCostPerUnit: _actualPkgUnitCost,
             totalDirectCost: 0,
             ratePerWorkHr: _actualRatePerHr,
             workHrs: _actualWorkHrsNo,
@@ -341,7 +336,6 @@ contract PharmaChain {
     uint _unitsNo,
     uint _pkgUnitCost,
     uint _unitMaterialCost,
-    uint _unitPkgCost,
     uint _ratePerHr,
     uint _workHrsNo,
     uint _flexibleMrkCost,
@@ -358,7 +352,6 @@ contract PharmaChain {
             ratePerWorkHr: _ratePerHr,
             workHrs: _workHrsNo,
             materialCostPerUnit: _unitMaterialCost,
-            pkgCostPerUnit: _unitPkgCost,
             marketingCost: _flexibleMrkCost,
             researchCost: _flexibleRsrchCost,
             directLaborCost:  _ratePerHr * _workHrsNo,
