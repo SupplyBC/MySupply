@@ -19,11 +19,11 @@ class ReviewStdCostSheet extends Component {
       .getStdCostPlan(proId)
       .call();
 
+    console.log(standard)
     const stdCostData = standard.map((item, index) => {
       let matStdCostValue = parseInt(standard.directMaterialCost, 10);
       let pkgStdCostValue = parseInt(standard.packagingMaterialCost, 10);
       let laborStdCostValue = parseInt(standard.directLaborCost, 10);
-      let indirectManuStdCostValue = parseInt(standard.totalIndirectCost, 10);
       let mrkStdCostValue = parseInt(standard.marketingCost, 10);
       let rsrchStdCostValue = parseInt(standard.researchCost, 10);
       // let totalActCostValue = parseInt(actual.CostTOT,10);
@@ -31,7 +31,6 @@ class ReviewStdCostSheet extends Component {
         matStdCostValue +
         pkgStdCostValue +
         laborStdCostValue +
-        indirectManuStdCostValue +
         mrkStdCostValue +
         rsrchStdCostValue;
 
@@ -47,10 +46,6 @@ class ReviewStdCostSheet extends Component {
         style: "currency",
         currency: "USD",
       });
-      let indirectManuStdCost = indirectManuStdCostValue.toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
       let mrkStdCost = mrkStdCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -69,21 +64,18 @@ class ReviewStdCostSheet extends Component {
         matStdCost,
         pkgStdCost,
         laborStdCost,
-        indirectManuStdCost,
         mrkStdCost,
         rsrchStdCost,
         totalStdCost,
         matStdCostValue,
         pkgStdCostValue,
         laborStdCostValue,
-        indirectManuStdCostValue,
         mrkStdCostValue,
         rsrchStdCostValue,
         totalStdCostValue,
       });
       return true;
     });
-
     if (this.state.totalStdCost === "$0.00") {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
@@ -123,6 +115,7 @@ class ReviewStdCostSheet extends Component {
       style: "currency",
       currency: "USD",
     });
+    const newTot  = totDirValue + (totDirValue*20/100) + (totDirValue*30/100) + (totDirValue*14/100)
     return (
       <div className="financial-status-container">
         <form onSubmit={this.onSubmit} className="form-container">
@@ -182,19 +175,24 @@ class ReviewStdCostSheet extends Component {
                   </tr>
                   <tr>
                     <td> Indirect Manufacturing Costs (20%) </td>
-                    <td>{this.state.indirectManuStdCost}</td>
+                    <td>{(totDirValue*20/100).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                  })}</td>
                   </tr>
                   <tr>
                     <td> Managerial and Funding Costs (30%) </td>
-                    <td>{this.state.indirectManuStdCost}</td>
-                  </tr>
-                  <tr>
-                    <td> Shipping Costs (5%) </td>
-                    <td>{this.state.indirectManuStdCost}</td>
+                    <td>{(totDirValue*30/100).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                  })}</td>
                   </tr>
                   <tr>
                     <td> Value Added Tax (14%) </td>
-                    <td>{this.state.indirectManuStdCost}</td>
+                    <td>{(totDirValue*14/100).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                  })}</td>
                   </tr>
                   <tr>
                     <td> Marketing </td>
@@ -209,7 +207,10 @@ class ReviewStdCostSheet extends Component {
                 <tfoot>
                   <tr>
                     <th> TOTAL </th>
-                    <td>{this.state.totalStdCost} </td>
+                    <td>{newTot.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                  })} </td>
                   </tr>
                 </tfoot>
               </table>
@@ -243,7 +244,6 @@ class ReviewActCostSheet extends Component {
       let matActCostValue = parseInt(actual.directMaterialCost, 10);
       let pkgActCostValue = parseInt(actual.packagingMaterialCost, 10);
       let laborActCostValue = parseInt(actual.directLaborCost, 10);
-      let indirectManuActCostValue = parseInt(actual.totalIndirectCost, 10);
       let mrkActCostValue = parseInt(actual.marketingCost, 10);
       let rsrchActCostValue = parseInt(actual.researchCost, 10);
       // let totalActCostValue = parseInt(actual.CostTOT,10);
@@ -251,7 +251,6 @@ class ReviewActCostSheet extends Component {
         matActCostValue +
         pkgActCostValue +
         laborActCostValue +
-        indirectManuActCostValue +
         mrkActCostValue +
         rsrchActCostValue;
 
@@ -267,10 +266,6 @@ class ReviewActCostSheet extends Component {
         style: "currency",
         currency: "USD",
       });
-      let indirectManuActCost = indirectManuActCostValue.toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
       let mrkActCost = mrkActCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -289,14 +284,12 @@ class ReviewActCostSheet extends Component {
         matActCost,
         pkgActCost,
         laborActCost,
-        indirectManuActCost,
         mrkActCost,
         rsrchActCost,
         totalActCost,
         matActCostValue,
         pkgActCostValue,
         laborActCostValue,
-        indirectManuActCostValue,
         mrkActCostValue,
         rsrchActCostValue,
         totalActCostValue,
@@ -343,6 +336,7 @@ class ReviewActCostSheet extends Component {
       style: "currency",
       currency: "USD",
     });
+    const newTot  = totDirValue + (totDirValue*20/100) + (totDirValue*30/100) + (totDirValue*14/100)
     return (
       <div className="financial-status-container">
         <form onSubmit={this.onSubmit} className="form-container">
@@ -371,7 +365,7 @@ class ReviewActCostSheet extends Component {
           </div>
           <div className={`${table} costsClashContainer `}>
             <div className="std-cost-container">
-              <table className="cost-data">
+            <table className="cost-data">
                 <thead>
                   <tr>
                     <th>CRITERIA</th>
@@ -381,15 +375,15 @@ class ReviewActCostSheet extends Component {
                 <tbody>
                   <tr>
                     <td> Raw Materials </td>
-                    <td>{this.state.matActCost}</td>
+                    <td>{this.state.matActCostValue}</td>
                   </tr>
                   <tr>
                     <td> Packaging Materials </td>
-                    <td>{this.state.pkgActCost}</td>
+                    <td>{this.state.pkgActCostValue}</td>
                   </tr>
                   <tr>
                     <td> Direct Labor </td>
-                    <td>{this.state.laborActCost}</td>
+                    <td>{this.state.laborActCostValue}</td>
                   </tr>
                   <tr
                     style={{
@@ -401,8 +395,25 @@ class ReviewActCostSheet extends Component {
                     <td>{totDir}</td>
                   </tr>
                   <tr>
-                    <td> Indirect Manufacturing Costs </td>
-                    <td>{this.state.indirectManuActCost}</td>
+                    <td> Indirect Manufacturing Costs (20%) </td>
+                    <td>{(totDirValue*20/100).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                  })}</td>
+                  </tr>
+                  <tr>
+                    <td> Managerial and Funding Costs (30%) </td>
+                    <td>{(totDirValue*30/100).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                  })}</td>
+                  </tr>
+                  <tr>
+                    <td> Value Added Tax (14%) </td>
+                    <td>{(totDirValue*14/100).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                  })}</td>
                   </tr>
                   <tr>
                     <td> Marketing </td>
@@ -417,7 +428,10 @@ class ReviewActCostSheet extends Component {
                 <tfoot>
                   <tr>
                     <th> TOTAL </th>
-                    <td>{this.state.totalActCost} </td>
+                    <td>{newTot.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                  })} </td>
                   </tr>
                 </tfoot>
               </table>
