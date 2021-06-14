@@ -7,7 +7,7 @@ class CreateProduct extends Component {
     productId: "",
     productForm: "",
     msg: " ",
-    alert: false
+    alert: false,
   };
 
   constructor(props) {
@@ -18,7 +18,6 @@ class CreateProduct extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
-
 
   handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,38 +30,38 @@ class CreateProduct extends Component {
       .call();
     const pros = products.filter((item) => {
       return item.productName === id;
-    })
-
-    console.log(products)
-    console.log(pros)
-  
-
-    if(pros.length === 0) {
-      await this.props.pcContract.methods
-      .addProduct(name, id, form)
-      .send({ from: this.props.account[0] })
-      .once("receipt", (receipt) => {
-        this.setState({ msg: "Product was created successfully!" , alert: false });
-        setTimeout(() => {
-          this.setState({ msg: " " });
-        }, 2000);
-      });
-    this.setState({
-      productName: "",
-      productId: "",
-      productForm: "",
     });
 
-     
+    console.log(products);
+    console.log(pros);
+
+    if (pros.length === 0) {
+      await this.props.pcContract.methods
+        .addProduct(name, id, form)
+        .send({ from: this.props.account[0] })
+        .once("receipt", (receipt) => {
+          this.setState({
+            msg: "Product was created successfully!",
+            alert: false,
+          });
+          setTimeout(() => {
+            this.setState({ msg: " " });
+          }, 2000);
+        });
+      this.setState({
+        productName: "",
+        productId: "",
+        productForm: "",
+      });
     } else {
-      this.setState({ msg: "This product ID already exists , change ID and try again! " , alert: true });
+      this.setState({
+        msg: "This product ID already exists , change ID and try again! ",
+        alert: true,
+      });
       setTimeout(() => {
         this.setState({ msg: " " });
       }, 2000);
-
     }
-
-    
   };
 
   handleChange = async (e) => {
@@ -75,7 +74,7 @@ class CreateProduct extends Component {
 
   render() {
     let beError;
-    this.state.alert? beError = "alert-text" : beError = ""
+    this.state.alert ? (beError = "alert-text") : (beError = "");
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
@@ -119,7 +118,7 @@ class CreateProduct extends Component {
         </div>
         <div
           style={{ marginTop: "20px" }}
-          className= {`notify-data-container notify-text ${beError}`}
+          className={`notify-data-container notify-text ${beError}`}
         >
           {this.state.msg}
         </div>
@@ -137,8 +136,7 @@ class AddMaterial extends Component {
     matForm: "",
     matAmount: 0,
     msg: " ",
-    alert: false
-
+    alert: false,
   };
   constructor(props) {
     super(props);
@@ -161,7 +159,6 @@ class AddMaterial extends Component {
     let form = this.state.matForm;
     let amount = this.state.matAmount;
 
-  
     const products = await this.props.pcContract.methods
       .getProductsByManu(this.props.account[0])
       .call();
@@ -170,38 +167,35 @@ class AddMaterial extends Component {
       return item.productName === proID;
     });
 
-    console.log(products)
-    console.log(pros)
+    console.log(products);
+    console.log(pros);
 
-    if(pros.length === 0 ) {
-      this.setState({ msg: "Invalid Product ID, Please Try Again! " , alert: true });
-        setTimeout(() => {
-          this.setState({ msg: " " });
-        }, 2000);
+    if (pros.length === 0) {
+      this.setState({
+        msg: "Invalid Product ID, Please Try Again! ",
+        alert: true,
+      });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 2000);
     } else {
       await this.props.pcContract.methods
-      .addProductSpecs(proID, name, type, strength, form, amount)
-      .send({ from: this.props.account[0] })
-      .once("receipt", (receipt) => {
-        this.setState({ msg: "Added product specification successfully!" });
-        setTimeout(() => {
-          this.setState({ msg: " " });
-        }, 2000);
+        .addProductSpecs(proID, name, type, strength, form, amount)
+        .send({ from: this.props.account[0] })
+        .once("receipt", (receipt) => {
+          this.setState({ msg: "Added product specification successfully!" });
+          setTimeout(() => {
+            this.setState({ msg: " " });
+          }, 2000);
+        });
+      this.setState({
+        matName: "",
+        matType: "",
+        matStr: "",
+        matForm: "",
+        matAmount: "",
       });
-    this.setState({
-      matName: "",
-      matType: "",
-      matStr: "",
-      matForm: "",
-      matAmount: "",
-    });
-
     }
-    
-
-    
-
-   
   };
 
   handleChange = async (e) => {
@@ -216,7 +210,7 @@ class AddMaterial extends Component {
   };
   render() {
     let beError;
-    this.state.alert? beError = "alert-text" : beError = ""
+    this.state.alert ? (beError = "alert-text") : (beError = "");
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
@@ -354,7 +348,7 @@ class AddMaterial extends Component {
 
         <div
           style={{ marginTop: "20px" }}
-          className= {`notify-data-container notify-text ${beError}`}
+          className={`notify-data-container notify-text ${beError}`}
         >
           {this.state.msg}
         </div>
@@ -391,7 +385,6 @@ class CreateCostPlan extends Component {
     this.shippingCostRef = React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
-
   }
 
   OnSubmit = async (e) => {
@@ -402,10 +395,10 @@ class CreateCostPlan extends Component {
     const pkgMatStd = parseInt(this.state.packagingMaterialStdCost, 10);
     const mrkStd = parseInt(this.state.mrkStdCost, 10);
     const rsrhStd = parseInt(this.state.rsrhStdCost, 10);
-    const hoursNo = parseInt(this.state.workHoursNo,10);
-    const rate = parseInt(this.state.hourlyWorkRate,10);
-    const matUnitCost = parseInt(this.state.materialUnitCost,10);
-    const shippingCost = parseInt(this.state.shippingCost,10)
+    const hoursNo = parseInt(this.state.workHoursNo, 10);
+    const rate = parseInt(this.state.hourlyWorkRate, 10);
+    const matUnitCost = parseInt(this.state.materialUnitCost, 10);
+    const shippingCost = parseInt(this.state.shippingCost, 10);
 
     // const totalStandard =
     //   matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
@@ -419,11 +412,10 @@ class CreateCostPlan extends Component {
         pkgMatStd,
         matUnitCost,
         rate,
-        hoursNo,        
+        hoursNo,
         mrkStd,
         rsrhStd,
         shippingCost
-        
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -434,7 +426,6 @@ class CreateCostPlan extends Component {
       });
 
     this.setState({
-      
       productUnitsNo: "",
       packagingMaterialStdCost: "",
       mrkStdCost: "",
@@ -456,8 +447,7 @@ class CreateCostPlan extends Component {
       workHoursNo: this.hoursNoRef.current.value,
       hourlyWorkRate: this.hourlyRateRef.current.value,
       materialUnitCost: this.materialUnitCostRef.current.value,
-      shippingCost: this.shippingCostRef.current.value
-
+      shippingCost: this.shippingCostRef.current.value,
     });
   };
 
@@ -492,7 +482,7 @@ class CreateCostPlan extends Component {
           required="required"
         />
 
-        <h4> Set Standards  </h4>
+        <h4> Set Standards </h4>
 
         <label>Unit Material Cost: </label>
         <input
@@ -534,7 +524,7 @@ class CreateCostPlan extends Component {
           required="required"
         />
 
-         <label>Shipping Cost: </label>
+        <label>Shipping Cost: </label>
         <input
           type="number"
           ref={this.shippingCostRef}
@@ -543,7 +533,6 @@ class CreateCostPlan extends Component {
           onChange={this.OnChange}
           required="required"
         />
-
 
         <label>Marketing: </label>
         <input
@@ -578,6 +567,7 @@ class CreateCostPlan extends Component {
     );
   }
 }
+
 class ReviewProduct extends Component {
   state = { products: null, product: "", vis: false };
 
@@ -608,7 +598,6 @@ class ReviewProduct extends Component {
       this.setState({ id });
       return id;
     });
-    
 
     const proName = pros.map((item) => {
       const name = item.productId;
@@ -616,36 +605,30 @@ class ReviewProduct extends Component {
       return name;
     });
 
-
     this.setState({ proId, proName });
 
-
-    
-
     if (this.state.id === undefined) {
-      this.setState({msg: 'Please Select a Product!'})
+      this.setState({ msg: "Please Select a Product!" });
       setTimeout(() => {
         this.setState({ msg: " " });
       }, 3000);
     } else {
       const details = await this.props.pcContract.methods
-      .getProductPhase(this.state.id)
-      .call();
+        .getProductPhase(this.state.id)
+        .call();
 
-    const lastDetail = details[details.length - 1];
-    this.setState({ lastDetail , vis:true });
-    if( details.length === 0 || pros.length === 0 ) {
-      this.setState({msg: 'No Data Found, Please try again later' , vis:false})
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 3000);
-      
-    }  
+      const lastDetail = details[details.length - 1];
+      this.setState({ lastDetail, vis: true });
+      if (details.length === 0 || pros.length === 0) {
+        this.setState({
+          msg: "No Data Found, Please try again later",
+          vis: false,
+        });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      }
     }
-  
-
-    
-    
   };
 
   OnChange = async (e) => {
@@ -677,13 +660,22 @@ class ReviewProduct extends Component {
         <h4> Product Status</h4>
         <form onSubmit={this.OnSubmit} className="newform-container form-row">
           <label>SELECT PRODUCT</label>
-          <select  onChange={this.OnChange} ref={this.proRef} required>
-            <option id='default' style={{fontStyle: 'italic' , opacity: '0.6', color: '#777' }} value="default"> Select a Product </option>
+          <select onChange={this.OnChange} ref={this.proRef} required>
+            <option
+              id="default"
+              style={{ fontStyle: "italic", opacity: "0.6", color: "#777" }}
+              value="default"
+            >
+              {" "}
+              Select a Product{" "}
+            </option>
             {this.state.names}
           </select>
           <input type="submit" className="btn" value="VIEW STATUS" />
         </form>
-        <div style={{marginTop: '20px'}} className="notify">{this.state.msg}</div>
+        <div style={{ marginTop: "20px" }} className="notify">
+          {this.state.msg}
+        </div>
         <div className={` ${view} review-container `}>
           <div className="review">
             <div className="content">
@@ -693,8 +685,9 @@ class ReviewProduct extends Component {
               <p className="text">{this.state.name}</p>
             </div>
             <div className="status">
-            <p className="head">CURRENT STATUS</p>
-            <div className="text">{this.state.lastDetail}</div></div>
+              <p className="head">CURRENT STATUS</p>
+              <div className="text">{this.state.lastDetail}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -726,7 +719,9 @@ class AddProduct extends Component {
                 </NavLink>
               </li>
               <li className="link-item">
-                <NavLink to="/add-product/costPlan">+ CREATE STANDARD PLAN</NavLink>
+                <NavLink to="/add-product/costPlan">
+                  + CREATE STANDARD PLAN
+                </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/add-product/review">+ REVIEW PRODUCTS</NavLink>

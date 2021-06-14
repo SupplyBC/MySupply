@@ -70,7 +70,7 @@ function UpdateMap(props) {
 
 class Map extends Component {
   state = { currentLocation: null };
-  componentWillMount = async () => {
+  componentDidMount = async () => {
     this.setState({ currentLocation: this.props.location });
   };
 
@@ -184,6 +184,7 @@ class TrackRecord extends Component {
 
   render() {
     let statusColor;
+    console.log(this.props.time)
     const dateStr = new Date(this.props.time * 1000).toString();
     const dateArr = dateStr.split(" ", 5);
     const timestamp = dateArr.join(" ");
@@ -446,20 +447,22 @@ class Status extends Component {
       filter: {
         requestNo: id,
       },
-      fromBlock: 400,
+      fromBlock: 0,
     });
+
 
     let timeLogsFiltered = eventsFiltered.map((log) => {
       let logTime = new Date(log.returnValues.timestamp * 1000);
-      let hours = logTime.getUTCHours();
-      let minutes = logTime.getUTCMinutes().toString().padStart(2, "0");
-      let day = logTime.getUTCDate();
-      let month = logTime.getUTCMonth() + 1;
-      let year = logTime.getUTCFullYear();
+      let hours = logTime.getHours();
+      let minutes = logTime.getMinutes().toString().padStart(2, "0");
+      let day = logTime.getDate();
+      let month = logTime.getMonth() + 1;
+      let year = logTime.getFullYear();
       let timestamp = day + "/" + month + "/" + year + " " + hours + ":" + minutes;
       return timestamp;
     });
 
+    console.log(timeLogsFiltered)
     this.setState({ trackHistory, tempHistory, humidHistory, timeLogsFiltered });
 
     // send data to chart
@@ -473,8 +476,18 @@ class Status extends Component {
     );
     
     let stateLogs = mapEvents[mapEvents.length - 1];
+
+    if (stateLogs === undefined) {
+      this.setState({
+        msg: "No tracking logs are available for this request, please try again later!",
+        wholeActive: false,
+      });
+    } else {
     let currentState = stateLogs.returnValues.state;
     this.setState({ currentState });
+    }
+
+    
 
     let reqEvents = await this.props.pcContract.getPastEvents(
       "requestStateUpdate",
@@ -484,8 +497,18 @@ class Status extends Component {
     );
 
     let requestLogs = reqEvents[reqEvents.length - 1];
-    let reqCurrentState = requestLogs.returnValues.state;
-    this.setState({ reqCurrentState });
+    if (requestLogs === undefined) {
+      this.setState({
+        msg: "No tracking logs are available for this request, please try again later!",
+        wholeActive: false,
+      });
+    } else {
+     
+      let reqCurrentState = requestLogs.returnValues.state;
+      this.setState({ reqCurrentState });
+    }
+
+  
 
     const shippingMethod = await this.props.pctContract.methods.getShipmentMethod(id).call();
     this.setState({shippingMethod})
@@ -503,6 +526,8 @@ class Status extends Component {
         description,
         time,
       });
+
+      console.log(this.state.time)
 
       return (
         <TrackRecord

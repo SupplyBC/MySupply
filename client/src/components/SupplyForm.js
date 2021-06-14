@@ -1,6 +1,69 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
+class ManagePermissions extends Component {
+
+  state = {participant: ''}
+
+  constructor(props) {
+    super(props);
+    this.participantRef = React.createRef();
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+
+
+  onSubmit = async(e) => {
+    e.preventDefault();
+    const parti = this.state.participant;
+    await this.props.pcContract.methods.addToTrusted(parti).send({
+      from: this.props.account[0]
+    });
+
+    console.log(parti)
+  }
+
+  onChange = async(e) => {
+    this.setState({
+      participant: this.participantRef.current.value,
+    })
+  }
+  render() {
+    return (
+      <form onSubmit={this.onSubmit} className="newform-container">
+
+        <h4>Manage Data Permissions</h4>
+        <label> Enter Participant Address </label>
+
+        <input
+          type="text"
+          ref={this.participantRef}
+          placeholder="e.g.0x8a57428748D955C919F1928C1F21aF0dC1f4fC9d"
+          value={this.state.participant}
+          onChange={this.onChange}
+          required = "required"
+        />
+
+        <input
+          className="btn"
+          type="submit"
+          value="GRANT ACCESS"
+          ref={this.btnRef}
+        />
+
+        <div
+          style={{ marginTop: "20px" }}
+          className={` product-data-container`}
+        >
+          <div style={{ margin: "10px 0px" }} className="query-result">
+            {this.state.msg}
+          </div>
+        </div>
+      </form>
+    );
+  }
+}
+
 class QueryProductSpecs extends Component {
   state = { proName: "", tableVisibility: false };
 
@@ -210,14 +273,14 @@ class RequestMaterials extends Component {
               <li> <strong>UNIT COST </strong> {cost}</li>
               <li> <strong>STABILITY </strong> {stability? "STABLE" : "NOT STABLE"}</li>   
               <li> <strong>STABILITY PERIOD </strong> {stabilityPeriod} years</li>   
-              <li> <strong>STORAGE CONDITIONS</strong> {stability?  {stability}: "N/A"}</li>   
+              <li> <strong>STORAGE CONDITIONS</strong> {conditions === '' ? 'N/A' : conditions }</li>   
               <li> <strong>IN STOCK </strong> {availableAmount} g</li>     
             </ul>
             <hr className="custom-hr-full"></hr> 
           </div>
       );
     })
-    this.setState({ resultCount: queryFilter.length ,result , amountToggled: true});
+    this.setState({ resultCount: queryFilter.length , result , amountToggled: true});
   
   };
 
@@ -620,6 +683,171 @@ class CreateMaterial extends Component {
   }
 }
 
+class CreateCostPlan extends Component {
+  state = {
+    material: "",
+    materialMaterialCost: 0,
+    materialPkgCost: 0,
+    materialLaborCost: 0,
+    materialShippingCost: 0,
+    materialTotalIndirectCost: 0
+  };
+
+  constructor(props) {
+    super(props);
+    this.matRef = React.createRef();
+    this.materialPkgCostRef = React.createRef();
+    this.materialMaterialCostRef = React.createRef();
+    this.materialLaborCostRef =React.createRef();
+    this.materialShippingCostRef = React.createRef();
+    this.materialTotalIndirectCostRef = React.createRef()
+    this.OnChange = this.onChange.bind(this);
+    this.OnSubmit = this.OnSubmit.bind(this);
+
+  }
+
+  OnSubmit = async (e) => {
+    e.preventDefault();
+
+    const mat = this.state.material;
+    const matPkgCost = parseInt(this.state.materialPkgCost, 10);
+    const matMaterialCost = parseInt(this.state.materialMaterialCost,10);
+    const matLaborCost = parseInt(this.state.materialLaborCost,10);
+    const matShippingCost = parseInt(this.state.materialShippingCost,10);
+    const matTotalIndirectCost = parseInt(this.state.materialTotalIndirectCost,10);
+
+    // const totalStandard =
+    //   matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
+
+    // this.setState({ totalStdCost: totalStandard });
+
+    await this.props.pcContract.methods
+      .setMaterialCostPlan(
+        mat,
+        matMaterialCost,
+        matPkgCost,
+        matLaborCost,
+        matTotalIndirectCost,
+        matShippingCost
+        
+      )
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Material Cost Plan Was Set Successfully" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 2000);
+      });
+
+    this.setState({
+      
+      materialMaterialCost: "",
+      materialPkgCost: "",
+      materialLaborCost: "",
+      materialShippingCost: "",
+      materialTotalIndirectCost: ""
+    });
+  };
+
+  onChange = async (e) => {
+    this.setState({
+      material: this.matRef.current.value,
+      materialPkgCost: this.materialPkgCostRef.current.value,
+      materialMaterialCost: this.materialMaterialCostRef.current.value,
+      materialShippingCost: this.materialShippingCostRef.current.value,
+      materialLaborCost: this.materialLaborCostRef.current.value,
+      materialTotalIndirectCost: this.materialTotalIndirectCostRef.current.value
+
+    });
+  };
+
+  render() {
+    let acc = this.props.account;
+    let cont1 = this.props.pcContract;
+    let cont2 = this.props.pctContract;
+
+    if (!acc || !cont1 || !cont2) {
+      return <div> Loading..... </div>;
+    }
+    return (
+      <form onSubmit={this.OnSubmit} className="newform-container">
+        <label>Material ID:</label>
+        <input
+          type="text"
+          ref={this.matRef}
+          value={this.state.material}
+          placeholder="e.g. pro101"
+          onChange={this.OnChange}
+          required="required"
+        />
+
+    
+        <h4> Set Material Cost Plan  </h4>
+
+        <label>Raw Material Cost: </label>
+        <input
+          type="number"
+          ref={this.materialMaterialCostRef}
+          value={this.state.materialMaterialCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+          required="required"
+        />
+
+        <label>Packaging Material Cost: </label>
+        <input
+          type="number"
+          ref={this.materialPkgCostRef}
+          value={this.state.materialPkgCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+          required="required"
+        />
+
+    
+        <label>Labor Cost: </label>
+        <input
+          type="number"
+          ref={this.materialLaborCostRef}
+          value={this.state.materialLaborCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+          required="required"
+        />
+
+         <label>Shipping Cost: </label>
+        <input
+          type="number"
+          ref={this.materialShippingCostRef}
+          value={this.state.materialShippingCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+          required="required"
+        />
+
+        <label>Total Indirect Cost: </label>
+        <input
+          type="number"
+          ref={this.materialTotalIndirectCostRef}
+          value={this.state.materialTotalIndirectCost}
+          placeholder="e.g. 5000"
+          onChange={this.OnChange}
+          required="required"
+        />
+
+        <input
+          type="submit"
+          className="btn"
+          value="CREATE MATERIAL COST PLAN"
+        />
+
+        <div style={{ marginTop: "20px" }} className="notify-text">
+          {this.state.msg}
+        </div>
+      </form>
+    );
+  }
+}
 class ApproveRequest extends Component {
   state = {msg: '', requestId: ''}
 
@@ -1257,6 +1485,9 @@ class SupplyForm extends Component {
                 <NavLink to="/supply/querySpecs">+ QUERY PRODUCT SPECS</NavLink>
               </li>
               <li className="link-item">
+                <NavLink to="/supply/managePermissions">+ MANAGE PERMISSIONS</NavLink>
+              </li>
+              <li className="link-item">
                 <NavLink to="/supply/requestMaterial">
                   + REQUEST MATERIAL
                 </NavLink>
@@ -1267,6 +1498,11 @@ class SupplyForm extends Component {
               <li className="link-item">
                 <NavLink to="/supply/supplier/createMaterial">
                   + CREATE MATERIAL
+                </NavLink>
+              </li>
+              <li className="link-item">
+                <NavLink to="/supply/supplier/createCostPlan">
+                  + CREATE COST PLAN
                 </NavLink>
               </li>
               <label style={{ marginTop: "10px" }}>
@@ -1297,6 +1533,19 @@ class SupplyForm extends Component {
                 />
               )}
             />
+             <Route
+              path="/supply/managePermissions"
+              exact
+              render={(props) => (
+                <ManagePermissions
+                  {...props}
+                  Web3={this.props.Web3}
+                  account={this.props.account}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
+                />
+              )}
+            />
             <Route
               path="/supply/requestMaterial"
               exact
@@ -1315,6 +1564,19 @@ class SupplyForm extends Component {
               exact
               render={(props) => (
                 <CreateMaterial
+                  {...props}
+                  Web3={this.props.Web3}
+                  account={this.props.account}
+                  pcContract={this.props.pcContract}
+                  pctContract={this.props.pctContract}
+                />
+              )}
+            />
+            <Route
+              path="/supply/supplier/createCostPlan"
+              exact
+              render={(props) => (
+                <CreateCostPlan
                   {...props}
                   Web3={this.props.Web3}
                   account={this.props.account}
