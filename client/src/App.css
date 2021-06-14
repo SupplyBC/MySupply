@@ -12,8 +12,8 @@ body {
   background-blend-mode: overlay;
   height: 100%;
 }
-
-/* UTILS  */
+                            
+/* UTILS  */                            
 
 @keyframes glow {
   0% {
