@@ -31,7 +31,8 @@ contract PharmaChain {
     address     bank;
     Material[]  materialArr;
     Product[]   productArr;
-    mapping (address => bool)               participants;
+    mapping (address => mapping(address => bool)) participants;   // trusted participants
+    mapping (address => address[])            trustedPartis; // participants and trusted other trusted mapping for array
     mapping (address => Product[])          products;    // manufacturer and product
     mapping (string => Specs[])             productSpecs; // productID and material 
     mapping (string => uint)                stdMaterialQty; // std mateiral qty used in product (id) unit
@@ -50,6 +51,7 @@ contract PharmaChain {
     mapping (string => uint)                standardBudgetUnits;
     mapping (string => uint)                actualBudgetUnits;
     mapping (string => uint)                flexibleBudgetUnits;
+    mapping (string => MaterialProductionCost) materialCostPlan;   // supplier's material cost data
     mapping (uint => uint)                  requestCost;    // requestId and Cost
     mapping (address => InventoryItem[])    inventory;   // participant and items inventory
     mapping (string => InventoryItem)       inventoryList;   // inventory item by item id
@@ -132,6 +134,16 @@ contract PharmaChain {
         uint shippingCost; // shipping method cost 
     }
     
+    struct MaterialProductionCost {
+         uint directMaterialCost;
+         uint packagingMaterialCost;
+         uint directLaborCost;
+         uint shippingCost;
+         uint totalIndirectCost;
+         uint totalDirectCost;
+         uint CostTOT;
+    }
+    
     
     struct Location {
         string Latitude;
@@ -143,7 +155,26 @@ contract PharmaChain {
       uint   amount;
     }
     
-    // FUNCTIONS
+    // FUNCTIONS AND MODIFIERS
+    
+    // modifier onlyTrusted(address _participant) {
+    //     require(participants[msg.sender][_participant] == true);
+    //     _;
+    // }
+
+    function addToTrusted(address _participant) public  {
+        participants[msg.sender][_participant] = true;
+        participants[_participant][msg.sender] = true;
+        trustedPartis[msg.sender].push(_participant);
+    }   
+    
+    function removeFromTrusted(address _participant) public {
+        participants[msg.sender][_participant] = false;
+    }
+    
+    function isTrusted(address _participant) public view returns (bool) {
+        return participants[msg.sender][_participant];
+    }
     
     function emitRequestStateEvent(string memory _state) public {
          emit requestStateUpdate(msg.sender, block.timestamp , _state);
@@ -269,6 +300,14 @@ contract PharmaChain {
     function getStdCostPlan(string memory _product) public view returns(Cost memory) {
         return standardProductCosts[_product];
     }
+    
+    // function getStdCostPlanAsTrusted (string memory _product, address _invoker)
+    // public 
+    // onlyTrusted(_invoker)
+    // view 
+    // returns(Cost memory) {
+    // return standardProductCosts[_product];
+    // }
     
     function getStdBudgetUnits(string memory _product) public view returns (uint units ) {
         return standardBudgetUnits[_product];
@@ -410,6 +449,34 @@ contract PharmaChain {
         materialArr.push(mat);
         addToInventory(msg.sender, _id , _amount);
         
+    }
+    
+    function setMaterialCostPlan (
+    string memory _materialID,
+    uint _directMaterialCost,
+    uint _directPkgUnitCost,
+    uint _directLaborCost,
+    uint _totalIndirectCost,
+    uint _shipCost
+    
+    )
+    public {
+        MaterialProductionCost memory matCost = MaterialProductionCost ({
+            directMaterialCost: _directMaterialCost,
+            packagingMaterialCost: _directPkgUnitCost,
+            directLaborCost:  _directLaborCost,
+            shippingCost: _shipCost,
+            totalDirectCost:  _directMaterialCost + _directPkgUnitCost +  _directLaborCost,
+            totalIndirectCost: _totalIndirectCost,
+            CostTOT:  _directMaterialCost + _directPkgUnitCost +  _directLaborCost + _totalIndirectCost
+        });
+        
+        materialCostPlan[_materialID] = matCost;
+        
+    }
+    
+    function getMaterialCostPlan(string memory _material) public view returns(MaterialProductionCost memory) {
+        return materialCostPlan[_material];
     }
     
     
