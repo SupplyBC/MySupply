@@ -176,6 +176,10 @@ contract PharmaChain {
         return participants[msg.sender][_participant];
     }
     
+    function checkIfTrusted(address _truster, address _trustee) public view returns (bool) {
+        return participants[_truster][_trustee];
+    }
+    
     function emitRequestStateEvent(string memory _state) public {
          emit requestStateUpdate(msg.sender, block.timestamp , _state);
     }
