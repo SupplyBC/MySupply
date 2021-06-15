@@ -9,9 +9,9 @@ class MaterialCostData extends Component {
   }
 
   componentDidMount = async () => {
-    const isTrust = await this.props.pcContract.methods.isTrusted(this.props.account[0]).call();
+    const isTrust = await this.props.pcContract.methods.checkIfTrusted(this.props.supplier, this.props.account[0]).call();
     this.setState({ isTrust });
-    if(this.state.isTrust === true) {
+    if (this.state.isTrust === true) {
 
     } else {
       this.setState({
@@ -66,7 +66,7 @@ class MaterialCostData extends Component {
       this.setState({
         msg: "No Financial Data Found for the Given Material ID!".toUpperCase(),
       });
-    } 
+    }
     this.setState({ cost })
 
   }
@@ -74,8 +74,8 @@ class MaterialCostData extends Component {
   render() {
     let classified, visible;
     this.state.isVisible ? visible = "show" : visible = "hide";
-    this.state.isTrust?  classified = "show": classified = "hide";
-    
+    this.state.isTrust ? classified = "show" : classified = "hide";
+
     return (
       <div className="newform-container">
         <form onSubmit={this.onSubmit} >
@@ -84,8 +84,8 @@ class MaterialCostData extends Component {
         {/* <button onClick={this.toggleFinancialDetail} className="financial-detail-btn"></button> */}
         <div className={`${visible}`}>
           <div className={`costsClashContainer `}>
-            <div style={{color: '#f2f2f2'}}>{this.state.msg}</div>
-            <div className={`${classified} std-cost-container`}>
+            <div className="alert-text" style={{ marginLeft: '-20px' }}>{this.state.msg}</div>
+            <div className={`${classified} std-cost-container`} style={{marginLeft: '-19%'}}  >
               <table className="cost-data">
                 <thead>
                   <tr>
@@ -128,6 +128,72 @@ class MaterialCostData extends Component {
   }
 }
 
+class RevokeAccess extends Component {
+
+  state = { participant: '' }
+
+  constructor(props) {
+    super(props);
+    this.participantRef = React.createRef();
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
+
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const parti = this.state.participant;
+    await this.props.pcContract.methods.removeFromTrusted(parti).send({
+      from: this.props.account[0]
+    }).once("receipt", (receipt) => {
+      this.setState({ msg: "Access was revoked successfully!".toUpperCase() });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    });
+
+  }
+
+  onChange = async (e) => {
+    this.setState({
+      participant: this.participantRef.current.value,
+    })
+  }
+  render() {
+    return(
+      <form onSubmit={this.onSubmit} className="newform-container">
+
+        <h4>REVOKE ACCESS</h4>
+        <label> Enter Participant Address </label>
+
+        <input
+          type="text"
+          ref={this.participantRef}
+          placeholder="e.g.0x8a57428748D955C919F1928C1F21aF0dC1f4fC9d"
+          value={this.state.participant}
+          onChange={this.onChange}
+          required="required"
+        />
+
+        <input
+          className="btn"
+          type="submit"
+          value="REVOKE ACCESS"
+          ref={this.btnRef}
+        />
+
+        <div
+          style={{ marginTop: "20px" }}
+          className={` product-data-container`}
+        >
+          <div style={{ margin: "10px 0px" }} className="good-text query-result">
+            {this.state.msg}
+          </div>
+        </div>
+      </form>
+    );
+  }
+}
 
 class ManagePermissions extends Component {
   state = { participant: '' }
@@ -146,7 +212,7 @@ class ManagePermissions extends Component {
     await this.props.pcContract.methods.addToTrusted(parti).send({
       from: this.props.account[0]
     }).once("receipt", (receipt) => {
-      this.setState({ msg: "Access was granted successfully!" });
+      this.setState({ msg: "Access was granted successfully!".toUpperCase() });
       setTimeout(() => {
         this.setState({ msg: " " });
       }, 3000);
@@ -161,9 +227,11 @@ class ManagePermissions extends Component {
   }
   render() {
     return (
+      <div>
       <form onSubmit={this.onSubmit} className="newform-container">
 
         <h4>Manage Data Permissions</h4>
+        <h4>GRANT ACCESS</h4>
         <label> Enter Participant Address </label>
 
         <input
@@ -186,11 +254,16 @@ class ManagePermissions extends Component {
           style={{ marginTop: "20px" }}
           className={` product-data-container`}
         >
-          <div style={{ margin: "10px 0px" }} className="query-result">
+          <div style={{ margin: "10px 0px" }} className=" good-text query-result">
             {this.state.msg}
           </div>
         </div>
       </form>
+      <hr className="custom-hr-half"/>
+      <RevokeAccess 
+      account = {this.props.account}
+      pcContract = {this.props.pcContract} />
+      </div>
     );
   }
 }
