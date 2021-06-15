@@ -1,9 +1,136 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
-class ManagePermissions extends Component {
+class MaterialCostData extends Component {
+  state = { material: '', isVisible: false }
+  constructor(props) {
+    super(props);
+    this.toggleFinancialDetails = this.toggleFinancialDetail.bind(this);
+  }
 
-  state = {participant: ''}
+  componentDidMount = async () => {
+    const isTrust = await this.props.pcContract.methods.isTrusted(this.props.account[0]).call();
+    this.setState({ isTrust });
+    if(this.state.isTrust === true) {
+
+    } else {
+      this.setState({
+        msg: 'YOU ARE NOT AUTHORIZED TO REVIEW THIS DATA!',
+      })
+    }
+  }
+
+  toggleFinancialDetail = async () => {
+    this.setState({ isVisible: !this.state.isVisible })
+
+  }
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const matCosts = await this.props.pcContract.methods.getMaterialCostPlan(this.props.materialId).call();
+    const cost = matCosts.map(() => {
+      const matMaterialCostValue = parseInt(matCosts.directMaterialCost, 10);
+      const matPkgCostValue = parseInt(matCosts.packagingMaterialCost, 10);
+      const matLaborCostValue = parseInt(matCosts.directLaborCost, 10);
+      const matShippingCostValue = parseInt(matCosts.shippingCost, 10);
+      const matTotalDirectCostValue = parseInt(matCosts.totalDirectCost, 10);
+      const matTotalIndirectCostValue = parseInt(matCosts.totalIndirectCost, 10);
+
+      const matMaterialCost = matMaterialCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+      const matPkgCost = matPkgCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+      const matLaborCost = matLaborCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+      const matShippingCost = matShippingCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+      const matTotalDirectCost = matTotalDirectCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+      const matTotalIndirectCost = matTotalIndirectCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
+      this.setState({
+        matMaterialCostValue,
+        matPkgCostValue,
+        matLaborCostValue,
+        matShippingCostValue,
+        matTotalDirectCostValue,
+        matTotalIndirectCostValue,
+        matMaterialCost,
+        matPkgCost,
+        matLaborCost,
+        matShippingCost,
+        matTotalDirectCost,
+        matTotalIndirectCost
+      })
+
+      return true;
+
+    });
+
+    if (this.state.matTotalDirectCostValue === 0) {
+      this.setState({
+        msg: "No Financial Data Found for the Given Material ID!".toUpperCase(),
+      });
+    } 
+    this.setState({ cost })
+
+  }
+
+  render() {
+    let classified, visible;
+    this.state.isVisible ? visible = "show" : visible = "hide";
+    this.state.isTrust?  classified = "show": classified = "hide";
+    
+    return (
+      <div className="newform-container">
+        <form onSubmit={this.onSubmit} >
+          <button onClick={this.toggleFinancialDetail} className="financial-detail-btn">{this.state.isVisible ? 'Hide Financial Data' : 'View Financial Data'}</button>
+        </form>
+        {/* <button onClick={this.toggleFinancialDetail} className="financial-detail-btn"></button> */}
+        <div className={`${visible}`}>
+          <div className={`costsClashContainer `}>
+            <div style={{color: '#f2f2f2'}}>{this.state.msg}</div>
+            <div className={`${classified} std-cost-container`}>
+              <table className="cost-data">
+                <thead>
+                  <tr>
+                    <th>CRITERIA</th>
+                    <th>COST</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td> Raw Materials </td>
+                    <td>{this.state.matMaterialCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Packaging Materials </td>
+                    <td>{this.state.matPkgCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Direct Labor </td>
+                    <td>{this.state.matLaborCost}</td>
+                  </tr>
+                  <tr
+                    style={{
+                      borderTop: "1px solid",
+                      borderBottom: "1px solid",
+                    }}
+                  >
+                    <td>TOTAL DIRECT COST</td>
+                    <td>{this.state.matTotalDirectCost}</td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    );
+  }
+}
+
+
+class ManagePermissions extends Component {
+  state = { participant: '' }
 
   constructor(props) {
     super(props);
@@ -13,17 +140,21 @@ class ManagePermissions extends Component {
   }
 
 
-  onSubmit = async(e) => {
+  onSubmit = async (e) => {
     e.preventDefault();
     const parti = this.state.participant;
     await this.props.pcContract.methods.addToTrusted(parti).send({
       from: this.props.account[0]
+    }).once("receipt", (receipt) => {
+      this.setState({ msg: "Access was granted successfully!" });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
     });
 
-    console.log(parti)
   }
 
-  onChange = async(e) => {
+  onChange = async (e) => {
     this.setState({
       participant: this.participantRef.current.value,
     })
@@ -41,7 +172,7 @@ class ManagePermissions extends Component {
           placeholder="e.g.0x8a57428748D955C919F1928C1F21aF0dC1f4fC9d"
           value={this.state.participant}
           onChange={this.onChange}
-          required = "required"
+          required="required"
         />
 
         <input
@@ -137,7 +268,7 @@ class QueryProductSpecs extends Component {
           placeholder="e.g. pro101"
           value={this.state.proName}
           onChange={this.onChange}
-          required = "required"
+          required="required"
         />
 
         <input
@@ -182,7 +313,9 @@ class RequestMaterials extends Component {
     resultCount: 0,
     msg: " ",
     amountToggled: false,
-    batchToggled: false
+    batchToggled: false,
+    modalIsOpen: false,
+    setIsOpen: false,
   };
 
   constructor(props) {
@@ -200,14 +333,15 @@ class RequestMaterials extends Component {
     this.addBatchRequest = this.addBatchRequest.bind(this);
   }
 
-  addBatchRequest = async(e) => {
+
+  addBatchRequest = async (e) => {
     e.preventDefault();
-    this.setState({batchToggled: true})
+    this.setState({ batchToggled: true })
     const amount = this.state.amount;
     const id = this.state.matId;
     const manu2 = this.state.manufacturerBatched;
     const info = await this.props.pcContract.methods.getMaterialById(id).call();
-    const supplier = info.supplier; 
+    const supplier = info.supplier;
     await this.props.pcContract.methods.createBatchRequest(
       manu2,
       supplier,
@@ -217,71 +351,79 @@ class RequestMaterials extends Component {
 
   }
 
-  addRequest = async(e) => {
+  addRequest = async (e) => {
     e.preventDefault()
     const amount = this.state.amount;
     const id = this.state.matId;
-    console.log(id,amount);
+    console.log(id, amount);
     const info = await this.props.pcContract.methods.getMaterialById(id).call();
     const toAddr = info.supplier;
-    console.log(info,toAddr)
-    await this.props.pcContract.methods.createRequest(toAddr,id,amount)
-    .send({from: this.props.account[0]})
-    .once("receipt", (receipt) => {
-        this.setState({ msg: "Request was sent successfully!"});
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 3000);
-    });
+    console.log(info, toAddr)
+    await this.props.pcContract.methods.createRequest(toAddr, id, amount)
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Request was sent successfully!" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
     const request = await this.props.pcContract.methods.getMyRequests().call();
     console.log(request);
-    const requestNo = request[request.length -1].requestId;
+    const requestNo = request[request.length - 1].requestId;
     console.log(requestNo);
-    this.setState({ requestInfo: "Your Tracking Number: " + requestNo});
-      setTimeout(() => {
-        this.setState({ requestInfo: " " });
-      }, 15000);
+    this.setState({ requestInfo: "Your Tracking Number: " + requestNo });
+    setTimeout(() => {
+      this.setState({ requestInfo: " " });
+    }, 15000);
   }
 
   onSubmit = async (e) => {
     e.preventDefault();
     const material = this.state.materialName;
     const query = await this.props.pcContract.methods.getMaterials().call();
-    const queryFilter = query.filter( item => {
-      return item.materialName.includes(material) 
+    const queryFilter = query.filter(item => {
+      return item.materialName.includes(material)
     });
-    console.log(queryFilter);
-    const result = queryFilter.map((item,index) => {
+    const result = queryFilter.map((item, index) => {
+
       let supplier = item.supplier;
       let id = item.materialID;
       let name = item.materialName;
-      let cost = parseInt(item.unitCost,10).toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+      let cost = parseInt(item.unitCost, 10).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
       let form = item.materialForm;
       let availableAmount = item.createdAmount;
       let conditions = item.storageConditions;
       let stability = item.materialStability;
       let stabilityPeriod = item.materialStabilityPeriod;
-      console.log(supplier,id,name,cost,stability,conditions,stabilityPeriod);
 
-      return(
-          <div key={index}>
-            <ul className="query-result-list" key={index}>
-              <li> <strong>SUPPLIER </strong> {supplier}</li>
-              <li> <strong>ID </strong> {id}</li>
-              <li> <strong>NAME </strong> {name}</li>
-              <li> <strong>FORM </strong> {form}</li>
-              <li> <strong>UNIT COST </strong> {cost}</li>
-              <li> <strong>STABILITY </strong> {stability? "STABLE" : "NOT STABLE"}</li>   
-              <li> <strong>STABILITY PERIOD </strong> {stabilityPeriod} years</li>   
-              <li> <strong>STORAGE CONDITIONS</strong> {conditions === '' ? 'N/A' : conditions }</li>   
-              <li> <strong>IN STOCK </strong> {availableAmount} g</li>     
-            </ul>
-            <hr className="custom-hr-full"></hr> 
-          </div>
+
+      return (
+        <div key={index}>
+
+          <ul className="query-result-list" key={index}>
+            <li> <strong>SUPPLIER </strong> {supplier}</li>
+            <li> <strong>ID </strong> {id}</li>
+            <li> <strong>NAME </strong> {name}</li>
+            <li> <strong>FORM </strong> {form}</li>
+            <li> <strong>UNIT COST </strong> {cost}</li>
+            <li> <strong>STABILITY </strong> {stability ? "STABLE" : "NOT STABLE"}</li>
+            <li> <strong>STABILITY PERIOD </strong> {stabilityPeriod} years</li>
+            <li> <strong>STORAGE CONDITIONS</strong> {conditions === '' ? 'N/A' : conditions}</li>
+            <li> <strong>IN STOCK </strong> {availableAmount} g</li>
+          </ul>
+          <MaterialCostData
+            supplier={supplier}
+            materialId={id}
+            account={this.props.account}
+            pcContract={this.props.pcContract}
+
+          />
+          <hr className="custom-hr-full"></hr>
+        </div>
       );
     })
-    this.setState({ resultCount: queryFilter.length , result , amountToggled: true});
-  
+    this.setState({ resultCount: queryFilter.length, result, amountToggled: true });
+
   };
 
   onChange = (e) => {
@@ -369,43 +511,43 @@ class RequestMaterials extends Component {
           </option>
         </select>
 
-        <div 
-        className={`${toggled2} amount-pop-up`}> 
+        <div
+          className={`${toggled2} amount-pop-up`}>
 
-        <label>Add Manufacturer Address:</label>
-        <input
-          type="text"
-          ref= {this.manufacturerBatchedRef}
-          value={this.state.manufacturerBatched}
-          onChange={this.onChange}
-          placeholder="e.g.0x8a57428748D955C919F1928C1F21aF0dC1f4fC9d"
-          
-        />
-          </div>
-        
-        <div 
-        className={`${toggled} amount-pop-up`}> 
+          <label>Add Manufacturer Address:</label>
+          <input
+            type="text"
+            ref={this.manufacturerBatchedRef}
+            value={this.state.manufacturerBatched}
+            onChange={this.onChange}
+            placeholder="e.g.0x8a57428748D955C919F1928C1F21aF0dC1f4fC9d"
 
-        <label>Material ID:</label>
-        <input
-          type="text"
-          onChange={this.onChange}
-          ref={this.idRef}
-          placeholder="e.g. mat101"
-          
-        />
-        <label>Requested Amount: </label>
-        <input
-          type="number"
-          id="material-amount"
-          value={this.state.amount}
-          ref={this.amountRef}
-          placeholder="e.g. 1000 g"
-          autoComplete="off"
-          onChange={this.onChange}
-          required = "required"
           />
-          </div>
+        </div>
+
+        <div
+          className={`${toggled} amount-pop-up`}>
+
+          <label>Material ID:</label>
+          <input
+            type="text"
+            onChange={this.onChange}
+            ref={this.idRef}
+            placeholder="e.g. mat101"
+
+          />
+          <label>Requested Amount: </label>
+          <input
+            type="number"
+            id="material-amount"
+            value={this.state.amount}
+            ref={this.amountRef}
+            placeholder="e.g. 1000 g"
+            autoComplete="off"
+            onChange={this.onChange}
+            required="required"
+          />
+        </div>
 
         <div className="btn-group">
           <input
@@ -416,33 +558,33 @@ class RequestMaterials extends Component {
           />
 
           <button
-           className={`${toggled} btn`}
-           onClick={this.addRequest}>
+            className={`${toggled} btn`}
+            onClick={this.addRequest}>
             REQUEST</button>
-          
+
           <button
-          className={`${toggled} btn`}
-          onClick={this.addBatchRequest}>
+            className={`${toggled} btn`}
+            onClick={this.addBatchRequest}>
             CREATE BATCH REQUEST
           </button>
 
 
         </div>
-        
+
 
         <div
           style={{ marginTop: "20px" }}
           className="notify-data-container notify-text"
         >
           <div><strong>{this.state.msg}</strong> </div>
-          <div style={{fontSize: '16px' }}><strong>{this.state.requestInfo}</strong></div>
+          <div style={{ fontSize: '16px' }}><strong>{this.state.requestInfo}</strong></div>
         </div>
         <div className={`${toggled} results-counter`}>
-        <p style={{textAlign: 'left'}}> Found <strong>{this.state.resultCount} </strong> results. </p>
+          <p style={{ textAlign: 'left' }}> Found <strong>{this.state.resultCount} </strong> results. </p>
         </div>
         <div className={`${toggled} query-result-container`}>
-         
-          {this.state.result} 
+
+          {this.state.result}
         </div>
       </form>
     );
@@ -460,7 +602,7 @@ class CreateMaterial extends Component {
     matConditions: "",
     matStability: false,
     matStabilityPeriod: "",
-    
+
   };
   constructor(props) {
     super(props);
@@ -490,7 +632,7 @@ class CreateMaterial extends Component {
     const stabilityPeriod = this.state.matStabilityPeriod
 
     await this.props.pcContract.methods
-      .createMaterial(id, name, strength, form, amount, cost,condition,stability,stabilityPeriod)
+      .createMaterial(id, name, strength, form, amount, cost, condition, stability, stabilityPeriod)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Materials Created Successfully!" });
@@ -537,8 +679,8 @@ class CreateMaterial extends Component {
           onChange={this.onChange}
           ref={this.idRef}
           placeholder="e.g. mat101"
-          required = "required"
-          
+          required="required"
+
         />
         <label>Material Name:</label>
         <select name="material-name" onChange={this.OnChange} ref={this.matRef}>
@@ -627,7 +769,7 @@ class CreateMaterial extends Component {
           ref={this.amountRef}
           type="number"
           placeholder="e.g. 1000"
-          required = "required"
+          required="required"
         />
 
         <label> Material Unit Cost: </label>
@@ -637,23 +779,23 @@ class CreateMaterial extends Component {
           ref={this.unitCostRef}
           type="number"
           placeholder="e.g. 10"
-          required = "required"
+          required="required"
         />
         <div className='checkbox-container'
-        style={{display:'flex', flexDirection: 'row' , gap: '10px' , margin: '10px 0px'}}>
+          style={{ display: 'flex', flexDirection: 'row', gap: '10px', margin: '10px 0px' }}>
           <input
-          type="checkbox"
-          value="true"
-          onChange = {this.onChange}
-          ref = {this.matStabilityRef}
-          required="required"
-          style={{display:'inline'}}
-          name="stability"
+            type="checkbox"
+            value="true"
+            onChange={this.onChange}
+            ref={this.matStabilityRef}
+            required="required"
+            style={{ display: 'inline' }}
+            name="stability"
           />
           <label>Stable</label>
 
         </div>
-       
+
         <label> Stability Period (years) </label>
         <input
           value={this.state.matstabilityPeriod}
@@ -671,7 +813,7 @@ class CreateMaterial extends Component {
           type="text"
           placeholder="e.g. Keep out of reach for children , store in a dry place."
         />
-  
+
 
         <input type="submit" value="CREATE MATERIAL" className="btn" />
 
@@ -698,7 +840,7 @@ class CreateCostPlan extends Component {
     this.matRef = React.createRef();
     this.materialPkgCostRef = React.createRef();
     this.materialMaterialCostRef = React.createRef();
-    this.materialLaborCostRef =React.createRef();
+    this.materialLaborCostRef = React.createRef();
     this.materialShippingCostRef = React.createRef();
     this.materialTotalIndirectCostRef = React.createRef()
     this.OnChange = this.onChange.bind(this);
@@ -711,10 +853,10 @@ class CreateCostPlan extends Component {
 
     const mat = this.state.material;
     const matPkgCost = parseInt(this.state.materialPkgCost, 10);
-    const matMaterialCost = parseInt(this.state.materialMaterialCost,10);
-    const matLaborCost = parseInt(this.state.materialLaborCost,10);
-    const matShippingCost = parseInt(this.state.materialShippingCost,10);
-    const matTotalIndirectCost = parseInt(this.state.materialTotalIndirectCost,10);
+    const matMaterialCost = parseInt(this.state.materialMaterialCost, 10);
+    const matLaborCost = parseInt(this.state.materialLaborCost, 10);
+    const matShippingCost = parseInt(this.state.materialShippingCost, 10);
+    const matTotalIndirectCost = parseInt(this.state.materialTotalIndirectCost, 10);
 
     // const totalStandard =
     //   matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
@@ -729,7 +871,7 @@ class CreateCostPlan extends Component {
         matLaborCost,
         matTotalIndirectCost,
         matShippingCost
-        
+
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -740,7 +882,7 @@ class CreateCostPlan extends Component {
       });
 
     this.setState({
-      
+
       materialMaterialCost: "",
       materialPkgCost: "",
       materialLaborCost: "",
@@ -781,7 +923,7 @@ class CreateCostPlan extends Component {
           required="required"
         />
 
-    
+
         <h4> Set Material Cost Plan  </h4>
 
         <label>Raw Material Cost: </label>
@@ -804,7 +946,7 @@ class CreateCostPlan extends Component {
           required="required"
         />
 
-    
+
         <label>Labor Cost: </label>
         <input
           type="number"
@@ -815,7 +957,7 @@ class CreateCostPlan extends Component {
           required="required"
         />
 
-         <label>Shipping Cost: </label>
+        <label>Shipping Cost: </label>
         <input
           type="number"
           ref={this.materialShippingCostRef}
@@ -849,7 +991,7 @@ class CreateCostPlan extends Component {
   }
 }
 class ApproveRequest extends Component {
-  state = {msg: '', requestId: ''}
+  state = { msg: '', requestId: '' }
 
   constructor(props) {
     super(props);
@@ -857,50 +999,50 @@ class ApproveRequest extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
-  
+
 
   onSubmit = async (e) => {
     e.preventDefault();
-    const requestNo = parseInt(this.state.requestId,10);
+    const requestNo = parseInt(this.state.requestId, 10);
     console.log(requestNo);
 
 
     await this.props.pctContract.methods.approveRequest(requestNo)
-    .send({from: this.props.account[0]})
-    .once("receipt", (receipt) => {
-      this.setState({ msg: "Request was approved successfully!" });
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 3000);
-    });
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Request was approved successfully!" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
 
 
-    this.setState({requestId: ''})
+    this.setState({ requestId: '' })
 
   }
 
-  onChange = async(e) => {
+  onChange = async (e) => {
     this.setState({
       requestId: this.requestIdRef.current.value
     })
-    
+
 
   }
   render() {
-    return(
+    return (
       <form onSubmit={this.onSubmit} className="newform-container">
         <h4> Approve Request</h4>
         <label> Tracking Number: </label>
-        <input 
-        type="number"
-        value = {this.state.requestId}
-        ref = {this.requestIdRef}
-        onChange = {this.onChange}
-        placeholder = "e.g. 101"
-        required= "required"
+        <input
+          type="number"
+          value={this.state.requestId}
+          ref={this.requestIdRef}
+          onChange={this.onChange}
+          placeholder="e.g. 101"
+          required="required"
         />
         <div>
-        <input type="submit" className="btn" value="APPROVE REQUEST" />
+          <input type="submit" className="btn" value="APPROVE REQUEST" />
         </div>
         <div
           style={{ marginTop: "20px" }}
@@ -909,12 +1051,12 @@ class ApproveRequest extends Component {
           {this.state.msg}
         </div>
       </form>
-    ); 
+    );
   }
 }
 
 class SendShipment extends Component {
-  state = {msg: '', requestId: ''}
+  state = { msg: '', requestId: '' }
 
   constructor(props) {
     super(props);
@@ -922,7 +1064,7 @@ class SendShipment extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
-  
+
 
   onSubmit = async (e) => {
     e.preventDefault();
@@ -930,44 +1072,44 @@ class SendShipment extends Component {
 
     //todo transact here
     await this.props.pctContract.methods.sendShipment(requestNo)
-    .send({from: this.props.account[0]})
-    .once("receipt", (receipt) => {
-      this.setState({ msg: "Updated shipment status successfully!" });
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 3000);
-    });
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Updated shipment status successfully!" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
 
 
 
-    this.setState({requestId: ''})
+    this.setState({ requestId: '' })
 
-    
+
   }
 
-  onChange = async(e) => {
+  onChange = async (e) => {
     this.setState({
       requestId: this.requestIdRef.current.value,
     })
-    
+
 
   }
   render() {
-    return(
+    return (
       <form onSubmit={this.onSubmit} className="newform-container">
         <h4> Send Shipment</h4>
         <label> Tracking Number: </label>
-        <input 
-        type="number"
-        value = {this.state.requestId}
-        ref = {this.requestIdRef}
-        onChange = {this.onChange}
-        placeholder = "e.g. 101"
-        required= "required"
+        <input
+          type="number"
+          value={this.state.requestId}
+          ref={this.requestIdRef}
+          onChange={this.onChange}
+          placeholder="e.g. 101"
+          required="required"
         />
-        
+
         <div>
-        <input type="submit" className="btn" value="SEND SHIPMENT" />
+          <input type="submit" className="btn" value="SEND SHIPMENT" />
         </div>
         <div
           style={{ marginTop: "20px" }}
@@ -976,12 +1118,12 @@ class SendShipment extends Component {
           {this.state.msg}
         </div>
       </form>
-    ); 
+    );
   }
 }
 
 class TransitGlobal extends Component {
-  state = {msg: '', requestId: ''}
+  state = { msg: '', requestId: '' }
 
   constructor(props) {
     super(props);
@@ -989,7 +1131,7 @@ class TransitGlobal extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
-  
+
 
   onSubmit = async (e) => {
     e.preventDefault();
@@ -998,42 +1140,42 @@ class TransitGlobal extends Component {
 
 
     await this.props.pctContract.methods.globalTransitShipment(requestNo)
-    .send({from: this.props.account[0]})
-    .once("receipt", (receipt) => {
-      this.setState({ msg: "Updated shipment status successfully!" });
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 3000);
-    });
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Updated shipment status successfully!" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
 
 
-    this.setState({requestId: ''})
+    this.setState({ requestId: '' })
 
-    
+
   }
 
-  onChange = async(e) => {
+  onChange = async (e) => {
     this.setState({
       requestId: this.requestIdRef.current.value
     })
-    
+
 
   }
   render() {
-    return(
+    return (
       <form onSubmit={this.onSubmit} className="newform-container">
         <h4> Transit Shipment (Globally)</h4>
         <label> Tracking Number: </label>
-        <input 
-        type="number"
-        value = {this.state.requestId}
-        ref = {this.requestIdRef}
-        onChange = {this.onChange}
-        placeholder = "e.g. 101"
-        required= "required"
+        <input
+          type="number"
+          value={this.state.requestId}
+          ref={this.requestIdRef}
+          onChange={this.onChange}
+          placeholder="e.g. 101"
+          required="required"
         />
         <div>
-        <input type="submit" className="btn" value="SHIP GLOBALLY" />
+          <input type="submit" className="btn" value="SHIP GLOBALLY" />
         </div>
         <div
           style={{ marginTop: "20px" }}
@@ -1042,12 +1184,12 @@ class TransitGlobal extends Component {
           {this.state.msg}
         </div>
       </form>
-    ); 
+    );
   }
 }
 
 class TransitLocal extends Component {
-  state = {msg: '', requestId: ''}
+  state = { msg: '', requestId: '' }
 
   constructor(props) {
     super(props);
@@ -1055,7 +1197,7 @@ class TransitLocal extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
-  
+
 
   onSubmit = async (e) => {
     e.preventDefault();
@@ -1066,43 +1208,43 @@ class TransitLocal extends Component {
     //todo transact here
 
     await this.props.pctContract.methods.localTransitShipment(requestNo)
-    .send({from: this.props.account[0]})
-    .once("receipt", (receipt) => {
-      this.setState({ msg: "Updated shipment status successfully!" });
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 3000);
-    });
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Updated shipment status successfully!" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
 
 
-    this.setState({requestId: ''})
+    this.setState({ requestId: '' })
 
-    
-    
+
+
   }
 
-  onChange = async(e) => {
+  onChange = async (e) => {
     this.setState({
       requestId: this.requestIdRef.current.value
     })
-    
+
 
   }
   render() {
-    return(
+    return (
       <form onSubmit={this.onSubmit} className="newform-container">
         <h4> Transit Shipment (Locally)</h4>
         <label> Tracking Number: </label>
-        <input 
-        type="number"
-        value = {this.state.requestId}
-        ref = {this.requestIdRef}
-        onChange = {this.onChange}
-        placeholder = "e.g. 101"
-        required= "required"
+        <input
+          type="number"
+          value={this.state.requestId}
+          ref={this.requestIdRef}
+          onChange={this.onChange}
+          placeholder="e.g. 101"
+          required="required"
         />
         <div>
-        <input type="submit" className="btn" value="SHIP LOCALLY" />
+          <input type="submit" className="btn" value="SHIP LOCALLY" />
         </div>
         <div
           style={{ marginTop: "20px" }}
@@ -1111,12 +1253,12 @@ class TransitLocal extends Component {
           {this.state.msg}
         </div>
       </form>
-    ); 
+    );
   }
 }
 
 class ReceiveShipment extends Component {
-  state = {msg: '', requestId: ''}
+  state = { msg: '', requestId: '' }
 
   constructor(props) {
     super(props);
@@ -1124,48 +1266,48 @@ class ReceiveShipment extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
-  
+
 
   onSubmit = async (e) => {
     e.preventDefault();
     const requestNo = this.state.requestId;
 
-    
+
     await this.props.pctContract.methods.receiveShipment(requestNo)
-    .send({from: this.props.account[0]})
-    .once("receipt", (receipt) => {
-      this.setState({ msg: "Updated shipment status successfully!" });
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 3000);
-    });
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Updated shipment status successfully!" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
 
 
-    this.setState({requestId: ''})
+    this.setState({ requestId: '' })
   }
 
-  onChange = async(e) => {
+  onChange = async (e) => {
     this.setState({
       requestId: this.requestIdRef.current.value
     })
-    
+
 
   }
   render() {
-    return(
+    return (
       <form onSubmit={this.onSubmit} className="newform-container">
         <h4> Receive Shipment</h4>
         <label> Tracking Number: </label>
-        <input 
-        type="number"
-        value = {this.state.requestId}
-        ref = {this.requestIdRef}
-        onChange = {this.onChange}
-        placeholder = "e.g. 101"
-        required = "required"
+        <input
+          type="number"
+          value={this.state.requestId}
+          ref={this.requestIdRef}
+          onChange={this.onChange}
+          placeholder="e.g. 101"
+          required="required"
         />
         <div>
-        <input type="submit" className="btn" value="RECEIVE SHIPMENT" />
+          <input type="submit" className="btn" value="RECEIVE SHIPMENT" />
         </div>
         <div
           style={{ marginTop: "20px" }}
@@ -1174,12 +1316,12 @@ class ReceiveShipment extends Component {
           {this.state.msg}
         </div>
       </form>
-    ); 
+    );
   }
 }
 
 class SetLocation extends Component {
-  state = {msg: '', requestId: '' , latitude: '', longitude: ''}
+  state = { msg: '', requestId: '', latitude: '', longitude: '' }
 
   constructor(props) {
     super(props);
@@ -1189,69 +1331,69 @@ class SetLocation extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
-  
+
 
   onSubmit = async (e) => {
     e.preventDefault();
     const requestNo = this.state.requestId;
     const lat = this.state.latitude;
     const long = this.state.longitude;
-    
-    await this.props.pctContract.methods.setShipmentLocation(requestNo,lat,long)
-    .send({from: this.props.account[0]})
-    .once("receipt", (receipt) => {
-      this.setState({ msg: "Updated shipment location successfully!" });
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 3000);
-    });
+
+    await this.props.pctContract.methods.setShipmentLocation(requestNo, lat, long)
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Updated shipment location successfully!" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
 
 
-    this.setState({requestId: '', latitude: '' , longitude: ''})
+    this.setState({ requestId: '', latitude: '', longitude: '' })
   }
 
-  onChange = async(e) => {
+  onChange = async (e) => {
     this.setState({
       requestId: this.requestIdRef.current.value,
       latitude: this.latRef.current.value,
       longitude: this.longRef.current.value
     })
-    
+
 
   }
   render() {
-    return(
+    return (
       <form onSubmit={this.onSubmit} className="newform-container">
         <h4> Set Shipment Location</h4>
         <label> Tracking Number: </label>
-        <input 
-        type="text"
-        value = {this.state.requestId}
-        ref = {this.requestIdRef}
-        onChange = {this.onChange}
-        placeholder = "e.g. 101"
-        required = "required"
+        <input
+          type="text"
+          value={this.state.requestId}
+          ref={this.requestIdRef}
+          onChange={this.onChange}
+          placeholder="e.g. 101"
+          required="required"
         />
         <label> Latitude: </label>
-        <input 
-        type="text"
-        value = {this.state.latitude}
-        ref = {this.latRef}
-        onChange = {this.onChange}
-        placeholder = "e.g. 50.1"
-        required = "required"
+        <input
+          type="text"
+          value={this.state.latitude}
+          ref={this.latRef}
+          onChange={this.onChange}
+          placeholder="e.g. 50.1"
+          required="required"
         />
         <label> Longitude: </label>
-        <input 
-        type="text"
-        value = {this.state.longitude}
-        ref = {this.longRef}
-        onChange = {this.onChange}
-        placeholder = "e.g. 0.09"
-        required = "required"
+        <input
+          type="text"
+          value={this.state.longitude}
+          ref={this.longRef}
+          onChange={this.onChange}
+          placeholder="e.g. 0.09"
+          required="required"
         />
         <div>
-        <input type="submit" className="btn" value="SET LOCATION" />
+          <input type="submit" className="btn" value="SET LOCATION" />
         </div>
         <div
           style={{ marginTop: "20px" }}
@@ -1260,12 +1402,12 @@ class SetLocation extends Component {
           {this.state.msg}
         </div>
       </form>
-    ); 
+    );
   }
 }
 
 class SetShippingMethod extends Component {
-  state = {msg: '', requestId: '' , method: ''}
+  state = { msg: '', requestId: '', method: '' }
 
   constructor(props) {
     super(props);
@@ -1274,27 +1416,27 @@ class SetShippingMethod extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
-  
+
 
   onSubmit = async (e) => {
     e.preventDefault();
     const requestNo = this.state.requestId;
     const shipMethod = this.state.method;
-    
-    await this.props.pctContract.methods.setShipmentMethod(requestNo,shipMethod)
-    .send({from: this.props.account[0]})
-    .once("receipt", (receipt) => {
-      this.setState({ msg: "Updated shipping method successfully!" });
-      setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 3000);
-    });
+
+    await this.props.pctContract.methods.setShipmentMethod(requestNo, shipMethod)
+      .send({ from: this.props.account[0] })
+      .once("receipt", (receipt) => {
+        this.setState({ msg: "Updated shipping method successfully!" });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
 
 
-    this.setState({requestId: '', method: ''})
+    this.setState({ requestId: '', method: '' })
   }
 
-  onChange = async(e) => {
+  onChange = async (e) => {
     this.setState({
       requestId: this.requestIdRef.current.value,
       method: this.methodRef.current.value
@@ -1304,77 +1446,77 @@ class SetShippingMethod extends Component {
   render() {
     return (
       <form onSubmit={this.onSubmit} className="newform-container">
-      <h4> Set Shipping Method</h4>
-      <label> Tracking Number: </label>
-      <input 
-        type="text"
-        value = {this.state.requestId}
-        ref = {this.requestIdRef}
-        onChange = {this.onChange}
-        placeholder = "e.g. 101"
-        required = "required"
+        <h4> Set Shipping Method</h4>
+        <label> Tracking Number: </label>
+        <input
+          type="text"
+          value={this.state.requestId}
+          ref={this.requestIdRef}
+          onChange={this.onChange}
+          placeholder="e.g. 101"
+          required="required"
         />
-      <label>Shipping Method</label>
-      <select ref={this.methodRef} onChange={this.onChange} >
+        <label>Shipping Method</label>
+        <select ref={this.methodRef} onChange={this.onChange} >
 
-        <option id="1" value="airplane">AIRPLANE</option>
-        <option id="2" value="truck">TRUCK</option>
-        <option id="3" value="ship">SHIP</option>
+          <option id="1" value="airplane">AIRPLANE</option>
+          <option id="2" value="truck">TRUCK</option>
+          <option id="3" value="ship">SHIP</option>
 
-      </select>
-      <div>
-      <input type="submit" className="btn" value="SET METHOD" />
-      </div>
-      <div
-        style={{ marginTop: "20px" }}
-        className="notify-data-container notify-text "
-      >
-        {this.state.msg}
-      </div>
-    </form>
-      
+        </select>
+        <div>
+          <input type="submit" className="btn" value="SET METHOD" />
+        </div>
+        <div
+          style={{ marginTop: "20px" }}
+          className="notify-data-container notify-text "
+        >
+          {this.state.msg}
+        </div>
+      </form>
+
     );
   }
 }
 class ManageSupply extends Component {
   render() {
-    return(
+    return (
       <div className="form-collection newform-container">
-        <p className="sub-head" style={{textAlign:'center'}}> <strong>SUPPLY PORTAL: </strong>MANAGE SUPPLY CHAIN ACTIVITES. </p>
-        <SetLocation 
-        account={this.props.account}
-        pcContract={this.props.pcContract}
-        pctContract={this.props.pctContract} />
+        <p className="sub-head" style={{ textAlign: 'center' }}> <strong>SUPPLY PORTAL: </strong>MANAGE SUPPLY CHAIN ACTIVITES. </p>
+        <SetLocation
+          account={this.props.account}
+          pcContract={this.props.pcContract}
+          pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <SetShippingMethod 
-        account={this.props.account}
-        pcContract={this.props.pcContract}
-        pctContract={this.props.pctContract}/>
+        <SetShippingMethod
+          account={this.props.account}
+          pcContract={this.props.pcContract}
+          pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <ApproveRequest 
-        account={this.props.account}
-        pcContract={this.props.pcContract}
-        pctContract={this.props.pctContract} />
+        <ApproveRequest
+          account={this.props.account}
+          pcContract={this.props.pcContract}
+          pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <SendShipment 
-        account={this.props.account}
-        pcContract={this.props.pcContract}
-        pctContract={this.props.pctContract}/>
+        <SendShipment
+          account={this.props.account}
+          pcContract={this.props.pcContract}
+          pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <TransitGlobal 
-        account={this.props.account}
-        pcContract={this.props.pcContract}
-        pctContract={this.props.pctContract} />
+        <TransitGlobal
+          account={this.props.account}
+          pcContract={this.props.pcContract}
+          pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <TransitLocal 
-        account={this.props.account}
-        pcContract={this.props.pcContract}
-        pctContract={this.props.pctContract} />
+        <TransitLocal
+          account={this.props.account}
+          pcContract={this.props.pcContract}
+          pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <ReceiveShipment 
-        account={this.props.account}
-        pcContract={this.props.pcContract}
-        pctContract={this.props.pctContract} />
+        <ReceiveShipment
+          account={this.props.account}
+          pcContract={this.props.pcContract}
+          pctContract={this.props.pctContract} />
 
       </div>
     );
@@ -1382,7 +1524,7 @@ class ManageSupply extends Component {
 }
 
 class ManageIOT extends Component {
-  state ={ request: '', temp: 0 , humid: 0 , msg: ''}
+  state = { request: '', temp: 0, humid: 0, msg: '' }
   constructor(props) {
     super(props)
     this.tempRef = React.createRef();
@@ -1392,68 +1534,68 @@ class ManageIOT extends Component {
     this.onChange = this.onChange.bind(this);
   }
 
-    onClick = async (e) => {
-      e.preventDefault();
-      const temp = this.state.temp;
-      const humid = this.state.humid;
-      const request = parseInt(this.state.request,10);
-      console.log(temp,humid)
-      await this.props.pctContract.methods.setShipmentTrackData(request,temp,humid)
-      .send({from: this.props.account[0]})
+  onClick = async (e) => {
+    e.preventDefault();
+    const temp = this.state.temp;
+    const humid = this.state.humid;
+    const request = parseInt(this.state.request, 10);
+    console.log(temp, humid)
+    await this.props.pctContract.methods.setShipmentTrackData(request, temp, humid)
+      .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Updated Temp and Humidity Data Successfully!" });
         setTimeout(() => {
           this.setState({ msg: " " });
         }, 3000);
       });
-      
-    }
 
-    onChange = async (e) => {
-      this.setState({
-        temp: this.tempRef.current.value,
-        humid: this.humidRef.current.value,
-        request: this.requestIdRef.current.value
-      });
-    }
+  }
 
-    render () {
-      return(
-        <div className="newform-container">
-          <p className="sub-head" style={{marginBottom: '20px'}}> <strong>IOT PORTAL</strong>: MANAGE IOT DATA. </p>
-          <label> Tracking Number: </label>
-          <input 
+  onChange = async (e) => {
+    this.setState({
+      temp: this.tempRef.current.value,
+      humid: this.humidRef.current.value,
+      request: this.requestIdRef.current.value
+    });
+  }
+
+  render() {
+    return (
+      <div className="newform-container">
+        <p className="sub-head" style={{ marginBottom: '20px' }}> <strong>IOT PORTAL</strong>: MANAGE IOT DATA. </p>
+        <label> Tracking Number: </label>
+        <input
           type="number"
-          value = {this.state.requestId}
-          ref = {this.requestIdRef}
-          onChange = {this.onChange}
-          placeholder = "e.g. 101"
-          required = "required"
-          />
-          <hr className="custom-hr-half"></hr>
-          <h4> Set Temperature </h4>
-          <label>  Temperature (°C):</label>
-          <input type="number"
+          value={this.state.requestId}
+          ref={this.requestIdRef}
+          onChange={this.onChange}
+          placeholder="e.g. 101"
+          required="required"
+        />
+        <hr className="custom-hr-half"></hr>
+        <h4> Set Temperature </h4>
+        <label>  Temperature (°C):</label>
+        <input type="number"
           value={this.state.temp}
-          ref= {this.tempRef}
-          onChange = {this.onChange}
-          placeholder = "e.g. 28"
-          required = "required"
-          />
-          
-          <h4> Set Humidity </h4>
-          <label> Humidity (%):</label>
-          <input type="number"
+          ref={this.tempRef}
+          onChange={this.onChange}
+          placeholder="e.g. 28"
+          required="required"
+        />
+
+        <h4> Set Humidity </h4>
+        <label> Humidity (%):</label>
+        <input type="number"
           value={this.state.humid}
-          ref= {this.humidRef}
-          onChange = {this.onChange}
-          placeholder = "e.g. 30"
-          required = "required"
-          />
-          <div>
-            <button onClick = {this.onClick} className="btn"> UPDATE DATA </button>
-          </div> 
-          <div
+          ref={this.humidRef}
+          onChange={this.onChange}
+          placeholder="e.g. 30"
+          required="required"
+        />
+        <div>
+          <button onClick={this.onClick} className="btn"> UPDATE DATA </button>
+        </div>
+        <div
           style={{ marginTop: "20px" }}
           className="notify-data-container notify-text "
         >
@@ -1461,9 +1603,9 @@ class ManageIOT extends Component {
         </div>
 
 
-        </div>
-      );
-    }
+      </div>
+    );
+  }
 
 }
 
@@ -1533,7 +1675,7 @@ class SupplyForm extends Component {
                 />
               )}
             />
-             <Route
+            <Route
               path="/supply/managePermissions"
               exact
               render={(props) => (

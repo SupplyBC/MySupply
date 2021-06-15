@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
+
 class ReviewStdCostSheet extends Component {
   state = { id: "", tableVisibility: false };
 
@@ -11,6 +12,21 @@ class ReviewStdCostSheet extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+  componentDidMount = async() => {
+    const isTrust = await this.props.pcContract.methods.isTrusted(this.props.account[0]).call();
+    this.setState({isTrust});
+
+    const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
+    const isOwner = products.map(item => {
+      if(item.manufacturer === this.props.account[0]) {
+      return true;
+    } else {
+      return false;
+    }
+    })
+    const strBoolIsOwner = isOwner.toString()
+    this.setState({strBoolIsOwner})
+ }
   onSubmit = async (e) => {
     e.preventDefault();
     const proId = this.state.id;
@@ -19,7 +35,6 @@ class ReviewStdCostSheet extends Component {
       .getStdCostPlan(proId)
       .call();
 
-    console.log(standard)
     const stdCostData = standard.map((item, index) => {
       let matStdCostValue = parseInt(standard.directMaterialCost, 10);
       let pkgStdCostValue = parseInt(standard.packagingMaterialCost, 10);
@@ -97,7 +112,12 @@ class ReviewStdCostSheet extends Component {
     });
   };
   render() {
-    let table;
+    let classified, table;
+    if(this.state.isTrust || this.state.strBoolIsOwner === 'true') {
+      classified = "show" 
+    } else {
+      classified = "hide"
+    };
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
@@ -173,38 +193,38 @@ class ReviewStdCostSheet extends Component {
                     <td>TOTAL DIRECT COST</td>
                     <td>{totDir}</td>
                   </tr>
-                  <tr>
+                  <tr className= {`${classified}`}>
                     <td> Indirect Manufacturing Costs (20%) </td>
                     <td>{(totDirValue*20/100).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                   })}</td>
                   </tr>
-                  <tr>
+                  <tr className= {`${classified}`}>
                     <td> Managerial and Funding Costs (30%) </td>
                     <td>{(totDirValue*30/100).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                   })}</td>
                   </tr>
-                  <tr>
+                  <tr className= {`${classified}`}>
                     <td> Value Added Tax (14%) </td>
                     <td>{(totDirValue*14/100).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                   })}</td>
                   </tr>
-                  <tr>
+                  <tr className= {`${classified}`} >
                     <td> Marketing </td>
                     <td>{this.state.mrkStdCost}</td>
                   </tr>
-                  <tr>
+                  <tr className= {`${classified}`}>
                     <td> Research </td>
                     <td>{this.state.rsrchStdCost}</td>
                   </tr>
                 </tbody>
 
-                <tfoot>
+                <tfoot className= {`${classified}`}>
                   <tr>
                     <th> TOTAL </th>
                     <td>{newTot.toLocaleString("en-US", {
@@ -230,6 +250,22 @@ class ReviewActCostSheet extends Component {
     this.productIdRef = React.createRef();
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  componentDidMount = async() => {
+     const isTrust = await this.props.pcContract.methods.isTrusted(this.props.account[0]).call();
+     this.setState({isTrust});
+
+     const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
+     const isOwner = products.map(item => {
+       if(item.manufacturer === this.props.account[0]) {
+       return true;
+     } else {
+       return false;
+     }
+     })
+     const strBoolIsOwner = isOwner.toString()
+     this.setState({strBoolIsOwner})
   }
 
   onSubmit = async (e) => {
@@ -318,7 +354,12 @@ class ReviewActCostSheet extends Component {
     });
   };
   render() {
-    let table;
+    let classified, table;
+    if(this.state.isTrust || this.state.strBoolIsOwner === 'true') {
+      classified = "show" 
+    } else {
+      classified = "hide"
+    };
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
@@ -375,15 +416,15 @@ class ReviewActCostSheet extends Component {
                 <tbody>
                   <tr>
                     <td> Raw Materials </td>
-                    <td>{this.state.matActCostValue}</td>
+                    <td>{this.state.matActCost}</td>
                   </tr>
                   <tr>
                     <td> Packaging Materials </td>
-                    <td>{this.state.pkgActCostValue}</td>
+                    <td>{this.state.pkgActCost}</td>
                   </tr>
                   <tr>
                     <td> Direct Labor </td>
-                    <td>{this.state.laborActCostValue}</td>
+                    <td>{this.state.laborActCost}</td>
                   </tr>
                   <tr
                     style={{
@@ -394,38 +435,38 @@ class ReviewActCostSheet extends Component {
                     <td>TOTAL DIRECT COST</td>
                     <td>{totDir}</td>
                   </tr>
-                  <tr>
+                  <tr className={`${classified}` }>
                     <td> Indirect Manufacturing Costs (20%) </td>
                     <td>{(totDirValue*20/100).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                   })}</td>
                   </tr>
-                  <tr>
+                  <tr className={`${classified}` }>
                     <td> Managerial and Funding Costs (30%) </td>
                     <td>{(totDirValue*30/100).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                   })}</td>
                   </tr>
-                  <tr>
+                  <tr className={`${classified}` }>
                     <td> Value Added Tax (14%) </td>
                     <td>{(totDirValue*14/100).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                   })}</td>
                   </tr>
-                  <tr>
+                  <tr className={`${classified}` }>
                     <td> Marketing </td>
                     <td>{this.state.mrkActCost}</td>
                   </tr>
-                  <tr>
+                  <tr className={`${classified}` }>
                     <td> Research </td>
                     <td>{this.state.rsrchActCost}</td>
                   </tr>
                 </tbody>
 
-                <tfoot>
+                <tfoot className={`${classified}` }>
                   <tr>
                     <th> TOTAL </th>
                     <td>{newTot.toLocaleString("en-US", {

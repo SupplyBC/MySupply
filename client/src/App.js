@@ -182,6 +182,10 @@ class App extends Component {
         deployedNetwork2 && deployedNetwork2.address
       );
 
+      if (!deployedNetwork1 || !deployedNetwork2) {
+        localStorage.clear();
+      }
+
       // Set web3, accounts, and contract to the state
 
       const balance = await pcInstance.methods.getBalance(accounts[0]).call();
