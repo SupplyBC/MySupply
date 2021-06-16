@@ -12,21 +12,22 @@ class ReviewStdCostSheet extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  componentDidMount = async() => {
+  componentDidMount = async () => {
     const isTrust = await this.props.pcContract.methods.isTrusted(this.props.account[0]).call();
-    this.setState({isTrust});
+    this.setState({ isTrust });
 
-    const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
-    const isOwner = products.map(item => {
-      if(item.manufacturer === this.props.account[0]) {
-      return true;
-    } else {
-      return false;
-    }
-    })
-    const strBoolIsOwner = isOwner.toString()
-    this.setState({strBoolIsOwner})
- }
+    // const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
+
+    // const isOwner = products.map(item => {
+    //   if(item.manufacturer === this.props.account[0]) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
+    // })
+    // const strBoolIsOwner = isOwner.toString();
+    // this.setState({strBoolIsOwner})
+  }
   onSubmit = async (e) => {
     e.preventDefault();
     const proId = this.state.id;
@@ -110,11 +111,28 @@ class ReviewStdCostSheet extends Component {
     this.setState({
       id: this.productIdRef.current.value,
     });
+
+    const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
+    const product = products.filter(item => {
+      return item.productName === this.state.id;
+    })
+
+    const isOwner = product.map(item => {
+      if (item.manufacturer === this.props.account[0]) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+    const strBoolIsOwner = isOwner.toString();
+    this.setState({ strBoolIsOwner, tableVisibility: false })
+
+
   };
   render() {
     let classified, table;
-    if(this.state.isTrust || this.state.strBoolIsOwner === 'true') {
-      classified = "show" 
+    if (this.state.isTrust || this.state.strBoolIsOwner === 'true') {
+      classified = "show"
     } else {
       classified = "hide"
     };
@@ -135,7 +153,7 @@ class ReviewStdCostSheet extends Component {
       style: "currency",
       currency: "USD",
     });
-    const newTot  = totDirValue + (totDirValue*20/100) + (totDirValue*30/100) + (totDirValue*14/100)
+    const newTot = totDirValue + (totDirValue * 20 / 100) + (totDirValue * 30 / 100) + (totDirValue * 14 / 100)
     return (
       <div className="financial-status-container">
         <form onSubmit={this.onSubmit} className="form-container">
@@ -193,44 +211,44 @@ class ReviewStdCostSheet extends Component {
                     <td>TOTAL DIRECT COST</td>
                     <td>{totDir}</td>
                   </tr>
-                  <tr className= {`${classified}`}>
+                  <tr className={`${classified}`}>
                     <td> Indirect Manufacturing Costs (20%) </td>
-                    <td>{(totDirValue*20/100).toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                  })}</td>
+                    <td>{(totDirValue * 20 / 100).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}</td>
                   </tr>
-                  <tr className= {`${classified}`}>
+                  <tr className={`${classified}`}>
                     <td> Managerial and Funding Costs (30%) </td>
-                    <td>{(totDirValue*30/100).toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                  })}</td>
+                    <td>{(totDirValue * 30 / 100).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}</td>
                   </tr>
-                  <tr className= {`${classified}`}>
+                  <tr className={`${classified}`}>
                     <td> Value Added Tax (14%) </td>
-                    <td>{(totDirValue*14/100).toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                  })}</td>
+                    <td>{(totDirValue * 14 / 100).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}</td>
                   </tr>
-                  <tr className= {`${classified}`} >
+                  <tr className={`${classified}`} >
                     <td> Marketing </td>
                     <td>{this.state.mrkStdCost}</td>
                   </tr>
-                  <tr className= {`${classified}`}>
+                  <tr className={`${classified}`}>
                     <td> Research </td>
                     <td>{this.state.rsrchStdCost}</td>
                   </tr>
                 </tbody>
 
-                <tfoot className= {`${classified}`}>
+                <tfoot className={`${classified}`}>
                   <tr>
                     <th> TOTAL </th>
                     <td>{newTot.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                  })} </td>
+                      style: "currency",
+                      currency: "USD",
+                    })} </td>
                   </tr>
                 </tfoot>
               </table>
@@ -252,20 +270,20 @@ class ReviewActCostSheet extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  componentDidMount = async() => {
-     const isTrust = await this.props.pcContract.methods.isTrusted(this.props.account[0]).call();
-     this.setState({isTrust});
+  componentDidMount = async () => {
+    const isTrust = await this.props.pcContract.methods.isTrusted(this.props.account[0]).call();
+    this.setState({ isTrust });
 
-     const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
-     const isOwner = products.map(item => {
-       if(item.manufacturer === this.props.account[0]) {
-       return true;
-     } else {
-       return false;
-     }
-     })
-     const strBoolIsOwner = isOwner.toString()
-     this.setState({strBoolIsOwner})
+    const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
+    const isOwner = products.map(item => {
+      if (item.manufacturer === this.props.account[0]) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+    const strBoolIsOwner = isOwner.toString()
+    this.setState({ strBoolIsOwner })
   }
 
   onSubmit = async (e) => {
@@ -355,8 +373,8 @@ class ReviewActCostSheet extends Component {
   };
   render() {
     let classified, table;
-    if(this.state.isTrust || this.state.strBoolIsOwner === 'true') {
-      classified = "show" 
+    if (this.state.isTrust || this.state.strBoolIsOwner === 'true') {
+      classified = "show"
     } else {
       classified = "hide"
     };
@@ -377,7 +395,7 @@ class ReviewActCostSheet extends Component {
       style: "currency",
       currency: "USD",
     });
-    const newTot  = totDirValue + (totDirValue*20/100) + (totDirValue*30/100) + (totDirValue*14/100)
+    const newTot = totDirValue + (totDirValue * 20 / 100) + (totDirValue * 30 / 100) + (totDirValue * 14 / 100)
     return (
       <div className="financial-status-container">
         <form onSubmit={this.onSubmit} className="form-container">
@@ -406,7 +424,7 @@ class ReviewActCostSheet extends Component {
           </div>
           <div className={`${table} costsClashContainer `}>
             <div className="std-cost-container">
-            <table className="cost-data">
+              <table className="cost-data">
                 <thead>
                   <tr>
                     <th>CRITERIA</th>
@@ -435,44 +453,44 @@ class ReviewActCostSheet extends Component {
                     <td>TOTAL DIRECT COST</td>
                     <td>{totDir}</td>
                   </tr>
-                  <tr className={`${classified}` }>
+                  <tr className={`${classified}`}>
                     <td> Indirect Manufacturing Costs (20%) </td>
-                    <td>{(totDirValue*20/100).toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                  })}</td>
+                    <td>{(totDirValue * 20 / 100).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}</td>
                   </tr>
-                  <tr className={`${classified}` }>
+                  <tr className={`${classified}`}>
                     <td> Managerial and Funding Costs (30%) </td>
-                    <td>{(totDirValue*30/100).toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                  })}</td>
+                    <td>{(totDirValue * 30 / 100).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}</td>
                   </tr>
-                  <tr className={`${classified}` }>
+                  <tr className={`${classified}`}>
                     <td> Value Added Tax (14%) </td>
-                    <td>{(totDirValue*14/100).toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                  })}</td>
+                    <td>{(totDirValue * 14 / 100).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}</td>
                   </tr>
-                  <tr className={`${classified}` }>
+                  <tr className={`${classified}`}>
                     <td> Marketing </td>
                     <td>{this.state.mrkActCost}</td>
                   </tr>
-                  <tr className={`${classified}` }>
+                  <tr className={`${classified}`}>
                     <td> Research </td>
                     <td>{this.state.rsrchActCost}</td>
                   </tr>
                 </tbody>
 
-                <tfoot className={`${classified}` }>
+                <tfoot className={`${classified}`}>
                   <tr>
                     <th> TOTAL </th>
                     <td>{newTot.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                  })} </td>
+                      style: "currency",
+                      currency: "USD",
+                    })} </td>
                   </tr>
                 </tfoot>
               </table>
@@ -663,7 +681,7 @@ class SetActualCosts extends Component {
           required="required"
         />
 
-      <label>Shipping Cost: </label>
+        <label>Shipping Cost: </label>
         <input
           type="number"
           ref={this.shippingActRef}
@@ -727,7 +745,7 @@ class SetFlexibleBudget extends Component {
     this.workHrsFlexRef = React.createRef();
     this.hourlyRateFlexRef = React.createRef();
     this.matUnitFlexRef = React.createRef();
-    this.shippingFlexRef= React.createRef();
+    this.shippingFlexRef = React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
   }
@@ -743,7 +761,7 @@ class SetFlexibleBudget extends Component {
     const rateFlex = parseInt(this.state.hourlyRateFlexCost, 10);
     const workHrsFlex = parseInt(this.state.workHrsFlex, 10);
     const matUnitFlex = parseInt(this.state.matUnitFlexCost, 10);
-    const shippingFlex = parseInt(this.state.shippingFlexCost,10);
+    const shippingFlex = parseInt(this.state.shippingFlexCost, 10);
 
     // const totalFlex = matFlex + pkgMatFlex + labFlex + manuIndirectFlexCost
     //                     + mrkFlex + rsrhFlex;
@@ -863,7 +881,7 @@ class SetFlexibleBudget extends Component {
           required="required"
         />
 
-       <label>Shipping Cost: </label>
+        <label>Shipping Cost: </label>
         <input
           type="number"
           ref={this.shippingFlexRef}
@@ -923,7 +941,6 @@ class CalculateStaticVariance extends Component {
       let matCostValue = parseInt(standard.directMaterialCost, 10);
       let pkgCostValue = parseInt(standard.packagingMaterialCost, 10);
       let laborCostValue = parseInt(standard.directLaborCost, 10);
-      let indirectManuCostValue = parseInt(standard.totalIndirectCost, 10);
       let mrkCostValue = parseInt(standard.marketingCost, 10);
       let rsrchCostValue = parseInt(standard.researchCost, 10);
       // let totalCostValue = parseInt(standard.CostTOT,10);
@@ -931,7 +948,6 @@ class CalculateStaticVariance extends Component {
         matCostValue +
         pkgCostValue +
         laborCostValue +
-        indirectManuCostValue +
         mrkCostValue +
         rsrchCostValue;
 
@@ -944,10 +960,6 @@ class CalculateStaticVariance extends Component {
         currency: "USD",
       });
       let laborCost = laborCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-      let indirectManuCost = indirectManuCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
@@ -971,14 +983,12 @@ class CalculateStaticVariance extends Component {
         matCost,
         pkgCost,
         laborCost,
-        indirectManuCost,
         mrkCost,
         rsrchCost,
         totalStdCost,
         matCostValue,
         pkgCostValue,
         laborCostValue,
-        indirectManuCostValue,
         mrkCostValue,
         rsrchCostValue,
         totalStdCostValue,
@@ -994,7 +1004,6 @@ class CalculateStaticVariance extends Component {
       let matActCostValue = parseInt(actual.directMaterialCost, 10);
       let pkgActCostValue = parseInt(actual.packagingMaterialCost, 10);
       let laborActCostValue = parseInt(actual.directLaborCost, 10);
-      let indirectManuActCostValue = parseInt(actual.totalIndirectCost, 10);
       let mrkActCostValue = parseInt(actual.marketingCost, 10);
       let rsrchActCostValue = parseInt(actual.researchCost, 10);
       // let totalActCostValue = parseInt(actual.CostTOT,10);
@@ -1002,7 +1011,6 @@ class CalculateStaticVariance extends Component {
         matActCostValue +
         pkgActCostValue +
         laborActCostValue +
-        indirectManuActCostValue +
         mrkActCostValue +
         rsrchActCostValue;
 
@@ -1018,10 +1026,7 @@ class CalculateStaticVariance extends Component {
         style: "currency",
         currency: "USD",
       });
-      let indirectManuActCost = indirectManuActCostValue.toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
+
       let mrkActCost = mrkActCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -1040,14 +1045,12 @@ class CalculateStaticVariance extends Component {
         matActCost,
         pkgActCost,
         laborActCost,
-        indirectManuActCost,
         mrkActCost,
         rsrchActCost,
         totalActCost,
         matActCostValue,
         pkgActCostValue,
         laborActCostValue,
-        indirectManuActCostValue,
         mrkActCostValue,
         rsrchActCostValue,
         totalActCostValue,
@@ -1166,7 +1169,7 @@ class CalculateStaticVariance extends Component {
                     </td>
                     <td>{this.state.laborActCost}</td>
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <td> Indirect Manufacturing Costs </td>
                     <td>{this.state.indirectManuCost}</td>
                     <td>
@@ -1179,7 +1182,7 @@ class CalculateStaticVariance extends Component {
                       })}
                     </td>
                     <td>{this.state.indirectManuActCost}</td>
-                  </tr>
+                  </tr> */}
                   <tr>
                     <td> Marketing </td>
                     <td>{this.state.mrkCost}</td>
@@ -1215,7 +1218,7 @@ class CalculateStaticVariance extends Component {
                     <td>
                       {Math.abs(
                         this.state.totalStdCostValue -
-                          this.state.totalActCostValue
+                        this.state.totalActCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -1253,7 +1256,7 @@ class CalculateFlexibleVariance extends Component {
       let matCostValue = parseInt(standard.directMaterialCost, 10);
       let pkgCostValue = parseInt(standard.packagingMaterialCost, 10);
       let laborCostValue = parseInt(standard.directLaborCost, 10);
-      let indirectManuCostValue = parseInt(standard.totalIndirectCost, 10);
+
       let mrkCostValue = parseInt(standard.marketingCost, 10);
       let rsrchCostValue = parseInt(standard.researchCost, 10);
       // let totalCostValue = parseInt(standard.CostTOT,10);
@@ -1261,7 +1264,7 @@ class CalculateFlexibleVariance extends Component {
         matCostValue +
         pkgCostValue +
         laborCostValue +
-        indirectManuCostValue +
+
         mrkCostValue +
         rsrchCostValue;
 
@@ -1277,10 +1280,7 @@ class CalculateFlexibleVariance extends Component {
         style: "currency",
         currency: "USD",
       });
-      let indirectManuCost = indirectManuCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
+
       let mrkCost = mrkCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -1301,14 +1301,14 @@ class CalculateFlexibleVariance extends Component {
         matCost,
         pkgCost,
         laborCost,
-        indirectManuCost,
+
         mrkCost,
         rsrchCost,
         totalStdCost,
         matCostValue,
         pkgCostValue,
         laborCostValue,
-        indirectManuCostValue,
+
         mrkCostValue,
         rsrchCostValue,
         totalStdCostValue,
@@ -1324,7 +1324,7 @@ class CalculateFlexibleVariance extends Component {
       let matActCostValue = parseInt(actual.directMaterialCost, 10);
       let pkgActCostValue = parseInt(actual.packagingMaterialCost, 10);
       let laborActCostValue = parseInt(actual.directLaborCost, 10);
-      let indirectManuActCostValue = parseInt(actual.totalIndirectCost, 10);
+
       let mrkActCostValue = parseInt(actual.marketingCost, 10);
       let rsrchActCostValue = parseInt(actual.researchCost, 10);
       // let totalActCostValue = parseInt(actual.CostTOT,10);
@@ -1332,7 +1332,7 @@ class CalculateFlexibleVariance extends Component {
         matActCostValue +
         pkgActCostValue +
         laborActCostValue +
-        indirectManuActCostValue +
+
         mrkActCostValue +
         rsrchActCostValue;
 
@@ -1348,10 +1348,7 @@ class CalculateFlexibleVariance extends Component {
         style: "currency",
         currency: "USD",
       });
-      let indirectManuActCost = indirectManuActCostValue.toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
+
       let mrkActCost = mrkActCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -1370,14 +1367,12 @@ class CalculateFlexibleVariance extends Component {
         matActCost,
         pkgActCost,
         laborActCost,
-        indirectManuActCost,
         mrkActCost,
         rsrchActCost,
         totalActCost,
         matActCostValue,
         pkgActCostValue,
         laborActCostValue,
-        indirectManuActCostValue,
         mrkActCostValue,
         rsrchActCostValue,
         totalActCostValue,
@@ -1393,14 +1388,14 @@ class CalculateFlexibleVariance extends Component {
       let matFlexCostValue = parseInt(flexible.directMaterialCost, 10);
       let pkgFlexCostValue = parseInt(flexible.packagingMaterialCost, 10);
       let laborFlexCostValue = parseInt(flexible.directLaborCost, 10);
-      let indirectManuFlexCostValue = parseInt(flexible.totalIndirectCost, 10);
+
       let mrkFlexCostValue = parseInt(flexible.marketingCost, 10);
       let rsrchFlexCostValue = parseInt(flexible.researchCost, 10);
       let totalFlexCostValue =
         matFlexCostValue +
         pkgFlexCostValue +
         laborFlexCostValue +
-        indirectManuFlexCostValue +
+
         mrkFlexCostValue +
         rsrchFlexCostValue;
 
@@ -1416,10 +1411,7 @@ class CalculateFlexibleVariance extends Component {
         style: "currency",
         currency: "USD",
       });
-      let indirectManuFlexCost = indirectManuFlexCostValue.toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
+
       let mrkFlexCost = mrkFlexCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -1438,14 +1430,12 @@ class CalculateFlexibleVariance extends Component {
         matFlexCost,
         pkgFlexCost,
         laborFlexCost,
-        indirectManuFlexCost,
         mrkFlexCost,
         rsrchFlexCost,
         totalFlexCost,
         matFlexCostValue,
         pkgFlexCostValue,
         laborFlexCostValue,
-        indirectManuFlexCostValue,
         mrkFlexCostValue,
         rsrchFlexCostValue,
         totalFlexCostValue,
@@ -1579,7 +1569,7 @@ class CalculateFlexibleVariance extends Component {
                     <td>
                       {Math.abs(
                         this.state.laborActCostValue -
-                          this.state.laborFlexCostValue
+                        this.state.laborFlexCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -1589,7 +1579,7 @@ class CalculateFlexibleVariance extends Component {
                     <td>
                       {Math.abs(
                         this.state.laborFlexCostValue -
-                          this.state.laborCostValue
+                        this.state.laborCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -1597,30 +1587,31 @@ class CalculateFlexibleVariance extends Component {
                     </td>
                     <td>{this.state.laborCost}</td>
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <td>Indirect Manufacturing Costs</td>
                     <td>{this.state.indirectManuActCost}</td>
                     <td>
                       {Math.abs(
                         this.state.indirectManuActCostValue -
-                          this.state.indirectManuFlexCostValue
+                        this.state.indirectManuFlexCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                       })}
                     </td>
                     <td>{this.state.indirectManuFlexCost}</td>
+                    
                     <td>
                       {Math.abs(
                         this.state.indirectManuFlexCostValue -
-                          this.state.indirectManuCostValue
+                        this.state.indirectManuCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                       })}
                     </td>
                     <td>{this.state.indirectManuCost}</td>
-                  </tr>
+                  </tr> */}
                   <tr>
                     <td> Marketing </td>
                     <td>{this.state.mrkActCost}</td>
@@ -1649,7 +1640,7 @@ class CalculateFlexibleVariance extends Component {
                     <td>
                       {Math.abs(
                         this.state.rsrchActCostValue -
-                          this.state.rsrchFlexCostValue
+                        this.state.rsrchFlexCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -1659,7 +1650,7 @@ class CalculateFlexibleVariance extends Component {
                     <td>
                       {Math.abs(
                         this.state.rsrchFlexCostValue -
-                          this.state.rsrchCostValue
+                        this.state.rsrchCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -1676,7 +1667,7 @@ class CalculateFlexibleVariance extends Component {
                     <td>
                       {Math.abs(
                         this.state.totalActCostValue -
-                          this.state.totalFlexCostValue
+                        this.state.totalFlexCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -1686,7 +1677,7 @@ class CalculateFlexibleVariance extends Component {
                     <td>
                       {Math.abs(
                         this.state.totalFlexCostValue -
-                          this.state.totalStdCostValue
+                        this.state.totalStdCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -1801,7 +1792,7 @@ class CalculatePriceVariance extends Component {
     let materialCalc =
       Math.abs(
         this.state.materialUnitActCostValue -
-          this.state.materialUnitStdCostValue
+        this.state.materialUnitStdCostValue
       ) * this.state.actQty;
     let laborCalc =
       Math.abs(this.state.hourlyActRateValue - this.state.hourlyStdRateValue) *
@@ -1996,22 +1987,35 @@ class CalculateQuantityVariance extends Component {
     this.setState({ stdCostData, actualCostData });
 
     let materialCalc =
-      Math.abs(this.state.actQty - this.state.actUnitsNo * this.state.stdQty) *
+      Math.abs(this.state.actQty*this.state.actUnitsNo - this.state.actUnitsNo * this.state.stdQty) *
       this.state.materialUnitStdCostValue;
+      let materialInKg = materialCalc/1000;
     let laborCalc =
       Math.abs(
         this.state.workHrsActNo -
-          this.state.actUnitsNo * this.state.workHrsStdNo
+        this.state.actUnitsNo * this.state.workHrsStdNo
       ) * this.state.hourlyStdRateValue;
+      let laborInKg = laborCalc/1000;
     let material = materialCalc.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
     });
+
+    let materialKg = materialInKg.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
     let labor = laborCalc.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
     });
-    this.setState({ material, labor });
+
+    let laborKg = laborInKg.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+    this.setState({ material, labor , materialKg , laborKg });
   };
 
   onChange = async (e) => {
@@ -2070,13 +2074,13 @@ class CalculateQuantityVariance extends Component {
                   <tr>
                     <td>Direct Material </td>
                     <td>
-                      {`(${this.state.actQty} grams - ( ${this.state.actUnitsNo} units * ${this.state.stdQty}  grams per unit) )  * ${this.state.materialUnitStdCost} per gram = ${this.state.material}`}
+                      {`(${this.state.actQty} grams * ${this.state.actUnitsNo} units - ( ${this.state.actUnitsNo} units * ${this.state.stdQty}  grams per unit) )  * ${this.state.materialUnitStdCost} per gram = ${this.state.materialKg} `}
                     </td>
                   </tr>
                   <tr>
                     <td> Direct Labor </td>
                     <td>
-                      {`(${this.state.workHrsActNo} hours - ( ${this.state.actUnitsNo} units * ${this.state.workHrsStdNo} hours per unit ) )  * ${this.state.hourlyStdRate} per hour = ${this.state.labor}`}
+                      {`(${this.state.workHrsActNo} hours - ( ${this.state.actUnitsNo} units * ${this.state.workHrsStdNo} hours per unit ) )  * ${this.state.hourlyStdRate} per hour = ${this.state.laborKg}`}
                     </td>
                   </tr>
                 </tbody>
@@ -2121,12 +2125,12 @@ class FinancialLog extends Component {
               </label>
               <li className="link-item">
                 <NavLink to="/financial-log/costSheetStd">
-                  + STANDARD 
+                  + STANDARD
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/costSheetAct">
-                  + ACTUAL 
+                  + ACTUAL
                 </NavLink>
               </li>
               <label style={{ marginTop: "10px" }}>

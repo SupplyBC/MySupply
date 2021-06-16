@@ -85,7 +85,7 @@ class MaterialCostData extends Component {
         <div className={`${visible}`}>
           <div className={`costsClashContainer `}>
             <div className="alert-text" style={{ marginLeft: '-20px' }}>{this.state.msg}</div>
-            <div className={`${classified} std-cost-container`} style={{marginLeft: '-19%'}}  >
+            <div className={`${classified} std-cost-container`} style={{ marginLeft: '-19%' }}  >
               <table className="cost-data">
                 <thead>
                   <tr>
@@ -143,14 +143,25 @@ class RevokeAccess extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const parti = this.state.participant;
-    await this.props.pcContract.methods.removeFromTrusted(parti).send({
-      from: this.props.account[0]
-    }).once("receipt", (receipt) => {
-      this.setState({ msg: "Access was revoked successfully!".toUpperCase() });
+    const addr = await this.props.pcContract.methods.checkIfTrusted(this.props.account[0], parti).call();
+    this.setState({ addr })
+    if (this.state.addr === true) {
+      await this.props.pcContract.methods.removeFromTrusted(parti).send({
+        from: this.props.account[0]
+      }).once("receipt", (receipt) => {
+        this.setState({ textStatus: true, msg: "Access was revoked successfully!".toUpperCase() });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
+
+    } else {
+      this.setState({ textStatus: false, msg: "Access already revoked from this address!".toUpperCase() });
       setTimeout(() => {
         this.setState({ msg: " " });
       }, 3000);
-    });
+    }
+
 
   }
 
@@ -160,7 +171,9 @@ class RevokeAccess extends Component {
     })
   }
   render() {
-    return(
+    let placeholder;
+    this.state.textStatus ? placeholder = 'good' : placeholder = 'alert'
+    return (
       <form onSubmit={this.onSubmit} className="newform-container">
 
         <h4>REVOKE ACCESS</h4>
@@ -186,7 +199,7 @@ class RevokeAccess extends Component {
           style={{ marginTop: "20px" }}
           className={` product-data-container`}
         >
-          <div style={{ margin: "10px 0px" }} className="good-text query-result">
+          <div style={{ margin: "10px 0px" }} className={`query-result ${placeholder}-text`}>
             {this.state.msg}
           </div>
         </div>
@@ -209,14 +222,25 @@ class ManagePermissions extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const parti = this.state.participant;
-    await this.props.pcContract.methods.addToTrusted(parti).send({
-      from: this.props.account[0]
-    }).once("receipt", (receipt) => {
-      this.setState({ msg: "Access was granted successfully!".toUpperCase() });
+    const addr = await this.props.pcContract.methods.checkIfTrusted(this.props.account[0], parti).call();
+    this.setState({ addr })
+    if (this.state.addr === true) {
+
+      this.setState({ textStatus: false, msg: "Access already granted for this address!".toUpperCase() });
       setTimeout(() => {
         this.setState({ msg: " " });
-      }, 3000);
-    });
+      }, 3000)
+    } else {
+      await this.props.pcContract.methods.addToTrusted(parti).send({
+        from: this.props.account[0]
+      }).once("receipt", (receipt) => {
+        this.setState({ textStatus: true, msg: "Access was granted successfully!".toUpperCase() });
+        setTimeout(() => {
+          this.setState({ msg: " " });
+        }, 3000);
+      });
+    }
+
 
   }
 
@@ -226,43 +250,45 @@ class ManagePermissions extends Component {
     })
   }
   render() {
+    let placeholder;
+    this.state.textStatus ? placeholder = 'good' : placeholder = 'alert'
     return (
       <div>
-      <form onSubmit={this.onSubmit} className="newform-container">
+        <form onSubmit={this.onSubmit} className="newform-container">
 
-        <h4>Manage Data Permissions</h4>
-        <h4>GRANT ACCESS</h4>
-        <label> Enter Participant Address </label>
+          <h4>Manage Data Permissions</h4>
+          <h4>GRANT ACCESS</h4>
+          <label> Enter Participant Address </label>
 
-        <input
-          type="text"
-          ref={this.participantRef}
-          placeholder="e.g.0x8a57428748D955C919F1928C1F21aF0dC1f4fC9d"
-          value={this.state.participant}
-          onChange={this.onChange}
-          required="required"
-        />
+          <input
+            type="text"
+            ref={this.participantRef}
+            placeholder="e.g.0x8a57428748D955C919F1928C1F21aF0dC1f4fC9d"
+            value={this.state.participant}
+            onChange={this.onChange}
+            required="required"
+          />
 
-        <input
-          className="btn"
-          type="submit"
-          value="GRANT ACCESS"
-          ref={this.btnRef}
-        />
+          <input
+            className="btn"
+            type="submit"
+            value="GRANT ACCESS"
+            ref={this.btnRef}
+          />
 
-        <div
-          style={{ marginTop: "20px" }}
-          className={` product-data-container`}
-        >
-          <div style={{ margin: "10px 0px" }} className=" good-text query-result">
-            {this.state.msg}
+          <div
+            style={{ marginTop: "20px" }}
+            className={` product-data-container`}
+          >
+            <div style={{ margin: "10px 0px" }} className={`query-result ${placeholder}-text`}>
+              {this.state.msg}
+            </div>
           </div>
-        </div>
-      </form>
-      <hr className="custom-hr-half"/>
-      <RevokeAccess 
-      account = {this.props.account}
-      pcContract = {this.props.pcContract} />
+        </form>
+        <hr className="custom-hr-half" />
+        <RevokeAccess
+          account={this.props.account}
+          pcContract={this.props.pcContract} />
       </div>
     );
   }
@@ -304,6 +330,7 @@ class QueryProductSpecs extends Component {
     if (specs.length === 0) {
       this.setState({
         msg: "Didn't find any specs for the given product ID, please try again!".toUpperCase(),
+        tableVisibility: false,
       });
     }
     setTimeout(() => {
@@ -311,7 +338,7 @@ class QueryProductSpecs extends Component {
     }, 3000);
 
     this.setState({ proName: "", specsRow });
-    this.setState({ tableVisibility: true });
+    // this.setState({ tableVisibility: true });
 
     this.btnRef.current.removeAttribute("disabled");
   };
@@ -351,13 +378,14 @@ class QueryProductSpecs extends Component {
           ref={this.btnRef}
         />
 
+        <div style={{ margin: "10px 0px" }} className="query-result alert-text">
+          {this.state.msg}
+        </div>
         <div
           style={{ marginTop: "20px" }}
           className={`${table} product-data-container`}
         >
-          <div style={{ margin: "10px 0px" }} className="query-result">
-            {this.state.msg}
-          </div>
+
           <table border="1">
             <thead>
               <tr>
@@ -991,7 +1019,7 @@ class CreateCostPlan extends Component {
           type="text"
           ref={this.matRef}
           value={this.state.material}
-          placeholder="e.g. pro101"
+          placeholder="e.g. mat101"
           onChange={this.OnChange}
           required="required"
         />

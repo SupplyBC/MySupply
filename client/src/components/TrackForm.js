@@ -184,7 +184,6 @@ class TrackRecord extends Component {
 
   render() {
     let statusColor;
-    console.log(this.props.time)
     const dateStr = new Date(this.props.time * 1000).toString();
     const dateArr = dateStr.split(" ", 5);
     const timestamp = dateArr.join(" ");
@@ -240,7 +239,7 @@ componentDidMount = async(e) => {
   const abnormalConditions = eventList.filter((item) => {
     return item.returnValues.state === "ABNORMAL";
   });
-  this.setState({msg: 'Found no notifications.'})
+  // this.setState({msg: 'Found no notifications.'})
   if(abnormalConditions.length === 0) {
     this.setState({msg: 'Found no notifications.'})
   }
@@ -289,7 +288,7 @@ onSubmit = async(e) => {
     const abnormalConditionsFiltered = eventList.filter((item) => {
       return (item.returnValues.state === "ABNORMAL" && item.returnValues.requestNo === reqNo) ;
     });
-    this.setState({msg: 'Found no notifications.'})
+    // this.setState({msg: 'Found no notifications.'})
     if(abnormalConditionsFiltered.length === 0) {
       this.setState({msg: 'Found no notifications.'})
     }
@@ -462,7 +461,6 @@ class Status extends Component {
       return timestamp;
     });
 
-    console.log(timeLogsFiltered)
     this.setState({ trackHistory, tempHistory, humidHistory, timeLogsFiltered });
 
     // send data to chart
@@ -526,8 +524,6 @@ class Status extends Component {
         description,
         time,
       });
-
-      console.log(this.state.time)
 
       return (
         <TrackRecord
@@ -620,7 +616,7 @@ class Status extends Component {
         </div>
       </div>
 
-      <div className="special-query-result query-result">
+      <div className=" msg special-query-result query-result">
         {this.state.msg}
       </div>
       
