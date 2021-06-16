@@ -170,6 +170,7 @@ contract PharmaChain {
     
     function removeFromTrusted(address _participant) public {
         participants[msg.sender][_participant] = false;
+        participants[_participant][msg.sender] = false;
     }
     
     function isTrusted(address _participant) public view returns (bool) {
