@@ -590,7 +590,7 @@ class ReviewProduct extends Component {
       .call();
     const pros = products.filter((item) => {
       // return item.productId === name;
-      return item.productId === name;
+      return item.productName === name;
     });
 
     const proId = pros.map((item) => {
@@ -607,7 +607,7 @@ class ReviewProduct extends Component {
 
     this.setState({ proId, proName });
 
-    if (this.state.id === undefined) {
+    if (!this.state.id) {
       this.setState({ msg: "Please Select a Product!" });
       setTimeout(() => {
         this.setState({ msg: " " });
@@ -644,8 +644,9 @@ class ReviewProduct extends Component {
 
     const names = products.map((item, index) => {
       const name = item.productId;
+      const id   = item.productName;
       return (
-        <option key={index} id={index}>
+        <option key={index} id={index} value={id}>
           {name}
         </option>
       );
@@ -664,10 +665,9 @@ class ReviewProduct extends Component {
             <option
               id="default"
               style={{ fontStyle: "italic", opacity: "0.6", color: "#777" }}
-              value="default"
+              value=""
             >
-              {" "}
-              Select a Product{" "}
+              -- Select a Product -- 
             </option>
             {this.state.names}
           </select>
