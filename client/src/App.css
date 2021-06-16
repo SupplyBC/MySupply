@@ -172,13 +172,13 @@ select option {
 .alert-text {
   color: #d9534f;
   font-weight: 700;
-  text-shadow: 0 0 3px #111
+  /* text-shadow: 0 0 3px #111 */
 }
 
 .good-text {
   color: #5cb85c;
   font-weight: 700;
-  text-shadow: 0 0 1px #fff
+  /* text-shadow: 0 0 0.5px #fff */
 }
 
 .main-msg {
@@ -311,7 +311,7 @@ select {
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(29, 51, 65, 0.7); 
+  background: rgba(10, 45, 66, 0.9); 
 } 
 
 .btn:hover {
@@ -526,7 +526,11 @@ select {
   opacity: 0.7;
 } */
 
-.query-result, .msg {
+/* .query-result, .msg {
+  color: #f2f2f2;
+} */
+
+.msg {
   color: #f2f2f2;
 }
 
