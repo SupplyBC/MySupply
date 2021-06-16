@@ -332,13 +332,14 @@ class QueryProductSpecs extends Component {
         msg: "Didn't find any specs for the given product ID, please try again!".toUpperCase(),
         tableVisibility: false,
       });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    } else {
+      this.setState({ tableVisibility: true });
     }
-    setTimeout(() => {
-      this.setState({ msg: " " });
-    }, 3000);
-
     this.setState({ proName: "", specsRow });
-    // this.setState({ tableVisibility: true });
+    
 
     this.btnRef.current.removeAttribute("disabled");
   };
