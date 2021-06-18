@@ -395,7 +395,7 @@ class ReviewActCostSheet extends Component {
       style: "currency",
       currency: "USD",
     });
-    const newTot = totDirValue + (totDirValue * 20 / 100) + (totDirValue * 30 / 100) + (totDirValue * 14 / 100)
+    const newTot = totDirValue + (totDirValue * 20 / 100) + (totDirValue * 30 / 100) + (totDirValue * 14 / 100) + this.state.mrkActCost + this.state.rsrchActCost;
     return (
       <div className="financial-status-container">
         <form onSubmit={this.onSubmit} className="form-container">

@@ -1,9 +1,244 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
+class CostSheetReview extends Component {
+
+  state = { material: '', product: '', isVisible: false }
+  constructor(props) {
+    super(props);
+    this.onSubmit = this.onSubmit.bind(this);
+
+  }
+
+  componentDidMount = async () => {
+    const isTrust = await this.props.pcContract.methods.checkIfTrusted(this.props.supplier, this.props.account[0]).call();
+    this.setState({ isTrust });
+    if (this.state.isTrust === true) {
+
+    } else {
+      this.setState({
+        msg: 'YOU ARE NOT AUTHORIZED TO REVIEW THIS DATA!',
+      })
+    }
+  }
+
+  toggleCostSheetReview = async () => {
+    this.setState({ isVisible: !this.state.isVisible })
+  }
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
+    if (products.length === 0) {
+      this.setState({ msg: 'NO PRODUCT COST SHEET DATA AVAILABLE!' });
+    }
+    const product = products.map(item => {
+      return item.productName;
+    })
+
+    const productString = product.toString();
+    const isOwner = product.map(item => {
+      if (item.manufacturer === this.props.account[0]) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+
+    
+    const strBoolIsOwner = isOwner.toString();
+    this.setState({ strBoolIsOwner, tableVisibility: false })
+
+    const productActCost = await this.props.pcContract.methods.getActualCost(productString).call();
+    const productActQty = await this.props.pcContract.methods.getActualMaterialQty(productString).call();
+    console.log(productActCost);
+
+    this.setState({productActCost,productActQty});
+    
+
+    const proActCosts = productActCost.map(item => {
+      let matActCostValue = parseInt(productActCost.directMaterialCost, 10);
+      let pkgActCostValue = parseInt(productActCost.packagingMaterialCost, 10);
+      let laborActCostValue = parseInt(productActCost.directLaborCost, 10);
+      let mrkActCostValue = parseInt(productActCost.marketingCost, 10);
+      let rsrchActCostValue = parseInt(productActCost.researchCost, 10);
+      // let totalActCostValue = parseInt(actual.CostTOT,10);
+      let totalActCostValue =
+        matActCostValue +
+        pkgActCostValue +
+        laborActCostValue +
+        mrkActCostValue +
+        rsrchActCostValue;
+
+      let matActCost = matActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let pkgActCost = pkgActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let laborActCost = laborActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let mrkActCost = mrkActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let rsrchActCost = rsrchActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let totalActCost = totalActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      this.setState({
+        productActCost,
+        matActCost,
+        pkgActCost,
+        laborActCost,
+        mrkActCost,
+        rsrchActCost,
+        totalActCost,
+        matActCostValue,
+        pkgActCostValue,
+        laborActCostValue,
+        mrkActCostValue,
+        rsrchActCostValue,
+        totalActCostValue,
+      });
+      return true;
+    });
+    this.setState({proActCosts})
+  }
+
+  
+ 
+  render() {
+
+    let classified, visible;
+    this.state.isVisible ? visible = "show" : visible = "hide";
+    this.state.isTrust ? classified = "show" : classified = "hide";
+    let isToggled;
+    this.props.toggled ? isToggled = "" : isToggled = "hide";
+
+    if (this.state.isTrust || this.state.strBoolIsOwner === 'true') {
+      classified = "show"
+    } else {
+      classified = "hide"
+    };
+
+    const newRawMaterialValue = this.props.matUnitCost * this.state.productActQty;
+    const newRawMaterial = newRawMaterialValue.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    const totDirValue = this.state.laborActCostValue + this.state.pkgActCostValue + newRawMaterialValue;
+
+    const totDir = totDirValue.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    const newTot = totDirValue + (totDirValue * 20 / 100) + (totDirValue * 30 / 100) + (totDirValue * 14 / 100) + this.state.mrkActCostValue + this.state.rsrchActCostValue;
+    return (
+      <div className="newform-container">
+        <form onSubmit={this.onSubmit} >
+          <button onClick={this.toggleCostSheetReview} className={` ${isToggled} financial-detail-btn`}>{this.state.isVisible ? 'Hide Review' : 'Review Product Cost Sheet'}</button>
+        </form>
+        <div className={`${visible}`}>
+          <div className={`costsClashContainer cost-sheet-review `}>
+            <div className="alert-text" style={{ marginLeft: '-20px' }}>{this.state.msg}</div>
+            <div className={`${classified} std-cost-container`}  >
+        <table className={`${isToggled} cost-data`} >
+          <thead>
+            <tr>
+              <th>CRITERIA</th>
+              <th>COST</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td> Raw Materials </td>
+              <td>{newRawMaterial}</td>
+            </tr>
+            <tr>
+              <td> Packaging Materials </td>
+              <td>{this.state.pkgActCost}</td>
+            </tr>
+            <tr>
+              <td> Direct Labor </td>
+              <td>{this.state.laborActCost}</td>
+            </tr>
+            <tr
+              style={{
+                borderTop: "1px solid",
+                borderBottom: "1px solid",
+              }}
+            >
+              <td>TOTAL DIRECT COST</td>
+              <td>{totDir}</td>
+            </tr>
+
+            <tr className={`${classified}`}>
+              <td> Indirect Manufacturing Costs (20%) </td>
+              <td>{(totDirValue * 20 / 100).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}</td>
+            </tr>
+            <tr className={`${classified}`}>
+              <td> Managerial and Funding Costs (30%) </td>
+              <td>{(totDirValue * 30 / 100).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}</td>
+            </tr>
+            <tr className={`${classified}`}>
+              <td> Value Added Tax (14%) </td>
+              <td>{(totDirValue * 14 / 100).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}</td>
+            </tr>
+            <tr className={`${classified}`} >
+              <td> Marketing </td>
+              <td>{this.state.mrkActCost}</td>
+            </tr>
+            <tr className={`${classified}`}>
+              <td> Research </td>
+              <td>{this.state.rsrchActCost}</td>
+            </tr>
+          </tbody>
+
+          <tfoot className={`${classified}`}>
+            <tr>
+              <th> TOTAL </th>
+              <td>{newTot.toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })} </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+            
+            
+          </div>
+
+        </div>
+        
+      </div>
+    );
+  }
+}
 
 class MaterialCostData extends Component {
-  state = { material: '', isVisible: false}
+  state = { material: '', isVisible: false }
   constructor(props) {
     super(props);
     this.toggleFinancialDetails = this.toggleFinancialDetail.bind(this);
@@ -24,6 +259,8 @@ class MaterialCostData extends Component {
   toggleFinancialDetail = async () => {
     this.setState({ isVisible: !this.state.isVisible })
   }
+
+
 
   onSubmit = async (e) => {
     e.preventDefault();
@@ -75,17 +312,16 @@ class MaterialCostData extends Component {
     this.state.isVisible ? visible = "show" : visible = "hide";
     this.state.isTrust ? classified = "show" : classified = "hide";
     let isToggled;
-    this.props.toggled? isToggled = "" : isToggled="hide";
+    this.props.toggled ? isToggled = "" : isToggled = "hide";
     return (
       <div className="newform-container">
         <form onSubmit={this.onSubmit} >
           <button onClick={this.toggleFinancialDetail} className={` ${isToggled} financial-detail-btn`}>{this.state.isVisible ? 'Hide Financial Data' : 'View Financial Data'}</button>
         </form>
-        {/* <button onClick={this.toggleFinancialDetail} className="financial-detail-btn"></button> */}
         <div className={`${visible}`}>
           <div className={`costsClashContainer `}>
             <div className="alert-text" style={{ marginLeft: '-20px' }}>{this.state.msg}</div>
-            <div className={`${classified} std-cost-container`} style={{ marginLeft: '-19%' }}  >
+            <div className={`${classified} std-cost-container`}  >
               <table className={`${isToggled} cost-data`} >
                 <thead>
                   <tr>
@@ -339,7 +575,7 @@ class QueryProductSpecs extends Component {
       this.setState({ tableVisibility: true });
     }
     this.setState({ proName: "", specsRow });
-    
+
 
     this.btnRef.current.removeAttribute("disabled");
   };
@@ -497,6 +733,7 @@ class RequestMaterials extends Component {
       let supplier = item.supplier;
       let id = item.materialID;
       let name = item.materialName;
+      let costValue = parseInt(item.unitCost, 10);
       let cost = parseInt(item.unitCost, 10).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
       let form = item.materialForm;
       let availableAmount = item.createdAmount;
@@ -504,7 +741,7 @@ class RequestMaterials extends Component {
       let stability = item.materialStability;
       let stabilityPeriod = item.materialStabilityPeriod;
       let toHide;
-      this.state.isTriggered? toHide="" : toHide="hide"
+      this.state.isTriggered ? toHide = "" : toHide = "hide"
 
 
       return (
@@ -512,12 +749,12 @@ class RequestMaterials extends Component {
 
           <ul className="query-result-list" key={index}>
             <div className="supplier-summary-container">
-            <li > <strong>SUPPLIER </strong> <span className="lead">{supplier}</span></li> 
-            <span className="show-details-container">
-            
-             </span>
+              <li > <strong>SUPPLIER </strong> <span className="lead">{supplier}</span></li>
+              <span className="show-details-container">
+
+              </span>
             </div>
-            <div className= {`${toHide}`}> 
+            <div className={`${toHide}`}>
               <li><strong><em>---- MATERIAL INFORMATION ----</em></strong></li>
               <li> <strong>ID </strong> {id}</li>
               <li> <strong>NAME </strong> {name}</li>
@@ -527,27 +764,37 @@ class RequestMaterials extends Component {
               <li> <strong>STABILITY PERIOD </strong> {stabilityPeriod} years</li>
               <li> <strong>STORAGE CONDITIONS</strong> {conditions === '' ? 'N/A' : conditions}</li>
               <li> <strong>IN STOCK </strong> {availableAmount} g</li>
-              </div>
-            </ul>
-            <MaterialCostData
-              toggled ={this.state.isTriggered}
-              supplier={supplier}
-              materialId={id}
-              account={this.props.account}
-              pcContract={this.props.pcContract}
+            </div>
+          </ul>
+          <MaterialCostData
+            toggled={this.state.isTriggered}
+            supplier={supplier}
+            materialId={id}
+            account={this.props.account}
+            pcContract={this.props.pcContract}
 
-            />
-            <hr className="custom-hr-full"></hr>
-            
+          />
+          <CostSheetReview
+            toggled={this.state.isTriggered}
+            supplier={supplier}
+            materialId={id}
+            account={this.props.account}
+            pcContract={this.props.pcContract}
+            matUnitCost={costValue}
+            matId = {id}
+
+          />
+          <hr className="custom-hr-full"></hr>
+
         </div>
       );
     })
     this.setState({ resultCount: queryFilter.length, result, amountToggled: true });
 
-    if(this.state.resultCount === 0) {
-      this.setState({emptyToggle: true})
+    if (this.state.resultCount === 0) {
+      this.setState({ emptyToggle: true })
     } else {
-      this.setState({emptyToggle: false})
+      this.setState({ emptyToggle: false })
     }
 
   };
@@ -565,7 +812,7 @@ class RequestMaterials extends Component {
   };
 
   render() {
-    let toggled, toggled2 , toggled3
+    let toggled, toggled2, toggled3
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
@@ -575,7 +822,7 @@ class RequestMaterials extends Component {
     }
     this.state.amountToggled ? toggled = "show" : toggled = "hide"
     this.state.batchToggled ? toggled2 = "show" : toggled2 = "hide"
-    this.state.emptyToggle?   toggled3="hide" : toggled3= "show"
+    this.state.emptyToggle ? toggled3 = "hide" : toggled3 = "show"
     return (
       <form onSubmit={this.onSubmit} className="newform-container">
 
@@ -585,13 +832,28 @@ class RequestMaterials extends Component {
           onChange={this.onChange}
           ref={this.materialRef}
         >
-          <option id="1" value="vitamin-a">
+           <option id="100" value="amoxicillin">
+          AMOXICILLIN
+          </option>
+          <option id="101" value="flucloxacillin">
+          FLUCLOXACILLIN
+          </option>
+          <option id="102" value="valsartan">
+          VALSARTAN
+          </option>
+          <option id="103" value="hydrocholorothiazide">
+          HYDROCHLOROTHIAZIDE
+          </option>
+          <option id="104" value="diclofenac">
+          DICLOFENAC
+          </option>
+          <option id="11" value="vitamin-a">
             VITAMIN A
           </option>
-          <option id="2" value="vitmain-b-complex">
+          <option id="22" value="vitmain-b-complex">
             VITAMIN B COMPLEX
           </option>
-          <option id="3" value="vitamin-c-extract">
+          <option id="33" value="vitamin-c-extract">
             VITAMIN C EXTRACT
           </option>
           <option id="4" value="vitamin-d">
@@ -613,7 +875,7 @@ class RequestMaterials extends Component {
             WOOD
           </option>
           <option id="10" value="wheat-germ-oil">
-            WHEAT GERM OIL
+            WHEAT GERM OIl
           </option>
           <option id="11" value="paracetamol">
             PARACETAMOL
@@ -710,11 +972,11 @@ class RequestMaterials extends Component {
           <p style={{ textAlign: 'left' }}> Found <strong>{this.state.resultCount} </strong> results. </p>
         </div>
         <div className={`${toggled} query-result-container`}>
-        <button 
-             onClick={this.triggerSupplierMenu}
-             className={`${toggled3} material-detail-btn`}>
-               {this.state.isTriggered? 'CHANGE VIEW: EXPANDED' : 'CHANGE VIEW: COLLPASED'}
-             </button>
+          <button
+            onClick={this.triggerSupplierMenu}
+            className={`${toggled3} material-detail-btn`}>
+            {this.state.isTriggered ? 'COLLAPSE VIEW' : 'EXPAND VIEW'}
+          </button>
           {this.state.result}
         </div>
       </form>
@@ -815,6 +1077,21 @@ class CreateMaterial extends Component {
         />
         <label>Material Name:</label>
         <select name="material-name" onChange={this.OnChange} ref={this.matRef}>
+        <option id="100" value="amoxicillin">
+          AMOXICILLIN
+          </option>
+          <option id="101" value="flucloxacillin">
+          FLUCLOXACILLIN
+          </option>
+          <option id="102" value="valsartan">
+          VALSARTAN
+          </option>
+          <option id="103" value="hydrocholorothiazide">
+          HYDROCHLOROTHIAZIDE
+          </option>
+          <option id="104" value="diclofenac">
+          DICLOFENAC
+          </option>
           <option id="11" value="vitamin-a">
             VITAMIN A
           </option>

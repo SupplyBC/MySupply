@@ -105,10 +105,13 @@ class CreateProduct extends Component {
           <option id="1" value="tablets">
             TABLETS
           </option>
-          <option id="2" value="capsules">
+          <option id="2" value="tablets">
+            COATED TABLETS
+          </option>
+          <option id="3" value="capsules">
             CAPSULES
           </option>
-          <option id="3" value="tablets">
+          <option id="4" value="tablets">
             OTHER
           </option>
         </select>
@@ -235,6 +238,22 @@ class AddMaterial extends Component {
           onChange={this.handleChange}
           ref={this.matNameRef}
         >
+
+          <option id="100" value="amoxicillin">
+          AMOXICILLIN
+          </option>
+          <option id="101" value="flucloxacillin">
+          FLUCLOXACILLIN
+          </option>
+          <option id="102" value="valsartan">
+          VALSARTAN
+          </option>
+          <option id="103" value="hydrocholorothiazide">
+          HYDROCHLOROTHIAZIDE
+          </option>
+          <option id="104" value="diclofenac">
+          DICLOFENAC
+          </option>
           <option id="11" value="vitamin-a">
             VITAMIN A
           </option>
