@@ -151,6 +151,20 @@ select option {
 .financial-detail-btn:hover {
   opacity: 0.7;
 }
+
+.material-detail-btn {
+  cursor:pointer;
+  padding: 4px;
+  justify-self: space-between;
+  align-self: flex-start;
+  background: none;
+  border: 1px solid;
+  color: #f2f2f2;
+}
+
+.material-detail-btn:hover {
+  opacity: 0.7;
+}
 .btn:disabled {
   cursor: not-allowed;
 }
@@ -214,6 +228,11 @@ p,h4 {
   width:100%;
   background-color: #f2f2f2;
 
+}
+
+.lead {
+  font-size: 1.1em;
+  margin-bottom: 10px;
 }
 /* Header.js */
 
@@ -333,7 +352,17 @@ select {
 
 /* SupplyForm.js */
 
+.supplier-summary-container {
+  display: flex;
+  flex-direction: row;
+  justify-items: space-between;
+  gap:20px;
+}
 
+.show-details-container {
+  justify-self: center;
+  align-self: center;
+}
 
 
 .material-financial-container::after {
@@ -371,7 +400,11 @@ select {
   display: flex;
   flex-direction: column;
   color: #f2f2f2;
+  /* margin-bottom: -10px;
+  margin-top: -5px; */
 }
+
+
 
 .query-result-list li {
   padding: 5px;
@@ -412,6 +445,7 @@ select {
 .btn-group .btn-alt {
   margin-top: 9px;
 }
+
 
 /* ProductForm.js */
 
@@ -1503,7 +1537,28 @@ select {
   .financial-detail-btn {
     align-self: flex-start;
   }
- 
+
+  .supplier-summary-container {
+    display: flex;
+    flex-direction: column;
+    justify-items: space-between;
+    gap:20px;
+  }
+  
+  .show-details-container {
+    justify-self: center;
+    align-self: center;
+  }
+  
+  .lead {
+    font-size: 1em;
+    margin-bottom: 4px;
+  }
+  
+  .material-detail-btn {
+    justify-content: center;
+    align-self: center;
+  }
 
   /* 
   MEDIA QUERY END
