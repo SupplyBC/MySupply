@@ -309,7 +309,8 @@ class ManageAccount extends Component {
         <div className="account-details">
           <p>
             
-            <strong>Bank ID:</strong> <em>{this.state.bank}</em>
+            {/* <strong>Bank ID:</strong> <em>{this.state.bank}</em> */}
+            <strong>Bank ID:</strong> <em>0xBF9f96231B8828521a1B5B9D70A48BC7977a1b24</em>
           </p>
           <p>
             

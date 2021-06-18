@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, NavLink } from "react-router-dom";
 
+
 class MaterialCostData extends Component {
-  state = { material: '', isVisible: false }
+  state = { material: '', isVisible: false}
   constructor(props) {
     super(props);
     this.toggleFinancialDetails = this.toggleFinancialDetail.bind(this);
@@ -22,7 +23,6 @@ class MaterialCostData extends Component {
 
   toggleFinancialDetail = async () => {
     this.setState({ isVisible: !this.state.isVisible })
-
   }
 
   onSubmit = async (e) => {
@@ -35,7 +35,6 @@ class MaterialCostData extends Component {
       const matShippingCostValue = parseInt(matCosts.shippingCost, 10);
       const matTotalDirectCostValue = parseInt(matCosts.totalDirectCost, 10);
       const matTotalIndirectCostValue = parseInt(matCosts.totalIndirectCost, 10);
-
       const matMaterialCost = matMaterialCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
       const matPkgCost = matPkgCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
       const matLaborCost = matLaborCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
@@ -75,18 +74,19 @@ class MaterialCostData extends Component {
     let classified, visible;
     this.state.isVisible ? visible = "show" : visible = "hide";
     this.state.isTrust ? classified = "show" : classified = "hide";
-
+    let isToggled;
+    this.props.toggled? isToggled = "" : isToggled="hide";
     return (
       <div className="newform-container">
         <form onSubmit={this.onSubmit} >
-          <button onClick={this.toggleFinancialDetail} className="financial-detail-btn">{this.state.isVisible ? 'Hide Financial Data' : 'View Financial Data'}</button>
+          <button onClick={this.toggleFinancialDetail} className={` ${isToggled} financial-detail-btn`}>{this.state.isVisible ? 'Hide Financial Data' : 'View Financial Data'}</button>
         </form>
         {/* <button onClick={this.toggleFinancialDetail} className="financial-detail-btn"></button> */}
         <div className={`${visible}`}>
           <div className={`costsClashContainer `}>
             <div className="alert-text" style={{ marginLeft: '-20px' }}>{this.state.msg}</div>
             <div className={`${classified} std-cost-container`} style={{ marginLeft: '-19%' }}  >
-              <table className="cost-data">
+              <table className={`${isToggled} cost-data`} >
                 <thead>
                   <tr>
                     <th>CRITERIA</th>
@@ -479,6 +479,12 @@ class RequestMaterials extends Component {
     }, 15000);
   }
 
+  triggerSupplierMenu = () => {
+    this.setState({
+      isTriggered: !this.state.isTriggered
+    })
+
+  }
   onSubmit = async (e) => {
     e.preventDefault();
     const material = this.state.materialName;
@@ -497,34 +503,52 @@ class RequestMaterials extends Component {
       let conditions = item.storageConditions;
       let stability = item.materialStability;
       let stabilityPeriod = item.materialStabilityPeriod;
+      let toHide;
+      this.state.isTriggered? toHide="" : toHide="hide"
 
 
       return (
         <div key={index}>
 
           <ul className="query-result-list" key={index}>
-            <li> <strong>SUPPLIER </strong> {supplier}</li>
-            <li> <strong>ID </strong> {id}</li>
-            <li> <strong>NAME </strong> {name}</li>
-            <li> <strong>FORM </strong> {form}</li>
-            <li> <strong>UNIT COST </strong> {cost}</li>
-            <li> <strong>STABILITY </strong> {stability ? "STABLE" : "NOT STABLE"}</li>
-            <li> <strong>STABILITY PERIOD </strong> {stabilityPeriod} years</li>
-            <li> <strong>STORAGE CONDITIONS</strong> {conditions === '' ? 'N/A' : conditions}</li>
-            <li> <strong>IN STOCK </strong> {availableAmount} g</li>
-          </ul>
-          <MaterialCostData
-            supplier={supplier}
-            materialId={id}
-            account={this.props.account}
-            pcContract={this.props.pcContract}
+            <div className="supplier-summary-container">
+            <li > <strong>SUPPLIER </strong> <span className="lead">{supplier}</span></li> 
+            <span className="show-details-container">
+            
+             </span>
+            </div>
+            <div className= {`${toHide}`}> 
+              <li><strong><em>---- MATERIAL INFORMATION ----</em></strong></li>
+              <li> <strong>ID </strong> {id}</li>
+              <li> <strong>NAME </strong> {name}</li>
+              <li> <strong>FORM </strong> {form}</li>
+              <li> <strong>UNIT COST </strong> {cost}</li>
+              <li> <strong>STABILITY </strong> {stability ? "STABLE" : "NOT STABLE"}</li>
+              <li> <strong>STABILITY PERIOD </strong> {stabilityPeriod} years</li>
+              <li> <strong>STORAGE CONDITIONS</strong> {conditions === '' ? 'N/A' : conditions}</li>
+              <li> <strong>IN STOCK </strong> {availableAmount} g</li>
+              </div>
+            </ul>
+            <MaterialCostData
+              toggled ={this.state.isTriggered}
+              supplier={supplier}
+              materialId={id}
+              account={this.props.account}
+              pcContract={this.props.pcContract}
 
-          />
-          <hr className="custom-hr-full"></hr>
+            />
+            <hr className="custom-hr-full"></hr>
+            
         </div>
       );
     })
     this.setState({ resultCount: queryFilter.length, result, amountToggled: true });
+
+    if(this.state.resultCount === 0) {
+      this.setState({emptyToggle: true})
+    } else {
+      this.setState({emptyToggle: false})
+    }
 
   };
 
@@ -541,7 +565,7 @@ class RequestMaterials extends Component {
   };
 
   render() {
-    let toggled, toggled2;
+    let toggled, toggled2 , toggled3
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
     let cont2 = this.props.pctContract;
@@ -551,6 +575,7 @@ class RequestMaterials extends Component {
     }
     this.state.amountToggled ? toggled = "show" : toggled = "hide"
     this.state.batchToggled ? toggled2 = "show" : toggled2 = "hide"
+    this.state.emptyToggle?   toggled3="hide" : toggled3= "show"
     return (
       <form onSubmit={this.onSubmit} className="newform-container">
 
@@ -685,7 +710,11 @@ class RequestMaterials extends Component {
           <p style={{ textAlign: 'left' }}> Found <strong>{this.state.resultCount} </strong> results. </p>
         </div>
         <div className={`${toggled} query-result-container`}>
-
+        <button 
+             onClick={this.triggerSupplierMenu}
+             className={`${toggled3} material-detail-btn`}>
+               {this.state.isTriggered? 'CHANGE VIEW: EXPANDED' : 'CHANGE VIEW: COLLPASED'}
+             </button>
           {this.state.result}
         </div>
       </form>
