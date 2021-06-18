@@ -352,6 +352,35 @@ select {
 
 /* SupplyForm.js */
 
+/* .costsClashContainer.cost-sheet-review {
+  width:100%;
+} */
+
+/* .costsClashContainer.cost-sheet-review select {
+  text-align: left;
+  margin-left: -30%;
+  width: 220px;
+  justify-self: flex-start;
+} */
+
+.cost-sheet-review .form-row {
+  margin-left:-10%;
+  display: flex;
+  flex-direction: row;
+  justify-items: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
+.cost-sheet-review .form-row input {
+  margin-top: -5px;
+}
+
+
+.costsClashContainer .std-cost-container {
+  margin-left: -19%;
+}
+
 .supplier-summary-container {
   display: flex;
   flex-direction: row;
@@ -1560,6 +1589,11 @@ select {
     align-self: center;
   }
 
+  .costsClashContainer .std-cost-container {
+   justify-self: center;
+   align-self: center;
+    padding: 5px 48px;
+  }
   /* 
   MEDIA QUERY END
   */
