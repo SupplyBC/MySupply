@@ -254,6 +254,9 @@ class AddMaterial extends Component {
           <option id="104" value="diclofenac">
           DICLOFENAC
           </option>
+          <option id="105" value="metronidazole">
+          METRONIDAZOLE
+          </option>
           <option id="11" value="vitamin-a">
             VITAMIN A
           </option>
