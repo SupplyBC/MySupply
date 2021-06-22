@@ -245,6 +245,12 @@ class AddMaterial extends Component {
           <option id="101" value="flucloxacillin">
           FLUCLOXACILLIN
           </option>
+          <option id="201" value="ampicillin">
+          AMPICILLIN
+          </option>
+          <option id="202" value="piperacillin">
+          PIPERACILLIN
+          </option>
           <option id="102" value="valsartan">
           VALSARTAN
           </option>
@@ -256,6 +262,27 @@ class AddMaterial extends Component {
           </option>
           <option id="105" value="metronidazole">
           METRONIDAZOLE
+          </option>
+          <option id="107" value="polyvinylpyrrolidone">
+          {`${'Polyvinylpyrrolidone'.toUpperCase()}`}
+          </option>
+          <option id="108" value="crospovidone">
+          {`${'crospovidone'.toUpperCase()}`}
+          </option>
+          <option id="109" value="microcrystalline_cellulose_ph101">
+          {`${'microcrystalline cellulose PH 101'.toUpperCase()}`}
+          </option>
+          <option id="110" value="magnesium_stearate">
+          {`${'magnesium stearate'.toUpperCase()}`}
+          </option>
+          <option id="111" value="maize_starch">
+          {`${'Maize starch'.toUpperCase()}`}
+          </option>
+          <option id="113" value="colloidal_silicon_dioxide">
+          {`${'colloidal silicon dioxide'.toUpperCase()}`}
+          </option>
+          <option id="114" value="asparatam">
+          {`${'asparatam'.toUpperCase()}`}
           </option>
           <option id="11" value="vitamin-a">
             VITAMIN A
