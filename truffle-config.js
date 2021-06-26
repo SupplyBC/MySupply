@@ -15,11 +15,13 @@ module.exports = {
       host: "192.168.1.11",
       network_id: "*",
       port: 7545,
+      gas: 6721975,
+      gasPrice: 20000000000
     },
   },
   compilers: {
     solc: {
-      version: "0.7.4",
+      version: "0.8.0",
       settings: {
         optimizer: {
           enabled: true,
@@ -28,5 +30,4 @@ module.exports = {
       },
     },
   },
-  // plugins: ["truffle-contract-size"]
 };
