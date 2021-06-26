@@ -23,6 +23,8 @@ contract PharmaChain {
         
     }
     
+    
+    
     // END OF UTILS
 
     
@@ -35,8 +37,8 @@ contract PharmaChain {
     mapping (address => address[])            trustedPartis; // participants and trusted other trusted mapping for array
     mapping (address => Product[])          products;    // manufacturer and product
     mapping (string => Specs[])             productSpecs; // productID and material 
-    mapping (string => uint)                stdMaterialQty; // std mateiral qty used in product (id) unit
-    mapping (string => uint)                actMaterialQty; //  actual material qty used in product (id) unit 
+    mapping (string => string)                stdMaterialQty; // std mateiral qty used in product (id) unit
+    mapping (string => string)                actMaterialQty; //  actual material qty used in product (id) unit 
     mapping (string => Product)             productList; // product by id
     mapping (string => string[])            productPhase; // product id and phases;
     mapping (address => Material[])         materials;   //Participant(supplier) and material
@@ -52,7 +54,7 @@ contract PharmaChain {
     mapping (string => uint)                actualBudgetUnits;
     mapping (string => uint)                flexibleBudgetUnits;
     mapping (string => MaterialProductionCost) materialCostPlan;   // supplier's material cost data
-    mapping (uint => uint)                  requestCost;    // requestId and Cost
+    mapping (uint => string)                  requestCost;    // requestId and Cost
     mapping (address => InventoryItem[])    inventory;   // participant and items inventory
     mapping (string => InventoryItem)       inventoryList;   // inventory item by item id
     mapping (address => mapping (address => BankAccount) ) userBankAccounts; // bankAddr -> userAddr -> userAcc
@@ -82,8 +84,8 @@ contract PharmaChain {
         string  materialName;
         uint    materialStrength;
         string  materialForm;
-        uint    createdAmount;
-        uint    unitCost;
+        string  createdAmount;
+        string  unitCost;
         string  storageConditions;
         bool    materialStability;
         uint    materialManuDate;
@@ -94,9 +96,10 @@ contract PharmaChain {
     struct Specs {
         string  materialName;
         string  materialType;
-        uint    materialAmount;
+        string  materialAmount;
         string  materialStrength;
         string  materialForm;
+        string  materialUnitCost; // cost per total amount of material in a unit product
         
     }
 
@@ -105,7 +108,7 @@ contract PharmaChain {
         address fromParti;
         address toParti;
         string  materialID;
-        uint    amount;
+        string    amount;
         uint    issueTime;
     }
     
@@ -115,33 +118,26 @@ contract PharmaChain {
         address fromParti2;
         address toParti;
         string  materialID;
-        uint    amount;
+        string  amount;
         uint    issueTime;
     }
     
     // Cost Per Product Unit 
     struct Cost {
-        uint directMaterialCost;
-        uint packagingMaterialCost;
-        uint materialCostPerUnit; // cost per unit material
-        uint marketingCost;
-        uint researchCost;
-        uint directLaborCost;
-        uint ratePerWorkHr; // rate per work hour
-        uint workHrs;       // no of work hours
-        uint totalDirectCost;
-        uint CostTOT; // direct material + direct labor + total indirect
-        uint shippingCost; // shipping method cost 
+        string directMaterialCost;
+        string packagingMaterialCost;
+        string directLaborCost;
+        string totalDirectCost;
+        string CostTOT; // total direct + total indirect
     }
     
     struct MaterialProductionCost {
-         uint directMaterialCost;
-         uint packagingMaterialCost;
-         uint directLaborCost;
-         uint shippingCost;
-         uint totalIndirectCost;
-         uint totalDirectCost;
-         uint CostTOT;
+         string directMaterialCost;
+         string packagingMaterialCost;
+         string directLaborCost;
+         string shippingCost;
+         string totalDirectCost;
+         string CostTOT;
     }
     
     
@@ -152,7 +148,7 @@ contract PharmaChain {
     
     struct InventoryItem {
       string itemId;
-      uint   amount;
+      string amount;
     }
     
     // FUNCTIONS AND MODIFIERS
@@ -216,7 +212,8 @@ contract PharmaChain {
     string memory _type,
     string memory _strength,
     string memory _form,
-    uint          _amount
+    string memory _amount,
+    string memory _unitCost
     
     ) public {
     
@@ -225,7 +222,8 @@ contract PharmaChain {
             materialType: _type,
             materialForm: _form,
             materialAmount: _amount,
-            materialStrength: _strength
+            materialStrength: _strength,
+            materialUnitCost: _unitCost
             
         });      
         
@@ -263,37 +261,18 @@ contract PharmaChain {
     // END OF MANUFACTURING STUFF
     // COST ACCOUNTING STUFF GOES HERE
     
+    
     function setStdCostPlan(
     
-    string  memory _product,
+    string  memory  _product,
     uint    _unitsNo,
-    uint    _pkgMatCost,
-    uint    _unitMaterialCost,
-    uint    _ratePerHr,
-    uint    _workHrsNo,
-    uint    _mrkCost,
-    uint    _rsrchCost,
-    uint    _shipCost
-        ) public {
+    Cost memory stdCosts
     
-    uint matAmount = getStdMaterialQty(_product);
-    Cost memory stdCosts = Cost({
-        directMaterialCost: matAmount * _unitMaterialCost,
-        ratePerWorkHr: _ratePerHr,
-        materialCostPerUnit: _unitMaterialCost,
-        workHrs: _workHrsNo,
-        directLaborCost: _ratePerHr * _workHrsNo,
-        totalDirectCost: 0,
-        packagingMaterialCost: _pkgMatCost,
-        marketingCost: _mrkCost,
-        researchCost: _rsrchCost,
-        shippingCost: _shipCost,
-        CostTOT: 0
-       
-    });
+        ) public {
     
     standardProductCosts[_product] = stdCosts;
     standardBudgetUnits[_product] = _unitsNo;
+    
     }
     
     
@@ -302,7 +281,7 @@ contract PharmaChain {
     }
     
     
-    function getStdCostPlan(string memory _product) public view returns(Cost memory) {
+    function getStdCostPlan(string memory _product) public view returns(Cost memory ) {
         return standardProductCosts[_product];
     }
     
@@ -318,40 +297,20 @@ contract PharmaChain {
         return standardBudgetUnits[_product];
     }
     
-    function getStdMaterialQty(string memory _product) public view returns (uint) {
+    function getStdMaterialQty(string memory _product) public view returns (string memory) {
         return stdMaterialQty[_product];
     }
     
     function setActualCost(
     
-    string memory _product,
-    uint _unitsNo,
-    uint _actualPkgMatCost,
-    uint _unitMaterialCost,
-    uint _actualRatePerHr,
-    uint _actualWorkHrsNo,
-    uint _actualMrkCost,
-    uint _actualRsrchCost,
-    uint _actualMatQty,
-    uint _actualShipCost
+    string memory   _product,
+    uint   _unitsNo,
+    string memory   _actualMatQty,
+    Cost memory actualCosts
     
     ) public {
         
         setActualMaterialQty(_product,_actualMatQty);
-        Cost memory actualCosts = Cost({
-            directMaterialCost: _actualMatQty * _unitMaterialCost,
-            packagingMaterialCost: _actualPkgMatCost,
-            materialCostPerUnit: _unitMaterialCost,
-            totalDirectCost: 0,
-            ratePerWorkHr: _actualRatePerHr,
-            workHrs: _actualWorkHrsNo,
-            marketingCost: _actualMrkCost,
-            researchCost: _actualRsrchCost,
-            directLaborCost: _actualRatePerHr * _actualWorkHrsNo,
-            shippingCost: _actualShipCost,
-            CostTOT: 0
-        });
-        
         actualProductCosts[_product] = actualCosts;
         actualBudgetUnits[_product] = _unitsNo;
         setProductPhase(_product, 'PRODUCTION-READY');
@@ -363,11 +322,11 @@ contract PharmaChain {
         return actualProductCosts[_product];
     }
     
-    function setActualMaterialQty (string memory _product , uint _amount) public {
+    function setActualMaterialQty (string memory _product , string memory _amount) public {
         actMaterialQty[_product] = _amount;
     }
     
-    function getActualMaterialQty (string memory _product) public view returns (uint) {
+    function getActualMaterialQty (string memory _product) public view returns (string memory) {
         return actMaterialQty[_product];
     }
     
@@ -376,32 +335,12 @@ contract PharmaChain {
     }
     
     function setFlexibleCosts(
-    string memory _product,
-    uint _unitsNo,
-    uint _pkgUnitCost,
-    uint _unitMaterialCost,
-    uint _ratePerHr,
-    uint _workHrsNo,
-    uint _flexibleMrkCost,
-    uint _flexibleRsrchCost,
-    uint _flexibleShipCost
+    string memory   _product,
+    uint    _unitsNo,
+    Cost memory flex
     )
     public {
-        
-        uint matAmount = getStdMaterialQty(_product);
-        Cost memory flex = Cost ({
-            directMaterialCost: matAmount * _unitMaterialCost,
-            packagingMaterialCost: _pkgUnitCost,
-            totalDirectCost: 0,
-            ratePerWorkHr: _ratePerHr,
-            workHrs: _workHrsNo,
-            materialCostPerUnit: _unitMaterialCost,
-            marketingCost: _flexibleMrkCost,
-            researchCost: _flexibleRsrchCost,
-            directLaborCost:  _ratePerHr * _workHrsNo,
-            shippingCost: _flexibleShipCost,
-            CostTOT: 0
-        });
+    
         
         flexibleProductCosts[_product] = flex;
         flexibleBudgetUnits[_product] = _unitsNo;
@@ -417,6 +356,7 @@ contract PharmaChain {
     }
     
     // END OF  COST ACCOUNTING STUF
+    
     // SUPPLYING STUFF GOES HERE
     
     // Creation of Material By Supplier
@@ -427,8 +367,8 @@ contract PharmaChain {
     string memory _name,
     uint          _str,
     string memory _form,
-    uint          _amount,
-    uint          _unitCost,
+    string memory _amount,
+    string memory _unitCost,
     string memory _storageConditions,
     bool          _stability,
     uint          _stabilityPeriod
@@ -458,24 +398,11 @@ contract PharmaChain {
     
     function setMaterialCostPlan (
     string memory _materialID,
-    uint _directMaterialCost,
-    uint _directPkgUnitCost,
-    uint _directLaborCost,
-    uint _totalIndirectCost,
-    uint _shipCost
-    
+    MaterialProductionCost memory matCost
     )
+    
     public {
-        MaterialProductionCost memory matCost = MaterialProductionCost ({
-            directMaterialCost: _directMaterialCost,
-            packagingMaterialCost: _directPkgUnitCost,
-            directLaborCost:  _directLaborCost,
-            shippingCost: _shipCost,
-            totalDirectCost:  _directMaterialCost + _directPkgUnitCost +  _directLaborCost,
-            totalIndirectCost: _totalIndirectCost,
-            CostTOT:  _directMaterialCost + _directPkgUnitCost +  _directLaborCost + _totalIndirectCost
-        });
-        
+
         materialCostPlan[_materialID] = matCost;
         
     }
@@ -505,7 +432,8 @@ contract PharmaChain {
     
     address _to ,
     string memory _materialId,
-    uint _amount 
+    string memory _amount,
+    string memory _requestCost
     )
     public {
         trackNoCount += 1;
@@ -518,7 +446,8 @@ contract PharmaChain {
            issueTime: block.timestamp
         });
         
-        requestCost[req.requestId] = req.amount * materialList[_materialId].unitCost; 
+        // requestCost[req.requestId] = req.amount * materialList[_materialId].unitCost; 
+        requestCost[req.requestId] = _requestCost;
         requests[msg.sender].push(req);
         requestList[req.requestId] = req;
         emit requestStateUpdate(msg.sender, block.timestamp , 'REQUEST CREATED');
@@ -528,7 +457,8 @@ contract PharmaChain {
     address _fromParti2,
     address _to,
     string memory _materialId,
-    uint _amount
+    string memory _amount,
+     string memory _requestCost
     ) 
     public {
         trackNoCount += 1;
@@ -542,14 +472,15 @@ contract PharmaChain {
             issueTime: block.timestamp
         });
         
-        requestCost[batchReq.requestId] = batchReq.amount * materialList[_materialId].unitCost;
+        // requestCost[batchReq.requestId] = batchReq.amount * materialList[_materialId].unitCost;
+        requestCost[batchReq.requestId] = _requestCost;
         batchRequestsList[batchReq.requestId] = batchReq;
         batchRequests[msg.sender].push(batchReq);
         emit requestStateUpdate(msg.sender, block.timestamp , 'BATCH REQUEST CREATED');
         
     }
     
-    function getRequestCost(uint _id) public view returns(uint) {
+    function getRequestCost(uint _id) public view returns(string memory) {
         return requestCost[_id];
     }
     
@@ -566,7 +497,7 @@ contract PharmaChain {
         return requestList[_id];
     }
     
-    function addToInventory(address _participant , string memory _item , uint _amount) public {
+    function addToInventory(address _participant , string memory _item , string memory _amount) public {
         InventoryItem memory itm = InventoryItem({
             itemId: _item,
             amount: _amount
@@ -576,7 +507,7 @@ contract PharmaChain {
         inventoryList[_item] = itm;
     }
     
-    function updateInventory(address _participant , string memory _item , uint _amount) public {
+    function updateInventory(address _participant , string memory _item , string memory _amount) public {
         
         if(strComp(_item, inventory[_participant][0].itemId) ) {
             inventory[_participant][0].amount = _amount;

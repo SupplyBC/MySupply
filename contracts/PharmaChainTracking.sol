@@ -62,12 +62,12 @@ contract PharmaChainTracking {
     // TEMP AND HUMIDITY READINGS ARE SET DURING ALL PHASES OF SHIPMENT TRANSMISSION.
     
     //supplier
-    function approveRequest(uint _requestId) public {
+    function approveRequest(uint _requestId, uint _totalPayment) public {
         createLog(_requestId, 'REQUEST APPROVED', 'NORMAL' , 'YOUR REQUEST IS BEING PROCESSED.' );
         
-        uint payment = pc.getRequestCost(_requestId)/2;
+        // uint payment = pc.getRequestCost(_requestId)/2;
+        uint payment = _totalPayment/2;
         pc.transfer(pc.getRequestById(_requestId).fromParti, msg.sender, payment);
-        // emit pc.requestStateUpdate(msg.sender, block.timestamp , 'REQUEST APPROVED');
         pc.emitRequestStateEvent('REQUEST APPROVED');
     }
     
@@ -92,9 +92,10 @@ contract PharmaChainTracking {
  
     // // supplier 
     function sendShipment(uint _requestId) public {
-        string memory x = pc.getInventoryItemById(pc.getRequestById(_requestId).materialID).itemId;
-        string memory y = pc.getRequestById(_requestId).materialID;
-        uint newAmount = pc.getInventoryItemById(pc.getRequestById(_requestId).materialID).amount - pc.getRequestById(_requestId).amount;
+        // string memory x = pc.getInventoryItemById(pc.getRequestById(_requestId).materialID).itemId;
+        // string memory y = pc.getRequestById(_requestId).materialID;
+        // uint newAmount = pc.getInventoryItemById(pc.getRequestById(_requestId).materialID).amount - pc.getRequestById(_requestId).amount;
+
         string memory result = verifyShipmentState(_requestId);
     
         createLog(_requestId, 'PACKAGE CREATED',  result , 'PACKAGE IS CREATED AND SHIPMENT IS READY TO LEAVE FOR SHPPING.' );
@@ -105,9 +106,9 @@ contract PharmaChainTracking {
         // emit pc.requestStateUpdate(msg.sender, block.timestamp , 'PACKAGE IS OUT FOR SHIPPING');
         pc.emitRequestStateEvent('PACKAGE IS OUT FOR SHIPPING');
         
-        if(pc.strComp(x,y)) {
-            pc.updateInventory(msg.sender,pc.getRequestById(_requestId).materialID, newAmount);
-        }
+        // if(pc.strComp(x,y)) {
+        //     pc.updateInventory(msg.sender,pc.getRequestById(_requestId).materialID, newAmount);
+        // }
         
     }
     
@@ -135,25 +136,25 @@ contract PharmaChainTracking {
      
     // //manufacturer
     
-    function receiveShipment(uint _requestId) public {
-        string memory x = pc.getInventory(msg.sender)[0].itemId;
-        string memory y = pc.getRequestById(_requestId).materialID;
-        uint newAmount = pc.getInventoryItemById(pc.getRequestById(_requestId).materialID).amount + pc.getRequestById(_requestId).amount;
+    function receiveShipment(uint _requestId, uint _totalPayment) public {
+        // string memory x = pc.getInventory(msg.sender)[0].itemId;
+        // string memory y = pc.getRequestById(_requestId).materialID;
+        // uint newAmount = pc.getInventoryItemById(pc.getRequestById(_requestId).materialID).amount + pc.getRequestById(_requestId).amount;
         
         string memory result = verifyShipmentState(_requestId);
         createLog(_requestId, 'DELIVERED' , result , 'YOUR SHIPMENT IS DELIVERED SUCCESSFULLY.');
-        // emit pc.requestStateUpdate(msg.sender, block.timestamp , 'SHIPMENT DELIVERED');
         pc.emitRequestStateEvent('SHIPMENT DELIVERED');
         
-        uint payment = pc.getRequestCost(_requestId) - pc.getRequestCost(_requestId)/2;
+        // uint payment = pc.getRequestCost(_requestId) - pc.getRequestCost(_requestId)/2;
+        uint payment = _totalPayment - _totalPayment/2;
         pc.transfer(pc.getRequestById(_requestId).fromParti, msg.sender, payment);
         
        
-        if(pc.strComp(x,y)) {
-            pc.updateInventory(msg.sender,pc.getRequestById(_requestId).materialID, newAmount);
-        } else {
-            pc.addToInventory(msg.sender,pc.getRequestById(_requestId).materialID, newAmount);
-        }
+        // if(pc.strComp(x,y)) {
+        //     pc.updateInventory(msg.sender,pc.getRequestById(_requestId).materialID, newAmount);
+        // } else {
+        //     pc.addToInventory(msg.sender,pc.getRequestById(_requestId).materialID, newAmount);
+        // }
     }
     
     
