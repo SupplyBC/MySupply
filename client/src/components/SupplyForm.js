@@ -247,8 +247,24 @@ class MaterialCostData extends Component {
   componentDidMount = async () => {
     const isTrust = await this.props.pcContract.methods.checkIfTrusted(this.props.supplier, this.props.account[0]).call();
     this.setState({ isTrust });
-    if (this.state.isTrust === true) {
+    const query = await this.props.pcContract.methods.getMaterials().call();
 
+    const isAddrOwner = query.map(item => {
+      let isOwner;
+      if (item.supplier === this.props.account[0]) {
+        isOwner = true;
+        this.setState({isOwner});
+      } else {
+        isOwner = false;
+        this.setState({isOwner});
+      }
+      return true;
+    })
+
+    console.log(this.state.isOwner)
+    this.setState({ isAddrOwner , })
+
+    if (this.state.isTrust === true || this.state.isOwner === true ) {
     } else {
       this.setState({
         msg: 'YOU ARE NOT AUTHORIZED TO REVIEW THIS DATA!',
@@ -266,12 +282,12 @@ class MaterialCostData extends Component {
     e.preventDefault();
     const matCosts = await this.props.pcContract.methods.getMaterialCostPlan(this.props.materialId).call();
     const cost = matCosts.map(() => {
-      const matMaterialCostValue = parseInt(matCosts.directMaterialCost, 10);
-      const matPkgCostValue = parseInt(matCosts.packagingMaterialCost, 10);
-      const matLaborCostValue = parseInt(matCosts.directLaborCost, 10);
-      const matShippingCostValue = parseInt(matCosts.shippingCost, 10);
-      const matTotalDirectCostValue = parseInt(matCosts.totalDirectCost, 10);
-      const matTotalIndirectCostValue = parseInt(matCosts.totalIndirectCost, 10);
+      const matMaterialCostValue = parseFloat(matCosts.directMaterialCost, 10);
+      const matPkgCostValue = parseFloat(matCosts.packagingMaterialCost, 10);
+      const matLaborCostValue = parseFloat(matCosts.directLaborCost, 10);
+      const matShippingCostValue = parseFloat(matCosts.shippingCost, 10);
+      const matTotalDirectCostValue = parseFloat(matCosts.totalDirectCost, 10);
+      const matTotalIndirectCostValue = matTotalDirectCostValue*12.5/100;
       const matMaterialCost = matMaterialCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
       const matPkgCost = matPkgCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
       const matLaborCost = matLaborCostValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
@@ -311,6 +327,7 @@ class MaterialCostData extends Component {
     let classified, visible;
     this.state.isVisible ? visible = "show" : visible = "hide";
     this.state.isTrust ? classified = "show" : classified = "hide";
+    this.state.isOwner ? classified = "show" : classified = "hide";
     let isToggled;
     this.props.toggled ? isToggled = "" : isToggled = "hide";
     return (
@@ -341,6 +358,10 @@ class MaterialCostData extends Component {
                   <tr>
                     <td> Direct Labor </td>
                     <td>{this.state.matLaborCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Total Indirect Cost </td>
+                    <td>{this.state.matTotalIndirectCost}</td>
                   </tr>
                   <tr
                     style={{
@@ -557,7 +578,7 @@ class QueryProductSpecs extends Component {
         <tr key={index}>
           <td> {name} </td>
           <td> {type} </td>
-          <td>{amount} g </td>
+          <td>{amount} gm </td>
           <td>{form} </td>
         </tr>
       );
@@ -645,9 +666,9 @@ class RequestMaterials extends Component {
     materialName: "",
     supplier: "",
     manufacturerBatched: "",
-    amount: 0,
+    amount: '',
     form: "",
-    strength: 0,
+    strength: '',
     resultCount: 0,
     msg: " ",
     amountToggled: false,
@@ -733,8 +754,8 @@ class RequestMaterials extends Component {
       let supplier = item.supplier;
       let id = item.materialID;
       let name = item.materialName;
-      let costValue = parseInt(item.unitCost, 10);
-      let cost = parseInt(item.unitCost, 10).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+      let costValue = parseFloat(item.unitCost, 10);
+      let cost = costValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
       let form = item.materialForm;
       let availableAmount = item.createdAmount;
       let conditions = item.storageConditions;
@@ -763,7 +784,7 @@ class RequestMaterials extends Component {
               <li> <strong>STABILITY </strong> {stability ? "STABLE" : "NOT STABLE"}</li>
               <li> <strong>STABILITY PERIOD </strong> {stabilityPeriod} years</li>
               <li> <strong>STORAGE CONDITIONS</strong> {conditions === '' ? 'N/A' : conditions}</li>
-              <li> <strong>IN STOCK </strong> {availableAmount} g</li>
+              <li> <strong>IN STOCK </strong> {availableAmount} Kg</li>
             </div>
           </ul>
           <MaterialCostData
@@ -831,6 +852,7 @@ class RequestMaterials extends Component {
           name="material-name"
           onChange={this.onChange}
           ref={this.materialRef}
+          required="required"
         >
            
           <option id="100" value="amoxicillin">
@@ -956,16 +978,15 @@ class RequestMaterials extends Component {
             placeholder="e.g. mat101"
 
           />
-          <label>Requested Amount: </label>
+          <label>Requested Amount (Kg): </label>
           <input
-            type="number"
+            type="text"
             id="material-amount"
             value={this.state.amount}
             ref={this.amountRef}
             placeholder="e.g. 1000 g"
             autoComplete="off"
             onChange={this.onChange}
-            required="required"
           />
         </div>
 
@@ -1020,9 +1041,8 @@ class CreateMaterial extends Component {
     matId: "",
     matName: "",
     matForm: "",
-    matStr: 0,
-    matAmount: 0,
-    matUnitCost: 0,
+    matStr: '',
+    matAmount: '',
     matConditions: "",
     matStability: false,
     matStabilityPeriod: "",
@@ -1035,7 +1055,6 @@ class CreateMaterial extends Component {
     this.formRef = React.createRef();
     this.strRef = React.createRef();
     this.amountRef = React.createRef();
-    this.unitCostRef = React.createRef();
     this.matConditionsRef = React.createRef();
     this.matStabilityRef = React.createRef();
     this.matStabilityPeriodRef = React.createRef();
@@ -1050,13 +1069,20 @@ class CreateMaterial extends Component {
     const form = this.state.matForm;
     const strength = this.state.matStr;
     const amount = this.state.matAmount;
-    const cost = this.state.matUnitCost;
     const condition = this.state.matConditions;
     const stability = this.state.matStability;
     const stabilityPeriod = this.state.matStabilityPeriod
 
+    const matCosts = await this.props.pcContract.methods.getMaterialCostPlan(id).call();
+
+    const matUnitCost = matCosts.map(cost => {
+      let totalCost =  matCosts.CostTOT;
+      this.setState({totalCost})
+      return true;
+    })
+    this.setState({matUnitCost})
     await this.props.pcContract.methods
-      .createMaterial(id, name, strength, form, amount, cost, condition, stability, stabilityPeriod)
+      .createMaterial(id, name, strength, form, amount, this.state.totalCost, condition, stability, stabilityPeriod)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Materials Created Successfully!" });
@@ -1085,7 +1111,6 @@ class CreateMaterial extends Component {
       matForm: this.formRef.current.value,
       matStr: this.strRef.current.value,
       matAmount: this.amountRef.current.value,
-      matUnitCost: this.unitCostRef.current.value,
       matConditions: this.matConditionsRef.current.value,
       matStability: this.matStabilityRef.current.value,
       matStabilityPeriod: this.matStabilityPeriodRef.current.value
@@ -1232,7 +1257,7 @@ class CreateMaterial extends Component {
           type="number"
           placeholder="e.g. 10"
         />
-        <label> Material Amount (g): </label>
+        <label> Material Amount (Kg): </label>
         <input
           value={this.state.matAmount}
           onChange={this.onChange}
@@ -1242,15 +1267,6 @@ class CreateMaterial extends Component {
           required="required"
         />
 
-        <label> Material Unit Cost: </label>
-        <input
-          value={this.state.matUnitCost}
-          onChange={this.onChange}
-          ref={this.unitCostRef}
-          type="number"
-          placeholder="e.g. 10"
-          required="required"
-        />
         <div className='checkbox-container'
           style={{ display: 'flex', flexDirection: 'row', gap: '10px', margin: '10px 0px' }}>
           <input
@@ -1298,11 +1314,11 @@ class CreateMaterial extends Component {
 class CreateCostPlan extends Component {
   state = {
     material: "",
-    materialMaterialCost: 0,
-    materialPkgCost: 0,
-    materialLaborCost: 0,
-    materialShippingCost: 0,
-    materialTotalIndirectCost: 0
+    materialMaterialCost: '',
+    materialPkgCost: '',
+    materialLaborCost: '',
+    materialShippingCost: '',
+    materialTotalIndirectCost: ''
   };
 
   constructor(props) {
@@ -1322,12 +1338,15 @@ class CreateCostPlan extends Component {
     e.preventDefault();
 
     const mat = this.state.material;
-    const matPkgCost = parseInt(this.state.materialPkgCost, 10);
-    const matMaterialCost = parseInt(this.state.materialMaterialCost, 10);
-    const matLaborCost = parseInt(this.state.materialLaborCost, 10);
-    const matShippingCost = parseInt(this.state.materialShippingCost, 10);
-    const matTotalIndirectCost = parseInt(this.state.materialTotalIndirectCost, 10);
-
+    const matPkgCost = this.state.materialPkgCost;
+    const matMaterialCost = this.state.materialMaterialCost;
+    const matLaborCost = this.state.materialLaborCost;
+    const matShippingCost = this.state.materialShippingCost;
+    const matTotalDirectCost = parseFloat(matMaterialCost,10) + parseFloat(matPkgCost,10) + parseFloat(matLaborCost,10);
+    const matTotalIndirectCost = parseFloat(matTotalDirectCost,10)*12.5/100;
+    const matTotalCost = matTotalDirectCost + matTotalIndirectCost + parseFloat(matShippingCost,10);
+    const matTotalDirectCostStr = matTotalDirectCost.toString();
+    const matTotalCostStr = matTotalCost.toString();
     // const totalStandard =
     //   matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
 
@@ -1336,11 +1355,15 @@ class CreateCostPlan extends Component {
     await this.props.pcContract.methods
       .setMaterialCostPlan(
         mat,
+        [
         matMaterialCost,
         matPkgCost,
         matLaborCost,
-        matTotalIndirectCost,
-        matShippingCost
+        matShippingCost,
+        matTotalDirectCostStr,
+        matTotalCostStr
+       
+      ]
 
       )
       .send({ from: this.props.account[0] })
@@ -1953,7 +1976,7 @@ class ManageSupply extends Component {
     return (
       <div className="form-collection newform-container">
         <p className="sub-head" style={{ textAlign: 'center' }}> <strong>SUPPLY PORTAL: </strong>MANAGE SUPPLY CHAIN ACTIVITES. </p>
-        <SetLocation
+        <ApproveRequest
           account={this.props.account}
           pcContract={this.props.pcContract}
           pctContract={this.props.pctContract} />
@@ -1963,7 +1986,7 @@ class ManageSupply extends Component {
           pcContract={this.props.pcContract}
           pctContract={this.props.pctContract} />
         <hr className="custom-hr-half"></hr>
-        <ApproveRequest
+        <SetLocation
           account={this.props.account}
           pcContract={this.props.pcContract}
           pctContract={this.props.pctContract} />
@@ -2108,15 +2131,16 @@ class SupplyForm extends Component {
                 <strong> SUPPLIER </strong>
               </label>
               <li className="link-item">
-                <NavLink to="/supply/supplier/createMaterial">
-                  + CREATE MATERIAL
-                </NavLink>
-              </li>
-              <li className="link-item">
                 <NavLink to="/supply/supplier/createCostPlan">
                   + CREATE COST PLAN
                 </NavLink>
               </li>
+              <li className="link-item">
+                <NavLink to="/supply/supplier/createMaterial">
+                  + CREATE MATERIAL
+                </NavLink>
+              </li>
+             
               <label style={{ marginTop: "10px" }}>
                 <strong> MISC. </strong>
               </label>

@@ -135,11 +135,12 @@ class AddMaterial extends Component {
     proID: "",
     matName: "",
     matType: "",
-    matStr: 0,
+    matStr: '',
     matForm: "",
-    matAmount: 0,
+    matAmount: '',
     msg: " ",
     alert: false,
+    matUnitCost: ""
   };
   constructor(props) {
     super(props);
@@ -149,6 +150,7 @@ class AddMaterial extends Component {
     this.matStrRef = React.createRef();
     this.matFormRef = React.createRef();
     this.matAmountRef = React.createRef();
+    this.matUnitCostRef = React.createRef();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -161,6 +163,7 @@ class AddMaterial extends Component {
     let strength = this.state.matStr;
     let form = this.state.matForm;
     let amount = this.state.matAmount;
+    let unitCost = this.state.matUnitCost;
 
     const products = await this.props.pcContract.methods
       .getProductsByManu(this.props.account[0])
@@ -169,9 +172,6 @@ class AddMaterial extends Component {
       // return item.productId === name;
       return item.productName === proID;
     });
-
-    console.log(products);
-    console.log(pros);
 
     if (pros.length === 0) {
       this.setState({
@@ -183,7 +183,7 @@ class AddMaterial extends Component {
       }, 2000);
     } else {
       await this.props.pcContract.methods
-        .addProductSpecs(proID, name, type, strength, form, amount)
+        .addProductSpecs(proID, name, type, strength, form, amount, unitCost)
         .send({ from: this.props.account[0] })
         .once("receipt", (receipt) => {
           this.setState({ msg: "Added product specification successfully!" });
@@ -197,6 +197,7 @@ class AddMaterial extends Component {
         matStr: "",
         matForm: "",
         matAmount: "",
+        matUnitCostRef: ""
       });
     }
   };
@@ -209,6 +210,7 @@ class AddMaterial extends Component {
       matStr: this.matStrRef.current.value,
       matForm: this.matFormRef.current.value,
       matAmount: this.matAmountRef.current.value,
+      matUnitCost: this.matUnitCostRef.current.value
     });
   };
   render() {
@@ -353,7 +355,7 @@ class AddMaterial extends Component {
             PACKAGING
           </option>
         </select>
-        <label> Material Amount (g) :</label>
+        <label> Material Amount (mg) :</label>
         <input
           value={this.state.matAmount}
           onChange={this.handleChange}
@@ -387,6 +389,15 @@ class AddMaterial extends Component {
             N/A
           </option>
         </select>
+        <label>Material Unit Cost (Kg) </label>
+        <input
+          value={this.state.unitCost}
+          onChange={this.handleChange}
+          ref={this.matUnitCostRef}
+          type="text"
+          placeholder="e.g. 5"
+          autoComplete="off"
+        />
         <div>
           <input
             className="btn"
@@ -394,6 +405,7 @@ class AddMaterial extends Component {
             value="ADD PRODUCT SPECIFICATION"
           />
         </div>
+        
 
         <div
           style={{ marginTop: "20px" }}
@@ -409,15 +421,15 @@ class AddMaterial extends Component {
 class CreateCostPlan extends Component {
   state = {
     product: "",
-    productUnitsNo: 0,
-    materialUnitCost: 0,
-    packagingMaterialStdCost: 0,
-    mrkStdCost: 0,
-    rsrhStdCost: 0,
-    totalStdCost: 0,
-    workHoursNo: 0,
-    hourlyWorkRate: 0,
-    shippingCost: 0,
+    productUnitsNo: '',
+    packagingMaterialStdCost: '',
+    mrkStdCost: '',
+    rsrhStdCost: '',
+    totalStdCost: '',
+    shippingCost: '',
+    materialTotalDirectCost: '',
+    productDirectMatCost: '',
+    laborStdCost: ''
   };
 
   constructor(props) {
@@ -425,13 +437,9 @@ class CreateCostPlan extends Component {
     this.proRef = React.createRef();
     this.unitNoRef = React.createRef();
     this.pkgMatStdRef = React.createRef();
-    this.mrkStdRef = React.createRef();
-    this.rsrhStdRef = React.createRef();
-    this.budgetRef = React.createRef();
-    this.hoursNoRef = React.createRef();
-    this.hourlyRateRef = React.createRef();
     this.materialUnitCostRef = React.createRef();
     this.shippingCostRef = React.createRef();
+    this.laborStdCostRef = React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
   }
@@ -441,30 +449,90 @@ class CreateCostPlan extends Component {
 
     const pro = this.state.product;
     const units = this.state.productUnitsNo;
-    const pkgMatStd = parseInt(this.state.packagingMaterialStdCost, 10);
-    const mrkStd = parseInt(this.state.mrkStdCost, 10);
-    const rsrhStd = parseInt(this.state.rsrhStdCost, 10);
-    const hoursNo = parseInt(this.state.workHoursNo, 10);
-    const rate = parseInt(this.state.hourlyWorkRate, 10);
-    const matUnitCost = parseInt(this.state.materialUnitCost, 10);
-    const shippingCost = parseInt(this.state.shippingCost, 10);
+    // const pkgMatStd = this.state.packagingMaterialStdCost;
+    const laborCost = parseFloat(this.state.laborStdCost,10);
+    const laborCostStr = laborCost.toString();
+    this.setState({laborCost,laborCostStr})
+    
+    // const shippingCost = this.state.shippingCost;
+
+    const materialInfo = await this.props.pcContract.methods.getProductSpecs(pro).call();
+    console.log(materialInfo);
+
+    const materialCostInfo = materialInfo.map(mat => {
+      let matCostInfo =  parseFloat(mat.materialUnitCost,10);
+      let matAmountMg = parseFloat(mat.materialAmount,10);
+
+      if(mat.materialType === 'active' || mat.materialType === 'support') {
+        let matAmountKg = matAmountMg/1000000; // convert from mg to kg to get cost per kg
+        return matCostInfo*matAmountKg;
+      } else {
+        
+       return 0;
+      }
+    });
+
+    const pkgCostInfo = materialInfo.map(mat => {
+      let pkgCostInfo =  parseFloat(mat.materialUnitCost,10);
+      let pkgAmountMg = parseFloat(mat.materialAmount,10);
+
+      if(mat.materialType === 'packaging') {
+        let pkgAmountKg = pkgAmountMg/1000000; // convert from mg to kg to get cost per kg
+        return pkgCostInfo*pkgAmountKg;
+      } else {
+       return 0;
+      }
+    })
+    console.log(materialCostInfo, pkgCostInfo);
+    const totalMaterialCost = materialCostInfo.reduce((a,b) => a + b, 0);
+    const totalPkgCost = pkgCostInfo.reduce((a,b) => a + b, 0);
+    const totalMaterialCostStr = totalMaterialCost.toString();
+    const totalPkgCostStr = totalPkgCost.toString()
+     this.setState({materialCostInfo,totalMaterialCost, pkgCostInfo, totalPkgCost,
+      totalMaterialCostStr ,totalPkgCostStr});
+
+     const stdTotalDirectCost = totalMaterialCost + totalPkgCost + laborCost;
+     const mrkStd = stdTotalDirectCost*15/100;
+     const rsrhStd = stdTotalDirectCost*3/100;
+     const FundingManagerialCost = stdTotalDirectCost*30/100;
+     const indirectCost = stdTotalDirectCost*20/100;
+     const stdTotalDirectCostStr = stdTotalDirectCost.toString();
+     const totalCost = stdTotalDirectCost + indirectCost + FundingManagerialCost + mrkStd + rsrhStd;
+     const totalCostStr = totalCost.toString();
+     this.setState({stdTotalDirectCost,totalCost,stdTotalDirectCostStr,totalCostStr})
+    
+    
+      // TODO
+    // const laborCost = hoursNo*rate;
+  
+    // const materialCost = 
+    // const totalDirectCost = pkgMatStd +
 
     // const totalStandard =
     //   matStd + pkgMatStd + labStd + manuIndirectStdCost + mrkStd + rsrhStd;
 
     // this.setState({ totalStdCost: totalStandard });
 
+    
+    console.log(
+      this.state.totalMaterialCostStr,
+      this.state.totalPkgCostStr,
+      this.state.laborCostStr,
+      this.state.stdTotalDirectCostStr,
+      this.state.totalCostStr
+    )
     await this.props.pcContract.methods
+
       .setStdCostPlan(
         pro,
-        units,
-        pkgMatStd,
-        matUnitCost,
-        rate,
-        hoursNo,
-        mrkStd,
-        rsrhStd,
-        shippingCost
+        units, [
+          this.state.totalMaterialCostStr,
+          this.state.totalPkgCostStr,
+          this.state.laborCostStr,
+          this.state.stdTotalDirectCostStr,
+          this.state.totalCostStr
+        ]
+        
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -479,10 +547,9 @@ class CreateCostPlan extends Component {
       packagingMaterialStdCost: "",
       mrkStdCost: "",
       rsrhStdCost: "",
-      workHoursNo: "",
-      hourlyWorkRate: "",
       materialUnitCost: "",
       shippingCost: "",
+      laborStdCost: ''
     });
   };
 
@@ -490,13 +557,10 @@ class CreateCostPlan extends Component {
     this.setState({
       product: this.proRef.current.value,
       productUnitsNo: this.unitNoRef.current.value,
-      packagingMaterialStdCost: this.pkgMatStdRef.current.value,
-      mrkStdCost: this.mrkStdRef.current.value,
-      rsrhStdCost: this.rsrhStdRef.current.value,
-      workHoursNo: this.hoursNoRef.current.value,
-      hourlyWorkRate: this.hourlyRateRef.current.value,
-      materialUnitCost: this.materialUnitCostRef.current.value,
-      shippingCost: this.shippingCostRef.current.value,
+      // packagingMaterialStdCost: this.pkgMatStdRef.current.value,
+      // materialUnitCost: this.materialUnitCostRef.current.value,
+      // shippingCost: this.shippingCostRef.current.value,
+      laborStdCost: this.laborStdCostRef.current.value
     });
   };
 
@@ -533,42 +597,22 @@ class CreateCostPlan extends Component {
 
         <h4> Set Standards </h4>
 
-        <label>Unit Material Cost: </label>
+        <label>Direct Labor Cost: </label>
         <input
-          type="number"
-          ref={this.materialUnitCostRef}
-          value={this.state.materialUnitCost}
+          type="text"
+          ref={this.laborStdCostRef}
+          value={this.state.laborStdCost}
           placeholder="e.g. 5"
           onChange={this.OnChange}
           required="required"
         />
 
-        <label>Packaging Materials: </label>
+        {/* <label>Packaging Materials: </label>
         <input
           type="number"
           ref={this.pkgMatStdRef}
           value={this.state.packagingMaterialStdCost}
           placeholder="e.g. 5000"
-          onChange={this.OnChange}
-          required="required"
-        />
-
-        <label>Working Hours No: </label>
-        <input
-          type="number"
-          ref={this.hoursNoRef}
-          value={this.state.workHoursNo}
-          placeholder="e.g. 2000"
-          onChange={this.OnChange}
-          required="required"
-        />
-
-        <label>Hourly Work Rate: </label>
-        <input
-          type="number"
-          ref={this.hourlyRateRef}
-          value={this.state.hourlyWorkRate}
-          placeholder="e.g. 50"
           onChange={this.OnChange}
           required="required"
         />
@@ -582,26 +626,7 @@ class CreateCostPlan extends Component {
           onChange={this.OnChange}
           required="required"
         />
-
-        <label>Marketing: </label>
-        <input
-          type="number"
-          ref={this.mrkStdRef}
-          value={this.state.mrkStdCost}
-          placeholder="e.g. 5000"
-          onChange={this.OnChange}
-          required="required"
-        />
-
-        <label>Research: </label>
-        <input
-          type="number"
-          ref={this.rsrhStdRef}
-          value={this.state.rsrhStdCost}
-          placeholder="e.g. 5000"
-          onChange={this.OnChange}
-          required="required"
-        />
+ */}
 
         <input
           type="submit"
