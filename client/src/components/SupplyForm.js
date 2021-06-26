@@ -29,90 +29,129 @@ class CostSheetReview extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
+
     if (products.length === 0) {
       this.setState({ msg: 'NO PRODUCT COST SHEET DATA AVAILABLE!' });
     }
     const product = products.map(item => {
       return item.productName;
     })
+  
 
-    const productString = product.toString();
+    const productString = product[product.length-1].toString();
     const isOwner = product.map(item => {
+
       if (item.manufacturer === this.props.account[0]) {
-        return true;
+        this.setState({strBoolIsOwner: 'true'})
       } else {
-        return false;
+        this.setState({strBoolIsOwner: 'false'})
       }
+      return true;
     })
 
     
     const strBoolIsOwner = isOwner.toString();
-    this.setState({ strBoolIsOwner, tableVisibility: false })
+    this.setState({ strBoolIsOwner,tableVisibility: false })
 
-    const productActCost = await this.props.pcContract.methods.getActualCost(productString).call();
-    const productActQty = await this.props.pcContract.methods.getActualMaterialQty(productString).call();
-    console.log(productActCost);
+    const productStdCost = await this.props.pcContract.methods.getStdCostPlan(productString).call();
+    // const productActQty = await this.props.pcContract.methods.getActualMaterialQty(productString).call();
+    const productSpecs = await this.props.pcContract.methods.getProductSpecs(productString).call();
+    const specsCriteria = productSpecs.map(mat=> {
+      let matCostInfo;
+      let matAmountMg = parseFloat(mat.materialAmount,10);
+      let matAmountKg = matAmountMg/1000000;
+      if(mat.materialName === this.props.materialName) {
+        matCostInfo = this.props.matUnitCost;
+        this.setState({newRawMatCost: matCostInfo*matAmountKg})
+        return matCostInfo*matAmountKg;
+        
+      } else {
+        matCostInfo =  parseFloat(mat.materialUnitCost,10);
+        return matCostInfo*matAmountKg;
+      }
+    })
+    const newMaterialCost = specsCriteria.reduce( (a,b) => a+b,0);
 
-    this.setState({productActCost,productActQty});
+    this.setState({newMaterialCost});
     
 
-    const proActCosts = productActCost.map(item => {
-      let matActCostValue = parseInt(productActCost.directMaterialCost, 10);
-      let pkgActCostValue = parseInt(productActCost.packagingMaterialCost, 10);
-      let laborActCostValue = parseInt(productActCost.directLaborCost, 10);
-      let mrkActCostValue = parseInt(productActCost.marketingCost, 10);
-      let rsrchActCostValue = parseInt(productActCost.researchCost, 10);
-      // let totalActCostValue = parseInt(actual.CostTOT,10);
-      let totalActCostValue =
-        matActCostValue +
-        pkgActCostValue +
-        laborActCostValue +
-        mrkActCostValue +
-        rsrchActCostValue;
+    const proStdCosts = productStdCost.map(item => {
+       let matStdCostValue = this.state.newMaterialCost;
+       let pkgStdCostValue = parseFloat(productStdCost.packagingMaterialCost, 10);
+       let laborStdCostValue = parseFloat(productStdCost.directLaborCost, 10);
+       let totalDirectCostValue = matStdCostValue + pkgStdCostValue + laborStdCostValue
+       let mrkStdCostValue = totalDirectCostValue * 15/100;
+       let rsrchStdCostValue = totalDirectCostValue * 3/100;
+       let totalIndirectCostValue = totalDirectCostValue * 20/100;
+       let fundManuCostValue = totalDirectCostValue * 30/100;
+       let totalStdCostValue = totalDirectCostValue + totalIndirectCostValue + mrkStdCostValue + rsrchStdCostValue + fundManuCostValue;
 
-      let matActCost = matActCostValue.toLocaleString("en-US", {
+
+      let matStdCost = matStdCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
-      let pkgActCost = pkgActCostValue.toLocaleString("en-US", {
+      let pkgStdCost = pkgStdCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
-      let laborActCost = laborActCostValue.toLocaleString("en-US", {
+      let laborStdCost = laborStdCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
-      let mrkActCost = mrkActCostValue.toLocaleString("en-US", {
+      let mrkStdCost = mrkStdCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
-      let rsrchActCost = rsrchActCostValue.toLocaleString("en-US", {
+      let rsrchStdCost = rsrchStdCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
-      let totalActCost = totalActCostValue.toLocaleString("en-US", {
+      let totalStdCost = totalStdCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      let totalDirectCost = totalDirectCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      let totalIndirectCost = totalIndirectCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      let fundManuCost = fundManuCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
 
       this.setState({
-        productActCost,
-        matActCost,
-        pkgActCost,
-        laborActCost,
-        mrkActCost,
-        rsrchActCost,
-        totalActCost,
-        matActCostValue,
-        pkgActCostValue,
-        laborActCostValue,
-        mrkActCostValue,
-        rsrchActCostValue,
-        totalActCostValue,
+        productStdCost,
+        matStdCost,
+        pkgStdCost,
+        laborStdCost,
+        mrkStdCost,
+        rsrchStdCost,
+        totalStdCost,
+        totalDirectCost,
+        totalIndirectCost,
+        fundManuCost,
+        matStdCostValue,
+        pkgStdCostValue,
+        laborStdCostValue,
+        mrkStdCostValue,
+        rsrchStdCostValue,
+        totalStdCostValue,
+        totalIndirectCostValue,
+        totalDirectCostValue,
+        fundManuCostValue,
+     
       });
       return true;
     });
-    this.setState({proActCosts})
+    this.setState({proStdCosts})
   }
 
   
@@ -121,7 +160,7 @@ class CostSheetReview extends Component {
 
     let classified, visible;
     this.state.isVisible ? visible = "show" : visible = "hide";
-    this.state.isTrust ? classified = "show" : classified = "hide";
+    // this.state.isTrust ? classified = "show" : classified = "hide";
     let isToggled;
     this.props.toggled ? isToggled = "" : isToggled = "hide";
 
@@ -131,20 +170,6 @@ class CostSheetReview extends Component {
       classified = "hide"
     };
 
-    const newRawMaterialValue = this.props.matUnitCost * this.state.productActQty;
-    const newRawMaterial = newRawMaterialValue.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-    const totDirValue = this.state.laborActCostValue + this.state.pkgActCostValue + newRawMaterialValue;
-
-    const totDir = totDirValue.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-    const newTot = totDirValue + (totDirValue * 20 / 100) + (totDirValue * 30 / 100) + (totDirValue * 14 / 100) + this.state.mrkActCostValue + this.state.rsrchActCostValue;
     return (
       <div className="newform-container">
         <form onSubmit={this.onSubmit} >
@@ -164,15 +189,15 @@ class CostSheetReview extends Component {
           <tbody>
             <tr>
               <td> Raw Materials </td>
-              <td>{newRawMaterial}</td>
+              <td>{this.state.matStdCost}</td>
             </tr>
             <tr>
               <td> Packaging Materials </td>
-              <td>{this.state.pkgActCost}</td>
+              <td>{this.state.pkgStdCost}</td>
             </tr>
             <tr>
               <td> Direct Labor </td>
-              <td>{this.state.laborActCost}</td>
+              <td>{this.state.laborStdCost}</td>
             </tr>
             <tr
               style={{
@@ -181,47 +206,38 @@ class CostSheetReview extends Component {
               }}
             >
               <td>TOTAL DIRECT COST</td>
-              <td>{totDir}</td>
+              <td>{this.state.totalDirectCost}</td>
             </tr>
 
             <tr className={`${classified}`}>
               <td> Indirect Manufacturing Costs (20%) </td>
-              <td>{(totDirValue * 20 / 100).toLocaleString("en-US", {
-                style: "currency",
-                currency: "USD",
-              })}</td>
+              <td>{this.state.totalIndirectCost}</td>
             </tr>
             <tr className={`${classified}`}>
               <td> Managerial and Funding Costs (30%) </td>
-              <td>{(totDirValue * 30 / 100).toLocaleString("en-US", {
-                style: "currency",
-                currency: "USD",
-              })}</td>
+              <td>{this.state.fundManuCost}</td>
             </tr>
-            <tr className={`${classified}`}>
+            {/* <tr className={`${classified}`}>
               <td> Value Added Tax (14%) </td>
               <td>{(totDirValue * 14 / 100).toLocaleString("en-US", {
                 style: "currency",
                 currency: "USD",
               })}</td>
-            </tr>
+            </tr> */}
             <tr className={`${classified}`} >
-              <td> Marketing </td>
-              <td>{this.state.mrkActCost}</td>
+              <td> Marketing (15%) </td>
+              <td>{this.state.mrkStdCost}</td>
             </tr>
             <tr className={`${classified}`}>
-              <td> Research </td>
-              <td>{this.state.rsrchActCost}</td>
+              <td> Research (3%)</td>
+              <td>{this.state.rsrchStdCost}</td>
             </tr>
           </tbody>
 
           <tfoot className={`${classified}`}>
             <tr>
               <th> TOTAL </th>
-              <td>{newTot.toLocaleString("en-US", {
-                style: "currency",
-                currency: "USD",
-              })} </td>
+              <td>{this.state.totalStdCost}</td>
             </tr>
           </tfoot>
         </table>
@@ -247,24 +263,24 @@ class MaterialCostData extends Component {
   componentDidMount = async () => {
     const isTrust = await this.props.pcContract.methods.checkIfTrusted(this.props.supplier, this.props.account[0]).call();
     this.setState({ isTrust });
-    const query = await this.props.pcContract.methods.getMaterials().call();
+    // const query = await this.props.pcContract.methods.getMaterials().call();
 
-    const isAddrOwner = query.map(item => {
-      let isOwner;
-      if (item.supplier === this.props.account[0]) {
-        isOwner = true;
-        this.setState({isOwner});
-      } else {
-        isOwner = false;
-        this.setState({isOwner});
-      }
-      return true;
-    })
+    // const isAddrOwner = query.map(item => {
+    //   let isOwner;
+    //   if (item.supplier === this.props.account[0]) {
+    //     isOwner = true;
+    //     this.setState({isOwner});
+    //   } else {
+    //     isOwner = false;
+    //     this.setState({isOwner});
+    //   }
+    //   return true;
+    // })
 
-    console.log(this.state.isOwner)
-    this.setState({ isAddrOwner , })
+    // console.log(this.state.isOwner)
+    // this.setState({ isAddrOwner})
 
-    if (this.state.isTrust === true || this.state.isOwner === true ) {
+    if (this.state.isTrust === true) {
     } else {
       this.setState({
         msg: 'YOU ARE NOT AUTHORIZED TO REVIEW THIS DATA!',
@@ -327,7 +343,7 @@ class MaterialCostData extends Component {
     let classified, visible;
     this.state.isVisible ? visible = "show" : visible = "hide";
     this.state.isTrust ? classified = "show" : classified = "hide";
-    this.state.isOwner ? classified = "show" : classified = "hide";
+    // this.state.isOwner ? classified = "show" : classified = "hide";
     let isToggled;
     this.props.toggled ? isToggled = "" : isToggled = "hide";
     return (
@@ -578,7 +594,7 @@ class QueryProductSpecs extends Component {
         <tr key={index}>
           <td> {name} </td>
           <td> {type} </td>
-          <td>{amount} gm </td>
+          <td>{amount} mg </td>
           <td>{form} </td>
         </tr>
       );
@@ -714,11 +730,13 @@ class RequestMaterials extends Component {
     e.preventDefault()
     const amount = this.state.amount;
     const id = this.state.matId;
-    console.log(id, amount);
     const info = await this.props.pcContract.methods.getMaterialById(id).call();
     const toAddr = info.supplier;
-    console.log(info, toAddr)
-    await this.props.pcContract.methods.createRequest(toAddr, id, amount)
+    const unitCost = info.unitCost;
+    const requestCost = unitCost*amount;
+    const requestCostStr = requestCost.toString();
+    
+    await this.props.pcContract.methods.createRequest(toAddr, id, amount,requestCostStr)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Request was sent successfully!" });
@@ -727,13 +745,13 @@ class RequestMaterials extends Component {
         }, 3000);
       });
     const request = await this.props.pcContract.methods.getMyRequests().call();
-    console.log(request);
     const requestNo = request[request.length - 1].requestId;
-    console.log(requestNo);
     this.setState({ requestInfo: "Your Tracking Number: " + requestNo });
     setTimeout(() => {
       this.setState({ requestInfo: " " });
-    }, 15000);
+    }, 20000);
+
+  
   }
 
   triggerSupplierMenu = () => {
@@ -799,6 +817,7 @@ class RequestMaterials extends Component {
             toggled={this.state.isTriggered}
             supplier={supplier}
             materialId={id}
+            materialName = {name}
             account={this.props.account}
             pcContract={this.props.pcContract}
             matUnitCost={costValue}
@@ -984,7 +1003,7 @@ class RequestMaterials extends Component {
             id="material-amount"
             value={this.state.amount}
             ref={this.amountRef}
-            placeholder="e.g. 1000 g"
+            placeholder="e.g. 10000 Kg"
             autoComplete="off"
             onChange={this.onChange}
           />
@@ -1499,8 +1518,10 @@ class ApproveRequest extends Component {
     const requestNo = parseInt(this.state.requestId, 10);
     console.log(requestNo);
 
+    const reqCost = await this.props.pcContract.methods.getRequestCost(requestNo).call();
+    const reqCostInt = parseInt(reqCost,10)
 
-    await this.props.pctContract.methods.approveRequest(requestNo)
+    await this.props.pctContract.methods.approveRequest(requestNo,reqCostInt)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Request was approved successfully!" });
@@ -1764,9 +1785,10 @@ class ReceiveShipment extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const requestNo = this.state.requestId;
+    const reqCost = await this.props.pcContract.methods.getRequestCost(requestNo).call();
+    const reqCostInt = parseInt(reqCost,10);
 
-
-    await this.props.pctContract.methods.receiveShipment(requestNo)
+    await this.props.pctContract.methods.receiveShipment(requestNo,reqCostInt)
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
         this.setState({ msg: "Updated shipment status successfully!" });

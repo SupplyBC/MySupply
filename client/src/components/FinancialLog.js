@@ -537,10 +537,9 @@ class SetActualCosts extends Component {
     rsrhActCost: 0,
     totalActCost: 0,
     matUnitActCost: 0,
-    workHrsAct: 0,
-    hourlyRateActCost: 0,
     matQtyAct: 0,
     shippingActCost: 0,
+    directLaborActCost:'' 
   };
 
   constructor(props) {
@@ -551,10 +550,9 @@ class SetActualCosts extends Component {
     this.mrkActRef = React.createRef();
     this.rsrhActRef = React.createRef();
     this.matUnitActRef = React.createRef();
-    this.workHrsActRef = React.createRef();
-    this.hourlyRateActRef = React.createRef();
     this.matQtyActRef = React.createRef();
     this.shippingActRef = React.createRef();
+    this.directLaborActRef= React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
   }
@@ -562,58 +560,65 @@ class SetActualCosts extends Component {
   OnSubmit = async (e) => {
     e.preventDefault();
 
-    const pro = this.state.product;
-    const units = this.state.productUnitsNo;
-    const pkgMatAct = parseInt(this.state.packagingMaterialActCost, 10);
-    // const totBudget = parseInt(this.state.budget,10);
-    const mrkAct = parseInt(this.state.mrkActCost, 10);
-    const rsrhAct = parseInt(this.state.rsrhActCost, 10);
-    const rateAct = parseInt(this.state.hourlyRateActCost, 10);
-    const hrsNoAct = parseInt(this.state.workHrsAct, 10);
-    const matUnitAct = parseInt(this.state.matUnitActCost, 10);
-    const matQtyAct = parseInt(this.state.matQtyAct, 10);
-    const shippingAct = parseInt(this.state.shippingActCost, 10);
+    const requests = await this.props.pcContract.methods.getMyRequests(this.props.account[0]).call();
+    const matRequested = requests.map(request => {
+      return request.materialID
+    })
+
+    console.log(matRequested);
+
+    // const pro = this.state.product;
+    // const units = this.state.productUnitsNo;
+    // const pkgMatAct = parseInt(this.state.packagingMaterialActCost, 10);
+    // // const totBudget = parseInt(this.state.budget,10);
+    // const mrkAct = parseInt(this.state.mrkActCost, 10);
+    // const rsrhAct = parseInt(this.state.rsrhActCost, 10);
+    // const rateAct = parseInt(this.state.hourlyRateActCost, 10);
+    // const hrsNoAct = parseInt(this.state.workHrsAct, 10);
+    // const matUnitAct = parseInt(this.state.matUnitActCost, 10);
+    // const matQtyAct = parseInt(this.state.matQtyAct, 10);
+    // const shippingAct = parseInt(this.state.shippingActCost, 10);
 
     // const totalActual = matAct + pkgMatAct + labAct + manuIndirectActCost
     //                     + mrkAct + rsrhAct;
 
     // this.setState({ totalActCost: totalActual , totBudget});
 
-    await this.props.pcContract.methods
-      .setActualCost(
-        pro,
-        units,
-        pkgMatAct,
-        matUnitAct,
-        rateAct,
-        hrsNoAct,
-        mrkAct,
-        rsrhAct,
-        matQtyAct,
-        shippingAct,
-      )
-      .send({ from: this.props.account[0] })
-      .once("receipt", (receipt) => {
-        this.setState({ msg: "Actual Costs Were Set Successfully" });
-        setTimeout(() => {
-          this.setState({ msg: " " });
-        }, 2000);
-      });
+    // await this.props.pcContract.methods
+    //   .setActualCost(
+    //     pro,
+    //     units,
+    //     pkgMatAct,
+    //     matUnitAct,
+    //     rateAct,
+    //     hrsNoAct,
+    //     mrkAct,
+    //     rsrhAct,
+    //     matQtyAct,
+    //     shippingAct,
+    //   )
+    //   .send({ from: this.props.account[0] })
+    //   .once("receipt", (receipt) => {
+    //     this.setState({ msg: "Actual Costs Were Set Successfully" });
+    //     setTimeout(() => {
+    //       this.setState({ msg: " " });
+    //     }, 2000);
+    //   });
 
-    this.setState({
-      product: "",
-      productUnitsNo: "",
-      directMaterialActCost: "",
-      packagingMaterialActCost: "",
-      laborActCost: "",
-      mrkActCost: "",
-      rsrhActCost: "",
-      matUnitActCost: "",
-      workHrsAct: "",
-      hourlyRateActCost: "",
-      matQtyAct: "",
-      shippingActCost: ""
-    });
+    // this.setState({
+    //   product: "",
+    //   productUnitsNo: "",
+    //   directMaterialActCost: "",
+    //   packagingMaterialActCost: "",
+    //   laborActCost: "",
+    //   mrkActCost: "",
+    //   rsrhActCost: "",
+    //   matUnitActCost: "",
+    //   workHrsAct: "",
+    //   hourlyRateActCost: "",
+    //   matQtyAct: "",
+    //   shippingActCost: ""
+    // });
   };
 
   onChange = async (e) => {
@@ -627,7 +632,8 @@ class SetActualCosts extends Component {
       workHrsAct: this.workHrsActRef.current.value,
       hourlyRateActCost: this.hourlyRateActRef.current.value,
       matQtyAct: this.matQtyActRef.current.value,
-      shippingActCost: this.shippingActRef.current.value
+      shippingActCost: this.shippingActRef.current.value,
+      directLaborActCost: this.directLaborActRef.current.value,
     });
   };
   render() {
@@ -655,7 +661,7 @@ class SetActualCosts extends Component {
         />
 
         <h4>Set Material Quantity</h4>
-        <label>Actual Material Quantity (g):</label>
+        {/* <label>Actual Material Quantity (g):</label>
         <input
           type="number"
           ref={this.matQtyActRef}
@@ -663,10 +669,10 @@ class SetActualCosts extends Component {
           placeholder="e.g. 1600"
           onChange={this.onChange}
           required="required"
-        />
+        /> */}
 
         <h4> Set Actual Costs </h4>
-
+{/* 
         <label>Unit Material Cost: </label>
         <input
           type="number"
@@ -675,9 +681,9 @@ class SetActualCosts extends Component {
           placeholder="e.g. 5"
           onChange={this.OnChange}
           required="required"
-        />
+        /> */}
 
-        <label>Packaging Materials: </label>
+        {/* <label>Packaging Materials: </label>
         <input
           type="number"
           ref={this.pkgMatActRef}
@@ -685,19 +691,19 @@ class SetActualCosts extends Component {
           placeholder="e.g. 5000"
           onChange={this.OnChange}
           required="required"
-        />
+        /> */}
 
-        <label>Working Hours No: </label>
+        <label>Direct Labor Cost: </label>
         <input
           type="number"
-          ref={this.workHrsActRef}
-          value={this.state.workHrsAct}
+          ref={this.directLaborActRef}
+          value={this.state.directLaborActCost}
           placeholder="e.g. 2000"
           onChange={this.OnChange}
           required="required"
         />
 
-        <label>Hourly Work Rate: </label>
+        {/* <label>Hourly Work Rate: </label>
         <input
           type="number"
           ref={this.hourlyRateActRef}
@@ -735,7 +741,7 @@ class SetActualCosts extends Component {
           placeholder="e.g. 5000"
           onChange={this.OnChange}
           required="required"
-        />
+        /> */}
 
         <input type="submit" className="btn" value="SET ACTUAL COSTS" />
 
