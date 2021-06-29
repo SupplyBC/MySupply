@@ -127,6 +127,30 @@ class ReviewStdCostSheet extends Component {
       });
       return true;
     });
+    const productSpecsAll = await this.props.pcContract.methods.getProductSpecs(proId).call();
+    console.log(productSpecsAll);
+    const productCostSingle = productSpecsAll.map( (spec,index) => {
+      const materialName = spec.materialName;
+      const materialCost = spec.materialUnitCost;
+      const amountMg = spec.materialAmount
+      const amountKg = amountMg / 1000000; // convert from mg to kg to get cost per kg
+      const matCost =  materialCost * amountKg;
+      console.log(matCost);
+      const materialCostStr = matCost.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+   
+
+      return(
+        <tr key={index}>
+          <td>{materialName}</td>
+          <td>{materialCostStr}</td>
+        </tr>
+      );
+    })
+
+    this.setState({productCostSingle})
     if (this.state.totalStdCostValue === 0 || isNaN(this.state.totalStdCostValue) ) {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
@@ -225,8 +249,10 @@ class ReviewStdCostSheet extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td> Raw Materials </td>
+                  <tr style={{borderBottom: '1px solid #999'}}> <th colspan='2'>Raw Material Details</th></tr>
+                  {this.state.productCostSingle}
+                  <tr style={{borderTop: '1px solid #999'}}>
+                    <td > Raw Materials Total </td>
                     <td>{this.state.matStdCost}</td>
                   </tr>
                   <tr>
@@ -243,7 +269,7 @@ class ReviewStdCostSheet extends Component {
                       borderBottom: "1px solid",
                     }}
                   >
-                    <td>TOTAL DIRECT COST</td>
+                    <th>TOTAL DIRECT COST</th>
                     <td>{this.state.totalDirectStdCost}</td>
                   </tr>
                   <tr className={`${classified}`}>
@@ -398,6 +424,15 @@ class ReviewActCostSheet extends Component {
     });
   };
   render() {
+    if(true) {
+      return( 
+       <div>
+         
+         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
+         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+       </div>
+      );
+     }
     let classified, table;
     if (this.state.isTrust || this.state.strBoolIsOwner === 'true') {
       classified = "show"
@@ -637,6 +672,15 @@ class SetActualCosts extends Component {
     });
   };
   render() {
+    if(true) {
+     return( 
+      <div>
+        
+        <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
+        <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+      </div>
+     );
+    }
     return (
       <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
@@ -848,6 +892,15 @@ class SetFlexibleBudget extends Component {
     });
   };
   render() {
+    if(true) {
+      return( 
+       <div>
+         
+         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
+         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+       </div>
+      );
+     }
     return (
       <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
@@ -1114,6 +1167,15 @@ class CalculateStaticVariance extends Component {
     });
   };
   render() {
+    if(true) {
+      return( 
+       <div>
+         
+         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
+         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+       </div>
+      );
+     }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -1269,6 +1331,7 @@ class CalculateStaticVariance extends Component {
 }
 
 class CalculateFlexibleVariance extends Component {
+
   state = { id: "", tableVisibility: false };
 
   constructor(props) {
@@ -1501,6 +1564,15 @@ class CalculateFlexibleVariance extends Component {
   };
 
   render() {
+    if(true) {
+      return( 
+       <div>
+         
+         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
+         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+       </div>
+      );
+     }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -1846,6 +1918,15 @@ class CalculatePriceVariance extends Component {
     });
   };
   render() {
+    if(true) {
+      return( 
+       <div>
+         
+         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
+         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+       </div>
+      );
+     }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -1899,12 +1980,12 @@ class CalculatePriceVariance extends Component {
                       {`(${this.state.materialUnitActCost} per gram - ${this.state.materialUnitStdCost} per gram)  * ${this.state.actQty} grams = ${this.state.material}`}
                     </td>
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <td> Direct Labor </td>
                     <td>
                       {`(${this.state.hourlyActRate} per hour - ${this.state.hourlyStdRate} per hour )  * ${this.state.workHrsActNo} hours = ${this.state.labor}`}
                     </td>
-                  </tr>
+                  </tr> */}
                 </tbody>
                 <tfoot>
                   <tr></tr>
@@ -2056,6 +2137,15 @@ class CalculateQuantityVariance extends Component {
     });
   };
   render() {
+    if(true) {
+      return( 
+       <div>
+         
+         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
+         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+       </div>
+      );
+     }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -2109,12 +2199,12 @@ class CalculateQuantityVariance extends Component {
                       {`(${this.state.actQty} grams * ${this.state.actUnitsNo} units - ( ${this.state.actUnitsNo} units * ${this.state.stdQty}  grams per unit) )  * ${this.state.materialUnitStdCost} per gram = ${this.state.materialKg} `}
                     </td>
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <td> Direct Labor </td>
                     <td>
                       {`(${this.state.workHrsActNo} hours - ( ${this.state.actUnitsNo} units * ${this.state.workHrsStdNo} hours per unit ) )  * ${this.state.hourlyStdRate} per hour = ${this.state.laborKg}`}
                     </td>
-                  </tr>
+                  </tr> */}
                 </tbody>
                 <tfoot>
                   <tr></tr>

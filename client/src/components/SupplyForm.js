@@ -73,7 +73,44 @@ class CostSheetReview extends Component {
     const newMaterialCost = specsCriteria.reduce( (a,b) => a+b,0);
 
     this.setState({newMaterialCost});
-    
+
+    const proSpecsAll = await this.props.pcContract.methods.getProductSpecs(productString).call();
+    const proSpecsSingle = proSpecsAll.map( (spec,index) => {
+      const matName = spec.materialName;
+      const matAmountMg = spec.materialAmount;
+      let matCost;
+      const matAmountKg = matAmountMg/1000000;
+  
+      if(matName === this.props.materialName) {
+        matCost = this.props.matUnitCost*matAmountKg;
+        const matCostStr = matCost.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+        this.setState({matNewCost: matCost,matCostStr})
+        console.log(matCost);
+        
+      } else {
+        matCost =  parseFloat(spec.materialUnitCost,10)*matAmountKg;
+       
+        const matCostStr = matCost.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+        this.setState({matOldCost: matCost,matCostStr})
+
+      }
+
+      return (
+        <tr key={index}>
+        <td>{matName}</td>
+        <td>{this.state.matCostStr}</td>
+      </tr>
+      );
+    })
+
+    this.setState({proSpecsSingle})
+ 
 
     const proStdCosts = productStdCost.map(item => {
        let matStdCostValue = this.state.newMaterialCost;
@@ -181,14 +218,17 @@ class CostSheetReview extends Component {
             <div className={`${classified} std-cost-container`}  >
         <table className={`${isToggled} cost-data`} >
           <thead>
+           
             <tr>
               <th>CRITERIA</th>
               <th>COST</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td> Raw Materials </td>
+          <tr style={{borderBottom: '1px solid #999'}}> <th colspan='2'>Raw Material Details</th></tr>
+          {this.state.proSpecsSingle}
+            <tr style={{borderTop: '1px solid #999'}}>
+              <td> Raw Materials Total </td>
               <td>{this.state.matStdCost}</td>
             </tr>
             <tr>
@@ -205,7 +245,7 @@ class CostSheetReview extends Component {
                 borderBottom: "1px solid",
               }}
             >
-              <td>TOTAL DIRECT COST</td>
+              <th>TOTAL DIRECT COST</th>
               <td>{this.state.totalDirectCost}</td>
             </tr>
 
@@ -590,12 +630,14 @@ class QueryProductSpecs extends Component {
       let amount = spec.materialAmount;
       let form = spec.materialForm;
       let type = spec.materialType;
+      let cost = spec.materialUnitCost;
       return (
         <tr key={index}>
           <td> {name} </td>
           <td> {type} </td>
           <td>{amount} mg </td>
           <td>{form} </td>
+          <td>{cost}</td>
         </tr>
       );
     });
@@ -667,6 +709,7 @@ class QueryProductSpecs extends Component {
                 <th>TYPE </th>
                 <th>AMOUNT</th>
                 <th>FORM</th>
+                <th>COST PER KG OF MATERIAL</th>
               </tr>
             </thead>
             <tbody>{this.state.specsRow}</tbody>
