@@ -242,49 +242,49 @@ class AddMaterial extends Component {
         >
 
           <option id="100" value="amoxicillin">
-          AMOXICILLIN
+            AMOXICILLIN
           </option>
           <option id="101" value="flucloxacillin">
-          FLUCLOXACILLIN
+            FLUCLOXACILLIN
           </option>
           <option id="201" value="ampicillin">
-          AMPICILLIN
+            AMPICILLIN
           </option>
           <option id="202" value="piperacillin">
-          PIPERACILLIN
+            PIPERACILLIN
           </option>
           <option id="102" value="valsartan">
-          VALSARTAN
+            VALSARTAN
           </option>
           <option id="103" value="hydrocholorothiazide">
-          HYDROCHLOROTHIAZIDE
+            HYDROCHLOROTHIAZIDE
           </option>
           <option id="104" value="diclofenac">
-          DICLOFENAC
+            DICLOFENAC
           </option>
           <option id="105" value="metronidazole">
-          METRONIDAZOLE
+            METRONIDAZOLE
           </option>
           <option id="107" value="polyvinylpyrrolidone">
-          {`${'Polyvinylpyrrolidone'.toUpperCase()}`}
+            {`${'Polyvinylpyrrolidone'.toUpperCase()}`}
           </option>
           <option id="108" value="crospovidone">
-          {`${'crospovidone'.toUpperCase()}`}
+            {`${'crospovidone'.toUpperCase()}`}
           </option>
           <option id="109" value="microcrystalline_cellulose_ph101">
-          {`${'microcrystalline cellulose PH 101'.toUpperCase()}`}
+            {`${'microcrystalline cellulose PH 101'.toUpperCase()}`}
           </option>
           <option id="110" value="magnesium_stearate">
-          {`${'magnesium stearate'.toUpperCase()}`}
+            {`${'magnesium stearate'.toUpperCase()}`}
           </option>
           <option id="111" value="maize_starch">
-          {`${'Maize starch'.toUpperCase()}`}
+            {`${'Maize starch'.toUpperCase()}`}
           </option>
           <option id="113" value="colloidal_silicon_dioxide">
-          {`${'colloidal silicon dioxide'.toUpperCase()}`}
+            {`${'colloidal silicon dioxide'.toUpperCase()}`}
           </option>
           <option id="114" value="asparatam">
-          {`${'asparatam'.toUpperCase()}`}
+            {`${'asparatam'.toUpperCase()}`}
           </option>
           <option id="11" value="vitamin-a">
             VITAMIN A
@@ -405,7 +405,7 @@ class AddMaterial extends Component {
             value="ADD PRODUCT SPECIFICATION"
           />
         </div>
-        
+
 
         <div
           style={{ marginTop: "20px" }}
@@ -450,61 +450,63 @@ class CreateCostPlan extends Component {
     const pro = this.state.product;
     const units = this.state.productUnitsNo;
     // const pkgMatStd = this.state.packagingMaterialStdCost;
-    const laborCost = parseFloat(this.state.laborStdCost,10);
+    const laborCost = parseFloat(this.state.laborStdCost, 10);
     const laborCostStr = laborCost.toString();
-    this.setState({laborCost,laborCostStr})
-    
+    this.setState({ laborCost, laborCostStr })
+
     // const shippingCost = this.state.shippingCost;
 
     const materialInfo = await this.props.pcContract.methods.getProductSpecs(pro).call();
     console.log(materialInfo);
 
     const materialCostInfo = materialInfo.map(mat => {
-      let matCostInfo =  parseFloat(mat.materialUnitCost,10);
-      let matAmountMg = parseFloat(mat.materialAmount,10);
+      let matCostInfo = parseFloat(mat.materialUnitCost, 10);
+      let matAmountMg = parseFloat(mat.materialAmount, 10);
 
-      if(mat.materialType === 'active' || mat.materialType === 'support') {
-        let matAmountKg = matAmountMg/1000000; // convert from mg to kg to get cost per kg
-        return matCostInfo*matAmountKg;
+      if (mat.materialType === 'active' || mat.materialType === 'support') {
+        let matAmountKg = matAmountMg / 1000000; // convert from mg to kg to get cost per kg
+        return matCostInfo * matAmountKg;
       } else {
-        
-       return 0;
+
+        return 0;
       }
     });
 
     const pkgCostInfo = materialInfo.map(mat => {
-      let pkgCostInfo =  parseFloat(mat.materialUnitCost,10);
-      let pkgAmountMg = parseFloat(mat.materialAmount,10);
+      let pkgCostInfo = parseFloat(mat.materialUnitCost, 10);
+      let pkgAmountMg = parseFloat(mat.materialAmount, 10);
 
-      if(mat.materialType === 'packaging') {
-        let pkgAmountKg = pkgAmountMg/1000000; // convert from mg to kg to get cost per kg
-        return pkgCostInfo*pkgAmountKg;
+      if (mat.materialType === 'packaging') {
+        let pkgAmountKg = pkgAmountMg / 1000000; // convert from mg to kg to get cost per kg
+        return pkgCostInfo * pkgAmountKg;
       } else {
-       return 0;
+        return 0;
       }
     })
     console.log(materialCostInfo, pkgCostInfo);
-    const totalMaterialCost = materialCostInfo.reduce((a,b) => a + b, 0);
-    const totalPkgCost = pkgCostInfo.reduce((a,b) => a + b, 0);
+    const totalMaterialCost = materialCostInfo.reduce((a, b) => a + b, 0);
+    const totalPkgCost = pkgCostInfo.reduce((a, b) => a + b, 0);
     const totalMaterialCostStr = totalMaterialCost.toString();
     const totalPkgCostStr = totalPkgCost.toString()
-     this.setState({materialCostInfo,totalMaterialCost, pkgCostInfo, totalPkgCost,
-      totalMaterialCostStr ,totalPkgCostStr});
+    this.setState({
+      materialCostInfo, totalMaterialCost, pkgCostInfo, totalPkgCost,
+      totalMaterialCostStr, totalPkgCostStr
+    });
 
-     const stdTotalDirectCost = totalMaterialCost + totalPkgCost + laborCost;
-     const mrkStd = stdTotalDirectCost*15/100;
-     const rsrhStd = stdTotalDirectCost*3/100;
-     const FundingManagerialCost = stdTotalDirectCost*30/100;
-     const indirectCost = stdTotalDirectCost*20/100;
-     const stdTotalDirectCostStr = stdTotalDirectCost.toString();
-     const totalCost = stdTotalDirectCost + indirectCost + FundingManagerialCost + mrkStd + rsrhStd;
-     const totalCostStr = totalCost.toString();
-     this.setState({stdTotalDirectCost,totalCost,stdTotalDirectCostStr,totalCostStr})
-    
-    
-      // TODO
+    const stdTotalDirectCost = totalMaterialCost + totalPkgCost + laborCost;
+    const mrkStd = stdTotalDirectCost * 15 / 100;
+    const rsrhStd = stdTotalDirectCost * 3 / 100;
+    const FundingManagerialCost = stdTotalDirectCost * 30 / 100;
+    const indirectCost = stdTotalDirectCost * 20 / 100;
+    const stdTotalDirectCostStr = stdTotalDirectCost.toString();
+    const totalCost = stdTotalDirectCost + indirectCost + FundingManagerialCost + mrkStd + rsrhStd;
+    const totalCostStr = totalCost.toString();
+    this.setState({ stdTotalDirectCost, totalCost, stdTotalDirectCostStr, totalCostStr })
+
+
+    // TODO
     // const laborCost = hoursNo*rate;
-  
+
     // const materialCost = 
     // const totalDirectCost = pkgMatStd +
 
@@ -513,7 +515,7 @@ class CreateCostPlan extends Component {
 
     // this.setState({ totalStdCost: totalStandard });
 
-    
+
     console.log(
       this.state.totalMaterialCostStr,
       this.state.totalPkgCostStr,
@@ -526,13 +528,13 @@ class CreateCostPlan extends Component {
       .setStdCostPlan(
         pro,
         units, [
-          this.state.totalMaterialCostStr,
-          this.state.totalPkgCostStr,
-          this.state.laborCostStr,
-          this.state.stdTotalDirectCostStr,
-          this.state.totalCostStr
-        ]
-        
+        this.state.totalMaterialCostStr,
+        this.state.totalPkgCostStr,
+        this.state.laborCostStr,
+        this.state.stdTotalDirectCostStr,
+        this.state.totalCostStr
+      ]
+
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -718,7 +720,7 @@ class ReviewProduct extends Component {
 
     const names = products.map((item, index) => {
       const name = item.productId;
-      const id   = item.productName;
+      const id = item.productName;
       return (
         <option key={index} id={index} value={id}>
           {name}
@@ -741,7 +743,7 @@ class ReviewProduct extends Component {
               style={{ fontStyle: "italic", opacity: "0.6", color: "#777" }}
               value=""
             >
-              -- Select a Product -- 
+              -- Select a Product --
             </option>
             {this.state.names}
           </select>
