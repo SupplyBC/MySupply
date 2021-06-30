@@ -310,22 +310,22 @@ class MaterialCostData extends Component {
   componentDidMount = async () => {
     const isTrust = await this.props.pcContract.methods.checkIfTrusted(this.props.supplier, this.props.account[0]).call();
     this.setState({ isTrust });
-    // const query = await this.props.pcContract.methods.getMaterials().call();
+    const query = await this.props.pcContract.methods.getMaterials().call();
 
-    // const isAddrOwner = query.map(item => {
-    //   let isOwner;
-    //   if (item.supplier === this.props.account[0]) {
-    //     isOwner = true;
-    //     this.setState({isOwner});
-    //   } else {
-    //     isOwner = false;
-    //     this.setState({isOwner});
-    //   }
-    //   return true;
-    // })
+    const isAddrOwner = query.map(item => {
+      let isOwner;
+      if (item.supplier === this.props.account[0]) {
+        isOwner = true;
+        this.setState({isOwner});
+      } else {
+        isOwner = false;
+        this.setState({isOwner});
+      }
+      return true;
+    })
 
-    // console.log(this.state.isOwner)
-    // this.setState({ isAddrOwner})
+    console.log(this.state.isOwner)
+    this.setState({ isAddrOwner})
 
     if (this.state.isTrust === true) {
     } else {
@@ -333,8 +333,22 @@ class MaterialCostData extends Component {
         msg: 'YOU ARE NOT AUTHORIZED TO REVIEW THIS DATA!',
       })
     }
+
+    if (this.state.isOwner === true) {
+      this.setState({
+        msg: '',
+      })
+    } else if (this.state.isTrust === true) {
+     
+    } else {
+      this.setState({
+        msg: 'YOU ARE NOT AUTHORIZED TO REVIEW THIS DATA!',
+      })
+    }
+  
   }
 
+  
   toggleFinancialDetail = async () => {
     this.setState({ isVisible: !this.state.isVisible })
   }
@@ -389,8 +403,11 @@ class MaterialCostData extends Component {
   render() {
     let classified, visible;
     this.state.isVisible ? visible = "show" : visible = "hide";
-    this.state.isTrust ? classified = "show" : classified = "hide";
-    // this.state.isOwner ? classified = "show" : classified = "hide";
+    if (this.state.isTrust || this.state.isOwner) {
+      classified = "show"
+    } else {
+      classified = "hide"
+    }
     let isToggled;
     this.props.toggled ? isToggled = "" : isToggled = "hide";
     return (
@@ -422,10 +439,10 @@ class MaterialCostData extends Component {
                     <td> Direct Labor </td>
                     <td>{this.state.matLaborCost}</td>
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <td> Total Indirect Cost </td>
                     <td>{this.state.matTotalIndirectCost}</td>
-                  </tr>
+                  </tr> */}
                   <tr
                     style={{
                       borderTop: "1px solid",
