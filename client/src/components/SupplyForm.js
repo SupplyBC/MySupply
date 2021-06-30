@@ -36,159 +36,166 @@ class CostSheetReview extends Component {
     const product = products.map(item => {
       return item.productName;
     })
-  
-
-    const productString = product[product.length-1].toString();
-    const isOwner = product.map(item => {
-
-      if (item.manufacturer === this.props.account[0]) {
-        this.setState({strBoolIsOwner: 'true'})
-      } else {
-        this.setState({strBoolIsOwner: 'false'})
-      }
-      return true;
-    })
-
     
-    const strBoolIsOwner = isOwner.toString();
-    this.setState({ strBoolIsOwner,tableVisibility: false })
-
-    const productStdCost = await this.props.pcContract.methods.getStdCostPlan(productString).call();
-    // const productActQty = await this.props.pcContract.methods.getActualMaterialQty(productString).call();
-    const productSpecs = await this.props.pcContract.methods.getProductSpecs(productString).call();
-    const specsCriteria = productSpecs.map(mat=> {
-      let matCostInfo;
-      let matAmountMg = parseFloat(mat.materialAmount,10);
-      let matAmountKg = matAmountMg/1000000;
-      if(mat.materialName === this.props.materialName) {
-        matCostInfo = this.props.matUnitCost;
-        this.setState({newRawMatCost: matCostInfo*matAmountKg})
-        return matCostInfo*matAmountKg;
-        
-      } else {
-        matCostInfo =  parseFloat(mat.materialUnitCost,10);
-        return matCostInfo*matAmountKg;
-      }
-    })
-    const newMaterialCost = specsCriteria.reduce( (a,b) => a+b,0);
-
-    this.setState({newMaterialCost});
-
-    const proSpecsAll = await this.props.pcContract.methods.getProductSpecs(productString).call();
-    const proSpecsSingle = proSpecsAll.map( (spec,index) => {
-      const matName = spec.materialName;
-      const matAmountMg = spec.materialAmount;
-      let matCost;
-      const matAmountKg = matAmountMg/1000000;
+    console.log(typeof(product));
+    if (typeof(product) === "undefined" ||  typeof(product[product.length-1]) === 'undefined' ) {
+      this.setState({ msg: 'NO PRODUCT COST SHEET DATA AVAILABLE!' });
+    } else {
+      const productString = product[product.length-1].toString();
+      this.setState({productString})
+      const isOwner = product.map(item => {
   
-      if(matName === this.props.materialName) {
-        matCost = this.props.matUnitCost*matAmountKg;
-        const matCostStr = matCost.toLocaleString("en-US", {
+        if (item.manufacturer === this.props.account[0]) {
+          this.setState({strBoolIsOwner: 'true', msg: ''})
+        } else {
+          this.setState({strBoolIsOwner: 'false', msg: ''})
+        }
+        return true;
+      })
+  
+      
+      const strBoolIsOwner = isOwner.toString();
+      this.setState({ strBoolIsOwner,tableVisibility: false })
+      const productStdCost = await this.props.pcContract.methods.getStdCostPlan(this.state.productString).call();
+      // const productActQty = await this.props.pcContract.methods.getActualMaterialQty(productString).call();
+      const productSpecs = await this.props.pcContract.methods.getProductSpecs(this.state.productString).call();
+      const specsCriteria = productSpecs.map(mat=> {
+        let matCostInfo;
+        let matAmountMg = parseFloat(mat.materialAmount,10);
+        let matAmountKg = matAmountMg/1000000;
+        if(mat.materialName === this.props.materialName) {
+          matCostInfo = this.props.matUnitCost;
+          this.setState({newRawMatCost: matCostInfo*matAmountKg})
+          return matCostInfo*matAmountKg;
+          
+        } else {
+          matCostInfo =  parseFloat(mat.materialUnitCost,10);
+          return matCostInfo*matAmountKg;
+        }
+      })
+      const newMaterialCost = specsCriteria.reduce( (a,b) => a+b,0);
+  
+      this.setState({newMaterialCost});
+  
+      const proSpecsAll = await this.props.pcContract.methods.getProductSpecs(this.state.productString).call();
+      const proSpecsSingle = proSpecsAll.map( (spec,index) => {
+        const matName = spec.materialName;
+        const matAmountMg = spec.materialAmount;
+        let matCost;
+        const matAmountKg = matAmountMg/1000000;
+    
+        if(matName === this.props.materialName) {
+          matCost = this.props.matUnitCost*matAmountKg;
+          const matCostStr = matCost.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+          });
+          this.setState({matNewCost: matCost,matCostStr})
+          console.log(matCost);
+          
+        } else {
+          matCost =  parseFloat(spec.materialUnitCost,10)*matAmountKg;
+         
+          const matCostStr = matCost.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+          });
+          this.setState({matOldCost: matCost,matCostStr})
+  
+        }
+  
+        return (
+          <tr key={index}>
+          <td>{matName}</td>
+          <td>{this.state.matCostStr}</td>
+        </tr>
+        );
+      })
+  
+      this.setState({proSpecsSingle})
+   
+  
+      const proStdCosts = productStdCost.map(item => {
+         let matStdCostValue = this.state.newMaterialCost;
+         let pkgStdCostValue = parseFloat(productStdCost.packagingMaterialCost, 10);
+         let laborStdCostValue = parseFloat(productStdCost.directLaborCost, 10);
+         let totalDirectCostValue = matStdCostValue + pkgStdCostValue + laborStdCostValue
+         let mrkStdCostValue = totalDirectCostValue * 15/100;
+         let rsrchStdCostValue = totalDirectCostValue * 3/100;
+         let totalIndirectCostValue = totalDirectCostValue * 20/100;
+         let fundManuCostValue = totalDirectCostValue * 30/100;
+         let totalStdCostValue = totalDirectCostValue + totalIndirectCostValue + mrkStdCostValue + rsrchStdCostValue + fundManuCostValue;
+  
+  
+        let matStdCost = matStdCostValue.toLocaleString("en-US", {
           style: "currency",
           currency: "USD",
         });
-        this.setState({matNewCost: matCost,matCostStr})
-        console.log(matCost);
-        
-      } else {
-        matCost =  parseFloat(spec.materialUnitCost,10)*matAmountKg;
+        let pkgStdCost = pkgStdCostValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+        let laborStdCost = laborStdCostValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+        let mrkStdCost = mrkStdCostValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+        let rsrchStdCost = rsrchStdCostValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+        let totalStdCost = totalStdCostValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+  
+        let totalDirectCost = totalDirectCostValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+  
+        let totalIndirectCost = totalIndirectCostValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+  
+        let fundManuCost = fundManuCostValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+  
+        this.setState({
+          productStdCost,
+          matStdCost,
+          pkgStdCost,
+          laborStdCost,
+          mrkStdCost,
+          rsrchStdCost,
+          totalStdCost,
+          totalDirectCost,
+          totalIndirectCost,
+          fundManuCost,
+          matStdCostValue,
+          pkgStdCostValue,
+          laborStdCostValue,
+          mrkStdCostValue,
+          rsrchStdCostValue,
+          totalStdCostValue,
+          totalIndirectCostValue,
+          totalDirectCostValue,
+          fundManuCostValue,
        
-        const matCostStr = matCost.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
         });
-        this.setState({matOldCost: matCost,matCostStr})
-
-      }
-
-      return (
-        <tr key={index}>
-        <td>{matName}</td>
-        <td>{this.state.matCostStr}</td>
-      </tr>
-      );
-    })
-
-    this.setState({proSpecsSingle})
- 
-
-    const proStdCosts = productStdCost.map(item => {
-       let matStdCostValue = this.state.newMaterialCost;
-       let pkgStdCostValue = parseFloat(productStdCost.packagingMaterialCost, 10);
-       let laborStdCostValue = parseFloat(productStdCost.directLaborCost, 10);
-       let totalDirectCostValue = matStdCostValue + pkgStdCostValue + laborStdCostValue
-       let mrkStdCostValue = totalDirectCostValue * 15/100;
-       let rsrchStdCostValue = totalDirectCostValue * 3/100;
-       let totalIndirectCostValue = totalDirectCostValue * 20/100;
-       let fundManuCostValue = totalDirectCostValue * 30/100;
-       let totalStdCostValue = totalDirectCostValue + totalIndirectCostValue + mrkStdCostValue + rsrchStdCostValue + fundManuCostValue;
-
-
-      let matStdCost = matStdCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
+        return true;
       });
-      let pkgStdCost = pkgStdCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-      let laborStdCost = laborStdCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-      let mrkStdCost = mrkStdCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-      let rsrchStdCost = rsrchStdCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-      let totalStdCost = totalStdCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
+      this.setState({proStdCosts})
+    }
+   
 
-      let totalDirectCost = totalDirectCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-
-      let totalIndirectCost = totalIndirectCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-
-      let fundManuCost = fundManuCostValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-
-      this.setState({
-        productStdCost,
-        matStdCost,
-        pkgStdCost,
-        laborStdCost,
-        mrkStdCost,
-        rsrchStdCost,
-        totalStdCost,
-        totalDirectCost,
-        totalIndirectCost,
-        fundManuCost,
-        matStdCostValue,
-        pkgStdCostValue,
-        laborStdCostValue,
-        mrkStdCostValue,
-        rsrchStdCostValue,
-        totalStdCostValue,
-        totalIndirectCostValue,
-        totalDirectCostValue,
-        fundManuCostValue,
-     
-      });
-      return true;
-    });
-    this.setState({proStdCosts})
+  
   }
 
   
