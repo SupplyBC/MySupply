@@ -452,14 +452,14 @@ class BankAccounts extends Component {
           <div className="side-nav">
             <ul className="mini-nav-list">
               <li className="link-item">
-                <NavLink to="/bank-account/new">+ CREATE ACCOUNT</NavLink>
+                <NavLink to="/bank-account/new"> CREATE ACCOUNT</NavLink>
               </li>
               <li className="link-item">
-                <NavLink to="/bank-account/manage">+ MANAGE ACCOUNT</NavLink>
+                <NavLink to="/bank-account/manage"> MANAGE ACCOUNT</NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/bank-account/tx-history">
-                  + TRANSACTIONS HISTORY
+                   TRANSACTIONS HISTORY
                 </NavLink>
               </li>
             </ul>

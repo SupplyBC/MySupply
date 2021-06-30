@@ -2234,48 +2234,48 @@ class FinancialLog extends Component {
             <ul className="mini-nav-list">
               <li className="link-item">
                 <NavLink to="/financial-log/setActualCosts">
-                  + MANAGE ACTUAL COSTS
+                   MANAGE ACTUAL COSTS
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/setFlexibleBudget">
-                  + MANAGE FLEXIBLE BUDGET
+                   MANAGE FLEXIBLE BUDGET
                 </NavLink>
               </li>
-              <label style={{ marginTop: "10px" }}>
+              <label>
                 <strong> REVIEW COST SHEET </strong>
               </label>
               <li className="link-item">
                 <NavLink to="/financial-log/costSheetStd">
-                  + STANDARD
+                   STANDARD
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/costSheetAct">
-                  + ACTUAL
+                   ACTUAL
                 </NavLink>
               </li>
-              <label style={{ marginTop: "10px" }}>
+              <label>
                 <strong> REVIEW VARIANCE </strong>
               </label>
               <li className="link-item">
                 <NavLink to="/financial-log/staticVariance">
-                  + STATIC-BUDGET
+                   STATIC-BUDGET
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/flexibleVariance">
-                  + FLEXIBLE-BUDGET
+                   FLEXIBLE-BUDGET
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/priceVariance">
-                  + PRICE/RATE
+                   PRICE/RATE
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/quantityVariance">
-                  + QUANTITY/EFFICIENCY
+                   QUANTITY/EFFICIENCY
                 </NavLink>
               </li>
             </ul>

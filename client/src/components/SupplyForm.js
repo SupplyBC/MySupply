@@ -2189,41 +2189,41 @@ class SupplyForm extends Component {
           <div className="side-nav">
             <ul className="mini-nav-list">
               <li className="link-item">
-                <NavLink to="/supply/querySpecs">+ QUERY PRODUCT SPECS</NavLink>
+                <NavLink to="/supply/querySpecs"> QUERY PRODUCT SPECS</NavLink>
               </li>
               <li className="link-item">
-                <NavLink to="/supply/managePermissions">+ MANAGE PERMISSIONS</NavLink>
+                <NavLink to="/supply/managePermissions"> MANAGE PERMISSIONS</NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/supply/requestMaterial">
-                  + REQUEST MATERIAL
+                   REQUEST MATERIAL
                 </NavLink>
               </li>
-              <label style={{ marginTop: "10px" }}>
+              <label >
                 <strong> SUPPLIER </strong>
               </label>
               <li className="link-item">
                 <NavLink to="/supply/supplier/createCostPlan">
-                  + CREATE COST PLAN
+                   CREATE COST PLAN
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/supply/supplier/createMaterial">
-                  + CREATE MATERIAL
+                   CREATE MATERIAL
                 </NavLink>
               </li>
              
-              <label style={{ marginTop: "10px" }}>
+              <label>
                 <strong> MISC. </strong>
               </label>
               <li className="link-item">
                 <NavLink to="/supply/supplyPortal">
-                  + MANAGE SUPPLY
+                   MANAGE SUPPLY
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/supply/iotPortal">
-                  + MANAGE IOT
+                   MANAGE IOT
                 </NavLink>
               </li>
             </ul>

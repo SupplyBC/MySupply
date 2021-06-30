@@ -786,21 +786,21 @@ class AddProduct extends Component {
             <ul className="mini-nav-list">
               <li className="link-item">
                 <NavLink to="/add-product/createProduct">
-                  + CREATE PRODUCT
+                   CREATE PRODUCT
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/add-product/addMaterial">
-                  + ADD PRODUCT SPECS
+                   ADD PRODUCT SPECS
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/add-product/costPlan">
-                  + CREATE STANDARD PLAN
+                   CREATE STANDARD PLAN
                 </NavLink>
               </li>
               <li className="link-item">
-                <NavLink to="/add-product/review">+ REVIEW PRODUCTS</NavLink>
+                <NavLink to="/add-product/review"> REVIEW PRODUCTS</NavLink>
               </li>
             </ul>
           </div>

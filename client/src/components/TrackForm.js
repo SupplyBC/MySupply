@@ -687,10 +687,10 @@ class Track extends Component {
            <div className="side-nav">
              <ul className="mini-nav-list">
                <li className="link-item">
-                 <NavLink to="/track/status">+ TRACKING REQUESTS</NavLink>
+                 <NavLink to="/track/status"> TRACKING REQUESTS</NavLink>
                </li>
                <li className="link-item">
-                 <NavLink to="/track/notifications">+ NOTIFICATION CENTER</NavLink>
+                 <NavLink to="/track/notifications"> NOTIFICATION CENTER</NavLink>
                </li>
              </ul>
            </div>
