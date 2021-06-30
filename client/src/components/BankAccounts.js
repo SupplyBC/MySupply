@@ -436,6 +436,10 @@ class TxHistory extends Component {
 
 class BankAccounts extends Component {
 
+  componentDidMount = () => {
+    document.title = 'Bank Account Management | Pharma Chain'
+  }
+
   render() {
     let acc = this.props.accounts;
     let cont1 = this.props.pcContract;

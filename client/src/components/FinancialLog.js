@@ -600,7 +600,8 @@ class SetActualCosts extends Component {
       return request.materialID
     })
 
-    console.log(matRequested);
+    this.setState({matRequested});
+
 
     // const pro = this.state.product;
     // const units = this.state.productUnitsNo;
@@ -672,15 +673,15 @@ class SetActualCosts extends Component {
     });
   };
   render() {
-    if(true) {
-     return( 
-      <div>
+    // if(true) {
+    //  return( 
+    //   <div>
         
-        <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
-        <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-      </div>
-     );
-    }
+    //     <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
+    //     <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+    //   </div>
+    //  );
+    // }
     return (
       <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
@@ -2219,6 +2220,9 @@ class CalculateQuantityVariance extends Component {
 }
 
 class FinancialLog extends Component {
+  componentDidMount = () => {
+    document.title = 'Cost Management | Pharma Chain'
+  }
   render() {
     let acc = this.props.accounts;
     let cont1 = this.props.pcContract;
@@ -2227,6 +2231,7 @@ class FinancialLog extends Component {
     if (!acc || !cont1 || !cont2 || !web3) {
       return <div> Loading..... </div>;
     }
+
     return (
       <BrowserRouter>
         <div className="product-form-container">

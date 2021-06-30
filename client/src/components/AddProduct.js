@@ -772,6 +772,9 @@ class ReviewProduct extends Component {
 }
 
 class AddProduct extends Component {
+  componentDidMount = () => {
+    document.title = 'Product Management | Pharma Chain'
+  }
   render() {
     let account = this.props.accounts;
     let contract1 = this.props.pcContract;

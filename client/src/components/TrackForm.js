@@ -671,6 +671,9 @@ class Status extends Component {
 }
 
 class Track extends Component {
+  componentDidMount = () => {
+    document.title = 'Tracking Management | Pharma Chain'
+  }
   render() {
     let acc = this.props.account;
     let cont1 = this.props.pcContract;

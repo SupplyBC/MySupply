@@ -2192,7 +2192,9 @@ class ManageIOT extends Component {
 }
 
 class SupplyForm extends Component {
-
+  componentDidMount = () => {
+    document.title = 'Supply Management | Pharma Chain'
+  }
   render() {
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
