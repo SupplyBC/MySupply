@@ -108,7 +108,7 @@ contract PharmaChain {
         address fromParti;
         address toParti;
         string  materialID;
-        string    amount;
+        string  amount;
         uint    issueTime;
     }
     
