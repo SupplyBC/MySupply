@@ -913,17 +913,6 @@ class SetActualCosts extends Component {
     });
   };
   render() {
-<<<<<<< HEAD
-    if(true) {
-     return( 
-      <div>
-        
-        <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
-        <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-      </div>
-     );
-    }
-=======
     // if(true) {
     //  return( 
     //   <div>
@@ -935,7 +924,6 @@ class SetActualCosts extends Component {
     // }
     let msgType;
     this.state.error?  msgType='alert': msgType='good'
->>>>>>> 5d2ce6052847f218286e05622e6c77b8bacefed3
     return (
       <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
