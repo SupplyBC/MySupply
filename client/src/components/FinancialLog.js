@@ -40,13 +40,13 @@ class ReviewStdCostSheet extends Component {
       let matStdCostValue = parseFloat(standard.directMaterialCost, 10);
       let pkgStdCostValue = parseFloat(standard.packagingMaterialCost, 10);
       let laborStdCostValue = parseFloat(standard.directLaborCost, 10);
-      let totalDirectStdCostValue = parseFloat(standard.totalDirectCost,10);
-      let totalStdCostValue =  parseFloat(standard.CostTOT,10);
-      let mrkStdCostValue = totalDirectStdCostValue*15/100;
-      let rsrchStdCostValue = totalDirectStdCostValue*3/100;
-      let totalIndirectCostValue = totalDirectStdCostValue*20/100;
-      let FundManuCostValue = totalDirectStdCostValue*30/100;
- 
+      let totalDirectStdCostValue = parseFloat(standard.totalDirectCost, 10);
+      let totalStdCostValue = parseFloat(standard.CostTOT, 10);
+      let mrkStdCostValue = totalDirectStdCostValue * 15 / 100;
+      let rsrchStdCostValue = totalDirectStdCostValue * 3 / 100;
+      let totalIndirectCostValue = totalDirectStdCostValue * 20 / 100;
+      let FundManuCostValue = totalDirectStdCostValue * 30 / 100;
+
       let matStdCost = matStdCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -103,7 +103,7 @@ class ReviewStdCostSheet extends Component {
         totalIndirectCostValue,
         FundManuCostValue,
         totalDirectStdCostValue)
-        
+
       this.setState({
         standard,
         matStdCost,
@@ -129,20 +129,20 @@ class ReviewStdCostSheet extends Component {
     });
     const productSpecsAll = await this.props.pcContract.methods.getProductSpecs(proId).call();
     console.log(productSpecsAll);
-    const productCostSingle = productSpecsAll.map( (spec,index) => {
+    const productCostSingle = productSpecsAll.map((spec, index) => {
       const materialName = spec.materialName;
       const materialCost = spec.materialUnitCost;
       const amountMg = spec.materialAmount
       const amountKg = amountMg / 1000000; // convert from mg to kg to get cost per kg
-      const matCost =  materialCost * amountKg;
+      const matCost = materialCost * amountKg;
       console.log(matCost);
       const materialCostStr = matCost.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
-   
 
-      return(
+
+      return (
         <tr key={index}>
           <td>{materialName}</td>
           <td>{materialCostStr}</td>
@@ -150,8 +150,8 @@ class ReviewStdCostSheet extends Component {
       );
     })
 
-    this.setState({productCostSingle})
-    if (this.state.totalStdCostValue === 0 || isNaN(this.state.totalStdCostValue) ) {
+    this.setState({ productCostSingle })
+    if (this.state.totalStdCostValue === 0 || isNaN(this.state.totalStdCostValue)) {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
       });
@@ -249,9 +249,9 @@ class ReviewStdCostSheet extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style={{borderBottom: '1px solid #999'}}> <th colspan='2'>Raw Material Details</th></tr>
+                  <tr style={{ borderBottom: '1px solid #999' }}> <th colspan='2'>Raw Material Details</th></tr>
                   {this.state.productCostSingle}
-                  <tr style={{borderTop: '1px solid #999'}}>
+                  <tr style={{ borderTop: '1px solid #999' }}>
                     <td > Raw Materials Total </td>
                     <td>{this.state.matStdCost}</td>
                   </tr>
@@ -313,7 +313,7 @@ class ReviewStdCostSheet extends Component {
 }
 
 class ReviewActCostSheet extends Component {
-  state = { id: "", tableVisibility: false };
+  state = { id: "", tableVisibility: false , requested: []};
 
   constructor(props) {
     super(props);
@@ -344,21 +344,27 @@ class ReviewActCostSheet extends Component {
 
     const actual = await this.props.pcContract.methods
       .getActualCost(proId)
-      .call();
+      .call();  
+
+      console.log(actual)
 
     const actualCostData = actual.map((item, index) => {
-      let matActCostValue = parseInt(actual.directMaterialCost, 10);
-      let pkgActCostValue = parseInt(actual.packagingMaterialCost, 10);
-      let laborActCostValue = parseInt(actual.directLaborCost, 10);
-      let mrkActCostValue = parseInt(actual.marketingCost, 10);
-      let rsrchActCostValue = parseInt(actual.researchCost, 10);
-      // let totalActCostValue = parseInt(actual.CostTOT,10);
-      let totalActCostValue =
-        matActCostValue +
-        pkgActCostValue +
-        laborActCostValue +
-        mrkActCostValue +
-        rsrchActCostValue;
+      let matActCostValue = parseFloat(actual.directMaterialCost, 10);
+      let pkgActCostValue = parseFloat(actual.packagingMaterialCost, 10);
+      let laborActCostValue = parseFloat(actual.directLaborCost, 10);
+      let totalDirectCostValue = matActCostValue + pkgActCostValue + laborActCostValue;
+      let totalActCostValue = parseFloat(actual.CostTOT, 10);
+      let mrkActCostValue = totalDirectCostValue * 15/100;
+      let rsrchActCostValue = totalDirectCostValue * 3/100;
+      let totalIndirectCostValue = totalDirectCostValue * 20/100;
+      let fundManuCostValue = totalDirectCostValue * 30/100;
+      // // let totalActCostValue = parseInt(actual.CostTOT,10);
+      // let totalActCostValue =
+      //   matActCostValue +
+      //   pkgActCostValue +
+      //   laborActCostValue +
+      //   mrkActCostValue +
+      //   rsrchActCostValue;
 
       let matActCost = matActCostValue.toLocaleString("en-US", {
         style: "currency",
@@ -369,6 +375,10 @@ class ReviewActCostSheet extends Component {
         currency: "USD",
       });
       let laborActCost = laborActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let totalDirectCost = totalDirectCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
@@ -385,6 +395,17 @@ class ReviewActCostSheet extends Component {
         currency: "USD",
       });
 
+      let totalIndirectCost = totalIndirectCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      let fundManuCost = fundManuCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+
       this.setState({
         actual,
         matActCost,
@@ -393,15 +414,47 @@ class ReviewActCostSheet extends Component {
         mrkActCost,
         rsrchActCost,
         totalActCost,
+        totalDirectCost,
+        totalIndirectCost,
+        fundManuCost,
         matActCostValue,
         pkgActCostValue,
         laborActCostValue,
         mrkActCostValue,
         rsrchActCostValue,
         totalActCostValue,
+        totalDirectCostValue,
+        totalIndirectCostValue,
+        fundManuCostValue
+        
       });
       return true;
     });
+
+    // const requests = await this.props.pcContract.methods.getMyRequests().call();
+    // const matRequested = requests.map(request => {
+    //   let id = request.materialID;
+    //   let matRequests = [...this.state.requested, id]
+    //   this.setState({ requested: matRequests })
+    //   return matRequests[matRequests.length - 1];
+    // })
+
+
+    // const info = await this.props.pcContract.methods.getMaterials().call();
+
+    // const infoFiltered = info.filter(mat => {
+    //   // based on: const found = arr1.some(r=> arr2.includes(r))
+    //   // checks if an array contains values from another array
+    //    return mat.some(r=>matRequested.includes(r));
+    //   //return mat.includes('mat01')
+
+    // })
+
+    // let actMatCosts = materialCosts.map((cost, index) => {
+    //   return cost * matAmount[index]
+    // }) 
+
+    
 
     if (this.state.totalActCost === "$0.00") {
       this.setState({
@@ -424,15 +477,15 @@ class ReviewActCostSheet extends Component {
     });
   };
   render() {
-    if(true) {
-      return( 
-       <div>
-         
-         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
-         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-       </div>
-      );
-     }
+    // if (true) {
+    //   return (
+    //     <div>
+
+    //       <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+    //       <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+    //     </div>
+    //   );
+    // }
     let classified, table;
     if (this.state.isTrust || this.state.strBoolIsOwner === 'true') {
       classified = "show"
@@ -448,15 +501,15 @@ class ReviewActCostSheet extends Component {
       return <div> Loading..... </div>;
     }
     this.state.tableVisibility ? (table = "show") : (table = "hide");
-    const totDirValue =
-      this.state.laborActCostValue +
-      this.state.pkgActCostValue +
-      this.state.matActCostValue;
-    const totDir = totDirValue.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-    const newTot = totDirValue + (totDirValue * 20 / 100) + (totDirValue * 30 / 100) + (totDirValue * 14 / 100) + this.state.mrkActCost + this.state.rsrchActCost;
+    // const totDirValue =
+    //   this.state.laborActCostValue +
+    //   this.state.pkgActCostValue +
+    //   this.state.matActCostValue;
+    // const totDir = totDirValue.toLocaleString("en-US", {
+    //   style: "currency",
+    //   currency: "USD",
+    // });
+    // const newTot = totDirValue + (totDirValue * 20 / 100) + (totDirValue * 30 / 100) + (totDirValue * 14 / 100) + this.state.mrkActCost + this.state.rsrchActCost;
     return (
       <div className="financial-status-container">
         <form onSubmit={this.onSubmit} className="form-container">
@@ -512,29 +565,23 @@ class ReviewActCostSheet extends Component {
                     }}
                   >
                     <td>TOTAL DIRECT COST</td>
-                    <td>{totDir}</td>
+                    <td>{this.state.totalDirectCost}</td>
                   </tr>
                   <tr className={`${classified}`}>
                     <td> Indirect Manufacturing Costs (20%) </td>
-                    <td>{(totDirValue * 20 / 100).toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })}</td>
+                    <td>{this.state.totalIndirectCost}</td>
                   </tr>
                   <tr className={`${classified}`}>
                     <td> Managerial and Funding Costs (30%) </td>
-                    <td>{(totDirValue * 30 / 100).toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })}</td>
+                    <td>{this.state.fundManuCost}</td>
                   </tr>
-                  <tr className={`${classified}`}>
+                  {/* <tr className={`${classified}`}>
                     <td> Value Added Tax (14%) </td>
                     <td>{(totDirValue * 14 / 100).toLocaleString("en-US", {
                       style: "currency",
                       currency: "USD",
                     })}</td>
-                  </tr>
+                  </tr> */}
                   <tr className={`${classified}`}>
                     <td> Marketing </td>
                     <td>{this.state.mrkActCost}</td>
@@ -548,10 +595,7 @@ class ReviewActCostSheet extends Component {
                 <tfoot className={`${classified}`}>
                   <tr>
                     <th> TOTAL </th>
-                    <td>{newTot.toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })} </td>
+                    <td>{this.state.totalActCost} </td>
                   </tr>
                 </tfoot>
               </table>
@@ -566,7 +610,7 @@ class ReviewActCostSheet extends Component {
 class SetActualCosts extends Component {
   state = {
     product: "",
-    productUnitsNo: 0,
+    productUnitsNo: '',
     packagingMaterialActCost: 0,
     mrkActCost: 0,
     rsrhActCost: 0,
@@ -574,7 +618,8 @@ class SetActualCosts extends Component {
     matUnitActCost: 0,
     matQtyAct: 0,
     shippingActCost: 0,
-    directLaborActCost:'' 
+    directLaborActCost: '',
+    requested: [],
   };
 
   constructor(props) {
@@ -587,24 +632,218 @@ class SetActualCosts extends Component {
     this.matUnitActRef = React.createRef();
     this.matQtyActRef = React.createRef();
     this.shippingActRef = React.createRef();
-    this.directLaborActRef= React.createRef();
+    this.directLaborActRef = React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
   }
 
+
   OnSubmit = async (e) => {
     e.preventDefault();
 
-    const requests = await this.props.pcContract.methods.getMyRequests(this.props.account[0]).call();
+    const requests = await this.props.pcContract.methods.getMyRequests().call();
     const matRequested = requests.map(request => {
-      return request.materialID
+      let id = request.materialID;
+      let matRequests = [...this.state.requested, id]
+      this.setState({ requested: matRequests })
+      return matRequests[matRequests.length - 1];
     })
 
-    this.setState({matRequested});
+
+    const info = await this.props.pcContract.methods.getMaterials().call();
+
+    const infoFiltered = info.filter(mat => {
+      // based on: const found = arr1.some(r=> arr2.includes(r))
+      // checks if an array contains values from another array
+       return mat.some(r=>matRequested.includes(r));
+      //return mat.includes('mat01')
+
+    })
 
 
-    // const pro = this.state.product;
-    // const units = this.state.productUnitsNo;
+    if (infoFiltered.length !== matRequested.length) {
+      this.setState({
+        msg: " ERROR CODE 1101: An Unexpected error occured. Make sure you requested all required materials and try again",
+        error:true
+      })
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 4000);
+    } else {
+      const matInfo = infoFiltered.map(mato => {
+        let matName = mato.materialName;
+        this.setState({ matName })
+        return matName;
+      })
+
+      const products = await this.props.pcContract.methods.getProductsByManu(this.props.account[0]).call();
+      const productInfo = products.map(spec => {
+        let id = spec.productName;
+        this.setState({ id })
+        return id;
+      })
+
+      const productSpecsInfo = await this.props.pcContract.methods.getProductSpecs(this.state.product).call();
+      const productSpecs = productSpecsInfo.map(spec => {
+        let name = spec.materialName;
+        this.setState({ name })
+        return name;
+      })
+
+      this.setState({ matRequested, matInfo, productInfo, productSpecs })
+
+
+      if (matInfo.every((val, index) => val === productSpecs[index])) {
+         
+        const materialCosts = infoFiltered.map(mat => {
+          const matCost = mat.unitCost;
+          const matCostValue = parseFloat(matCost);
+          // if (mat.materialType === 'active' || mat.materialType === 'support') {
+          
+          // } else {
+          //   return 0;
+          // }
+          return matCostValue;
+
+        })
+
+
+
+        // const pkgCosts = infoFiltered.map(mat => {
+        //   const matCost = mat.unitCost;
+        //   const matCostValue = parseFloat(matCost);
+        //   if (mat.materialType === 'packaging') {
+        //     return matCostValue;
+        //     } else {
+        //       return 0;
+        //     }
+        // })
+
+        this.setState({materialCosts})
+
+
+        // const matAmountAll = productSpecsInfo.map (spec => {
+        //   const amountMg = spec.materialAmount;
+        //   const amountMgValue = parseFloat(amountMg);
+        //   const amountKgValue = amountMgValue/1000000;
+        //   return amountKgValue;
+        // })
+
+        const matAmount = productSpecsInfo.map (spec => {
+          const amountMg = spec.materialAmount;
+          const amountMgValue = parseFloat(amountMg);
+          if (spec.materialType === 'active' || spec.materialType === 'support') {
+            const amountKgValue = amountMgValue/1000000;
+            return amountKgValue;
+          } else {
+            return 0;
+          }
+        })
+
+       const pkgAmount = productSpecsInfo.map (spec => {
+        const amountMg = spec.materialAmount;
+        const amountMgValue = parseFloat(amountMg);
+        if (spec.materialType === 'packaging') {
+
+        const amountKgValue = amountMgValue/1000000;
+        return amountKgValue;
+        } else {
+          return 0;
+        }
+      
+      })
+
+     
+      this.setState({matAmount,pkgAmount});
+
+       // multiply two arrays
+       
+       
+       let actMatCosts = materialCosts.map((cost, index) => {
+         return cost * matAmount[index]
+       }) 
+       let actPkgCosts = materialCosts.map((cost, index) => {
+        return cost * pkgAmount[index]
+      }) 
+      // let actMatPkgCosts = materialCosts.map((cost, index) => {
+      //   return cost * matAmountAll[index]
+      // }) 
+      
+
+       this.setState({actMatCosts,actPkgCosts});
+       const actMaterialCostTotal = actMatCosts.reduce( (a,b) => a+b,0);
+       const actPkgCostTotal = actPkgCosts.reduce( (a,b) => a+b,0);
+       const actMatPkgTotal = actMaterialCostTotal + actPkgCostTotal
+       //const newMaterialCost2 = materialCosts.reduce(function(r,a,i){return r+a*matAmount[i]},0)
+       this.setState({actMaterialCostTotal, actPkgCostTotal,actMatPkgTotal})
+
+       const pro = this.state.product;
+       const units = this.state.productUnitsNo;
+       const actLabor = parseFloat(this.state.directLaborActCost,10);
+       const actLaborStr = actLabor.toString();
+       const matQtyAct = this.state.matQtyAct.toString();
+       const matActTotal = this.state.actMaterialCostTotal;
+      //  const matPkgTotal = this.state.actMatPkgTotal;
+       const matActTotalStr = matActTotal.toString();
+       const pkgActCostValue = this.state.actPkgCostTotal;
+       const pkgActCostStr = pkgActCostValue.toString();
+       const totalDirectActCostValue = matActTotal + pkgActCostValue + actLabor;
+       const totalDirectActCostStr = totalDirectActCostValue.toString();
+       let mrkActCostValue = totalDirectActCostValue * 15/100;
+       let rsrchActCostValue = totalDirectActCostValue * 3/100;
+       let totalIndirectActCostValue = totalDirectActCostValue * 20/100;
+       let fundManuCostActValue = totalDirectActCostValue * 30/100;
+       let totalActCostValue = totalDirectActCostValue + totalIndirectActCostValue + mrkActCostValue + rsrchActCostValue + fundManuCostActValue;
+       let totalActCostStr = totalActCostValue.toString();
+       await this.props.pcContract.methods.setActualCost(
+        pro,
+        units,
+        matQtyAct,
+        [
+         matActTotalStr,
+         pkgActCostStr,
+         actLaborStr,
+         totalDirectActCostStr,
+         totalActCostStr,
+        ]
+      ).send({ from: this.props.account[0] }).once("receipt", (receipt) => {
+          this.setState({ msg: "Actual Costs Were Set Successfully" , error: false});
+          setTimeout(() => {
+            this.setState({ msg: " " });
+          }, 2000);
+        });
+
+        this.setState({
+          productUnitsNo: '',
+          matQtyAct: '',
+          directLaborActCost: ''
+        })
+      
+   
+
+
+      } else {
+       this.setState({
+          msg: "ERROR CODE 2101: An Unexpected error occured. Make sure you entered a valid product Id and try again.",
+          error: true
+       })
+        setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 4000);
+      }
+
+    
+    }
+
+
+
+
+
+    // this.setState({matRequested,productSpecs});
+
+
+
+  
     // const pkgMatAct = parseInt(this.state.packagingMaterialActCost, 10);
     // // const totBudget = parseInt(this.state.budget,10);
     // const mrkAct = parseInt(this.state.mrkActCost, 10);
@@ -612,7 +851,7 @@ class SetActualCosts extends Component {
     // const rateAct = parseInt(this.state.hourlyRateActCost, 10);
     // const hrsNoAct = parseInt(this.state.workHrsAct, 10);
     // const matUnitAct = parseInt(this.state.matUnitActCost, 10);
-    // const matQtyAct = parseInt(this.state.matQtyAct, 10);
+   
     // const shippingAct = parseInt(this.state.shippingActCost, 10);
 
     // const totalActual = matAct + pkgMatAct + labAct + manuIndirectActCost
@@ -658,21 +897,23 @@ class SetActualCosts extends Component {
   };
 
   onChange = async (e) => {
+   
     this.setState({
       product: this.proRef.current.value,
       productUnitsNo: this.unitNoRef.current.value,
-      packagingMaterialActCost: this.pkgMatActRef.current.value,
-      mrkActCost: this.mrkActRef.current.value,
-      rsrhActCost: this.rsrhActRef.current.value,
-      matUnitActCost: this.matUnitActRef.current.value,
-      workHrsAct: this.workHrsActRef.current.value,
-      hourlyRateActCost: this.hourlyRateActRef.current.value,
-      matQtyAct: this.matQtyActRef.current.value,
-      shippingActCost: this.shippingActRef.current.value,
+      // packagingMaterialActCost: this.pkgMatActRef.current.value,
+      // mrkActCost: this.mrkActRef.current.value,
+      // rsrhActCost: this.rsrhActRef.current.value,
+      // matUnitActCost: this.matUnitActRef.current.value,
+      // workHrsAct: this.workHrsActRef.current.value,
+      // hourlyRateActCost: this.hourlyRateActRef.current.value,
+      // matQtyAct: this.matQtyActRef.current.value,
+      // shippingActCost: this.shippingActRef.current.value,
       directLaborActCost: this.directLaborActRef.current.value,
     });
   };
   render() {
+<<<<<<< HEAD
     if(true) {
      return( 
       <div>
@@ -682,6 +923,19 @@ class SetActualCosts extends Component {
       </div>
      );
     }
+=======
+    // if(true) {
+    //  return( 
+    //   <div>
+
+    //     <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
+    //     <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+    //   </div>
+    //  );
+    // }
+    let msgType;
+    this.state.error?  msgType='alert': msgType='good'
+>>>>>>> 5d2ce6052847f218286e05622e6c77b8bacefed3
     return (
       <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
@@ -706,7 +960,7 @@ class SetActualCosts extends Component {
         />
 
         <h4>Set Material Quantity</h4>
-        {/* <label>Actual Material Quantity (g):</label>
+        <label>Actual Material Quantity (g):</label>
         <input
           type="number"
           ref={this.matQtyActRef}
@@ -714,10 +968,10 @@ class SetActualCosts extends Component {
           placeholder="e.g. 1600"
           onChange={this.onChange}
           required="required"
-        /> */}
+        />
 
         <h4> Set Actual Costs </h4>
-{/* 
+        {/* 
         <label>Unit Material Cost: </label>
         <input
           type="number"
@@ -790,7 +1044,7 @@ class SetActualCosts extends Component {
 
         <input type="submit" className="btn" value="SET ACTUAL COSTS" />
 
-        <div style={{ marginTop: "20px" }} className="notify-text">
+        <div style={{ marginTop: "20px" }} className={`notify-text ${msgType}-text`}>
           {this.state.msg}
         </div>
       </form>
@@ -893,15 +1147,15 @@ class SetFlexibleBudget extends Component {
     });
   };
   render() {
-    if(true) {
-      return( 
-       <div>
-         
-         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
-         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-       </div>
+    if (true) {
+      return (
+        <div>
+
+          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+        </div>
       );
-     }
+    }
     return (
       <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
@@ -1168,15 +1422,15 @@ class CalculateStaticVariance extends Component {
     });
   };
   render() {
-    if(true) {
-      return( 
-       <div>
-         
-         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
-         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-       </div>
+    if (true) {
+      return (
+        <div>
+
+          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+        </div>
       );
-     }
+    }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -1565,15 +1819,15 @@ class CalculateFlexibleVariance extends Component {
   };
 
   render() {
-    if(true) {
-      return( 
-       <div>
-         
-         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
-         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-       </div>
+    if (true) {
+      return (
+        <div>
+
+          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+        </div>
       );
-     }
+    }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -1919,15 +2173,15 @@ class CalculatePriceVariance extends Component {
     });
   };
   render() {
-    if(true) {
-      return( 
-       <div>
-         
-         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
-         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-       </div>
+    if (true) {
+      return (
+        <div>
+
+          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+        </div>
       );
-     }
+    }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -2101,15 +2355,15 @@ class CalculateQuantityVariance extends Component {
     this.setState({ stdCostData, actualCostData });
 
     let materialCalc =
-      Math.abs(this.state.actQty*this.state.actUnitsNo - this.state.actUnitsNo * this.state.stdQty) *
+      Math.abs(this.state.actQty * this.state.actUnitsNo - this.state.actUnitsNo * this.state.stdQty) *
       this.state.materialUnitStdCostValue;
-      let materialInKg = materialCalc/1000;
+    let materialInKg = materialCalc / 1000;
     let laborCalc =
       Math.abs(
         this.state.workHrsActNo -
         this.state.actUnitsNo * this.state.workHrsStdNo
       ) * this.state.hourlyStdRateValue;
-      let laborInKg = laborCalc/1000;
+    let laborInKg = laborCalc / 1000;
     let material = materialCalc.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
@@ -2129,7 +2383,7 @@ class CalculateQuantityVariance extends Component {
       style: "currency",
       currency: "USD",
     });
-    this.setState({ material, labor , materialKg , laborKg });
+    this.setState({ material, labor, materialKg, laborKg });
   };
 
   onChange = async (e) => {
@@ -2138,15 +2392,15 @@ class CalculateQuantityVariance extends Component {
     });
   };
   render() {
-    if(true) {
-      return( 
-       <div>
-         
-         <h1 style={{fontSize: '3em', color: '#f2f2f2'}}><span role="img" aria-label="construction">🚧</span> <br/>UNDER MAINTENANCE </h1>
-         <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-       </div>
+    if (true) {
+      return (
+        <div>
+
+          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+        </div>
       );
-     }
+    }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -2239,12 +2493,12 @@ class FinancialLog extends Component {
             <ul className="mini-nav-list">
               <li className="link-item">
                 <NavLink to="/financial-log/setActualCosts">
-                   MANAGE ACTUAL COSTS
+                  MANAGE ACTUAL COSTS
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/setFlexibleBudget">
-                   MANAGE FLEXIBLE BUDGET
+                  MANAGE FLEXIBLE BUDGET
                 </NavLink>
               </li>
               <label>
@@ -2252,12 +2506,12 @@ class FinancialLog extends Component {
               </label>
               <li className="link-item">
                 <NavLink to="/financial-log/costSheetStd">
-                   STANDARD
+                  STANDARD
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/costSheetAct">
-                   ACTUAL
+                  ACTUAL
                 </NavLink>
               </li>
               <label>
@@ -2265,22 +2519,22 @@ class FinancialLog extends Component {
               </label>
               <li className="link-item">
                 <NavLink to="/financial-log/staticVariance">
-                   STATIC-BUDGET
+                  STATIC-BUDGET
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/flexibleVariance">
-                   FLEXIBLE-BUDGET
+                  FLEXIBLE-BUDGET
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/priceVariance">
-                   PRICE/RATE
+                  PRICE/RATE
                 </NavLink>
               </li>
               <li className="link-item">
                 <NavLink to="/financial-log/quantityVariance">
-                   QUANTITY/EFFICIENCY
+                  QUANTITY/EFFICIENCY
                 </NavLink>
               </li>
             </ul>
