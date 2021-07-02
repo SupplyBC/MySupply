@@ -225,14 +225,15 @@ class CostSheetReview extends Component {
             <div className={`${classified} std-cost-container`}  >
         <table className={`${isToggled} cost-data`} >
           <thead>
-           
             <tr>
               <th>CRITERIA</th>
               <th>COST</th>
             </tr>
           </thead>
           <tbody>
-          <tr style={{borderBottom: '1px solid #999'}}> <th colspan='2'>Raw Material Details</th></tr>
+          <tr style={{borderBottom: '1px solid #999'}}>
+            <th colSpan='2'>Raw Material Details</th> 
+            </tr>
           {this.state.proSpecsSingle}
             <tr style={{borderTop: '1px solid #999'}}>
               <td> Raw Materials Total </td>
