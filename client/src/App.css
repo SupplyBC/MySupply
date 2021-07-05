@@ -963,6 +963,7 @@ select {
 .financial-status-container .form-row input[type="text"] {
   width: 43%;
 }
+
 .std-cost-container {
   display: flex;
   flex-direction: column;
@@ -1086,6 +1087,7 @@ select {
   text-transform: uppercase;
   text-align: center;
   border-collapse: collapse;
+
 }
 .product-data-container table thead {
   color: #f2f2f2;
@@ -1095,8 +1097,9 @@ select {
 
 .product-data-container table th,
 .product-data-container table td {
-  padding: 8px 25px;
+  padding: 8px 15px;
 }
+
 .product-data-container tbody tr:hover {
   background-color: #5398b6;
   color: #f2f2f2;
