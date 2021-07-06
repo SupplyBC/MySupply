@@ -880,7 +880,7 @@ class SetActualCosts extends Component {
         const units = this.state.productUnitsNo;
         const actLabor = parseFloat(this.state.directLaborActCost, 10);
         const actLaborStr = actLabor.toString();
-        const matQtyAct = this.state.matQtyAct.toString();
+        // const matQtyAct = this.state.matQtyAct.toString();
         const matActTotal = this.state.actMatPkgTotal;
         //  const matPkgTotal = this.state.actMatPkgTotal;
         const matActTotalStr = matActTotal.toString();
@@ -897,7 +897,7 @@ class SetActualCosts extends Component {
         await this.props.pcContract.methods.setActualCost(
           pro,
           units,
-          matQtyAct,
+          '00000',
           [
             matActTotalStr,
             pkgActCostStr,
@@ -914,7 +914,7 @@ class SetActualCosts extends Component {
 
         this.setState({
           productUnitsNo: '',
-          matQtyAct: '',
+          // matQtyAct: '',
           directLaborActCost: ''
         })
 
@@ -1046,7 +1046,7 @@ class SetActualCosts extends Component {
           required="required"
         />
 
-        <h4>Set Material Quantity</h4>
+        {/* <h4>Set Material Quantity</h4>
         <label>Actual Material Quantity (g):</label>
         <input
           type="number"
@@ -1055,7 +1055,7 @@ class SetActualCosts extends Component {
           placeholder="e.g. 1600"
           onChange={this.onChange}
           required="required"
-        />
+        /> */}
 
         <h4> Set Actual Costs </h4>
         {/* 
@@ -2469,7 +2469,7 @@ class CalculatePriceVariance extends Component {
 }
 
 class CalculateQuantityVariance extends Component {
-  state = { id: "", tableVisibility: false };
+  state = { id: "", tableVisibility: false , requested: []};
 
   constructor(props) {
     super(props);
@@ -2481,123 +2481,154 @@ class CalculateQuantityVariance extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const proId = this.state.id;
-    const standard = await this.props.pcContract.methods
-      .getStdCostPlan(proId)
+    const specs = await this.props.pcContract.methods
+      .getProductSpecs(proId)
       .call();
-    console.log(standard);
-    const stdCostData = standard.map((item, index) => {
-      let materialUnitStdCostValue = parseInt(standard.materialCostPerUnit);
-      let hourlyStdRateValue = parseInt(standard.ratePerWorkHr, 10);
-      let workHrsStdNo = parseInt(standard.workHrs, 10);
-      let materialUnitStdCost = materialUnitStdCostValue.toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
-      let hourlyStdRate = hourlyStdRateValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
 
-      this.setState({
-        standard,
-        proId,
-        materialUnitStdCostValue,
-        hourlyStdRateValue,
-        materialUnitStdCost,
-        hourlyStdRate,
-        workHrsStdNo,
-      });
-      return true;
-    });
-
-    const actual = await this.props.pcContract.methods
-      .getActualCost(proId)
-      .call();
-    const actualCostData = actual.map((item, index) => {
-      let materialUnitActCostValue = parseInt(actual.materialCostPerUnit);
-      let hourlyActRateValue = parseInt(actual.ratePerWorkHr, 10);
-      let workHrsActNo = parseInt(actual.workHrs, 10);
-      let materialUnitActCost = materialUnitActCostValue.toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
-      let hourlyActRate = hourlyActRateValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-      this.setState({
-        actual,
-        materialUnitActCostValue,
-        hourlyActRateValue,
-        materialUnitActCost,
-        hourlyActRate,
-        workHrsActNo,
-      });
-      return true;
-    });
-
-    const stdQty = await this.props.pcContract.methods
-      .getStdMaterialQty(proId)
-      .call();
     const actQty = await this.props.pcContract.methods
-      .getActualMaterialQty(proId)
-      .call();
-
-    this.setState({ stdQty, actQty });
-
-    const actUnitsNo = await this.props.pcContract.methods
       .getActualBudgetUnits(proId)
       .call();
+    this.setState({ actQty });
 
-    this.setState({ actUnitsNo });
+    const specInfo = specs.map(spec => {
+      let name = spec.materialName;
+      this.setState({name});
+      return name;
+    })
 
-    if (
-      this.state.materialUnitStdCost === "$0.00" ||
-      this.state.materialUnitActCost === "$0.00"
-    ) {
+    this.setState({specInfo})
+
+    const specCostInfo = specs.map(spec => {
+      let unitCost = spec.materialUnitCost;
+      let unitCostValue = parseFloat(unitCost)
+      this.setState({unitCost});
+      return unitCostValue;
+    })
+    console.log(specCostInfo)
+    this.setState({specCostInfo})
+
+    const specAmountInfo = specs.map(spec => {
+      let amountMg = spec.materialAmount;
+      let amountKg = amountMg/1000000;
+      this.setState({amountKg});
+      return amountKg;
+    })
+    console.log(specAmountInfo);
+    this.setState({specAmountInfo})
+
+
+    const materialStdAmount =  specAmountInfo.map((spec,index) => {
+      let amount = spec*parseFloat(actQty);
+
+      return amount
+    })
+
+    console.log(materialStdAmount);
+    this.setState({materialStdAmount})
+
+    // cost of product specs for total production units
+    const materialActualAmount = specAmountInfo.map((spec,index) => {
+      let amount = spec*parseFloat(actQty);
+
+      return amount
+    })
+    console.log(materialActualAmount);
+    this.setState({materialActualAmount})
+
+    const requests = await this.props.pcContract.methods.getMyRequests().call();
+    const matRequested = requests.map(request => {
+      let id = request.materialID;
+      let matRequests = [...this.state.requested, id]
+      this.setState({ requested: matRequests })
+      return matRequests[matRequests.length - 1];
+    })
+    if (requests.length === 0) {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
       });
-      this.setState({ tableVisibility: false });
-    } else {
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    }
+
+    const matInfo = await this.props.pcContract.methods.getMaterials().call();
+
+    const matInfoFiltered = matInfo.filter(mat => {
+      // based on: const found = arr1.some(r=> arr2.includes(r))
+      // checks if an array contains values from another array
+      return mat.some(r => matRequested.includes(r));
+      //return mat.includes('mat01')
+
+    })
+
+    const names = matInfoFiltered.map((mat, index) => {
+      let name = mat.materialName;
+      return (
+        <table>
+          <tr key={index}>
+            <td style={{ padding: '8px 0px' }}> {name} </td>
+          </tr>
+        </table>
+      );
+    })
+
+    this.setState({ names })
+
+
+    const materialCosts = matInfoFiltered.map( (mat) => {
+      const matCost = mat.unitCost;
+      const matCostValue = parseFloat(matCost);
+      this.setState({matCostValue})
+      return matCostValue;
+
+    })
+    this.setState({materialCosts});
+    // substract two arrays and return positive numbers
+    // based on 
+    // A.map( (x, i) => x - B[i] ).map( x => Math.abs(x) );
+
+    const qtyDiff = materialStdAmount.map( (x, i) => x - materialActualAmount[i] ).map( x => Math.abs(x) );
+    this.setState({qtyDiff})
+
+    const qtyVariance = qtyDiff.map( (x, i) => x * specCostInfo[i] ).map( x => x );
+
+    const qtyVarianceStrs = qtyVariance.map( (variance , index) => {
+     let costStr = variance.toLocaleString(
+        "en-US",
+        { style: "currency", currency: "USD" }
+      );
+
+      return (
+        <tr>
+          <td> { costStr} </td>
+        </tr>
+      );
+    })
+
+    this.setState({qtyVarianceStrs})
+
+    const totalVariance = qtyVariance.reduce((a, b) => a + b, 0);
+    const totalVarianceStr = totalVariance.toLocaleString(
+          "en-US",
+          { style: "currency", currency: "USD" }
+        );
+    this.setState({totalVariance,totalVarianceStr})
+
+    if (
+      this.state.totalVariance === 0 ||
+      isNaN(this.state.totalVariance) 
+    ) {
+      // this.setState({
+      //   msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
+      // });
       this.setState({ tableVisibility: true });
+    } else {
+      this.setState({msg: '', tableVisibility: true });
     }
 
     setTimeout(() => {
       this.setState({ msg: " " });
     }, 3000);
-    this.setState({ stdCostData, actualCostData });
-
-    let materialCalc =
-      Math.abs(this.state.actQty * this.state.actUnitsNo - this.state.actUnitsNo * this.state.stdQty) *
-      this.state.materialUnitStdCostValue;
-    let materialInKg = materialCalc / 1000;
-    let laborCalc =
-      Math.abs(
-        this.state.workHrsActNo -
-        this.state.actUnitsNo * this.state.workHrsStdNo
-      ) * this.state.hourlyStdRateValue;
-    let laborInKg = laborCalc / 1000;
-    let material = materialCalc.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-    let materialKg = materialInKg.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-    let labor = laborCalc.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-    let laborKg = laborInKg.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-    this.setState({ material, labor, materialKg, laborKg });
   };
 
   onChange = async (e) => {
@@ -2607,13 +2638,13 @@ class CalculateQuantityVariance extends Component {
   };
   render() {
     if (true) {
-      return (
-        <div>
+      // return (
+      //   <div>
 
-          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
-          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-        </div>
-      );
+      //     <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+      //     <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+      //   </div>
+      // );
     }
     let table;
     let acc = this.props.account;
@@ -2630,7 +2661,11 @@ class CalculateQuantityVariance extends Component {
       <div className="financial-status-container">
         <form onSubmit={this.onSubmit} className="form-container">
           <div className="form-row">
-            <h4>Review Direct-Cost Quantity Variance</h4>
+            <h4 style={{marginBottom: '10px'}}>Review Direct-Cost Quantity Variance</h4>
+            <p style={{backgroundColor:'rgba(17, 17, 17, 0.873)' , padding: '19px' , borderRadius: '25px' , fontSize: '14px'}}>
+              <em>**For simpilcity, It is assumed that the actual and standard product quantity are the same. As a result,
+              quantity variance should evaluate to $0.00</em>
+            </p>
             <label style={{ marginRight: "5px" }}> Product ID: </label>
             <input
               type="text"
@@ -2654,29 +2689,42 @@ class CalculateQuantityVariance extends Component {
           </div>
           <div className={`${table} costsClashContainer `}>
             <div className="std-cost-container">
-              <table className="cost-data" cellSpacing="90">
+            <table className="cost-data" cellSpacing="90">
                 <thead>
                   <tr>
-                    <th>Category</th>
-                    <th>Quantity Variance</th>
+                    <th>CATEGORY</th>
+                    <th>PRICE VARIANCE</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Direct Material </td>
-                    <td>
-                      {`(${this.state.actQty} grams * ${this.state.actUnitsNo} units - ( ${this.state.actUnitsNo} units * ${this.state.stdQty}  grams per unit) )  * ${this.state.materialUnitStdCost} per gram = ${this.state.materialKg} `}
-                    </td>
+                  <tr style={{borderBottom: '1px solid #999'}}>
+                    <th>No of Production Units</th>
+                    <td style={{textAlign:'center'}}>{`${this.state.actQty} units`}</td>
                   </tr>
+                  <tr style={{borderBottom: '1px solid #999'}}>
+                    <td colSpan="2">Direct Material Details </td>
+                  </tr>
+                  <tr>
+
+                    <td>
+                      {/* {`(${this.state.materialUnitActCost} per gram - ${this.state.materialUnitStdCost} per gram)  * ${this.state.actQty} grams = ${this.state.material}`} */}
+                       {this.state.names}
+                    </td>
+                    <td>{this.state.qtyVarianceStrs}</td>
+                  </tr>
+                  <tr style={{borderTop:'1px solid #999', borderBottom: '1px solid #999'}}>
+                    <td>total</td>
+                    <td style={{textAlign:'left', paddingLeft: '50px'}}>{this.state.totalVarianceStr}</td>
+                </tr>
                   {/* <tr>
                     <td> Direct Labor </td>
                     <td>
-                      {`(${this.state.workHrsActNo} hours - ( ${this.state.actUnitsNo} units * ${this.state.workHrsStdNo} hours per unit ) )  * ${this.state.hourlyStdRate} per hour = ${this.state.laborKg}`}
+                      {`(${this.state.hourlyActRate} per hour - ${this.state.hourlyStdRate} per hour )  * ${this.state.workHrsActNo} hours = ${this.state.labor}`}
                     </td>
                   </tr> */}
                 </tbody>
                 <tfoot>
-                  <tr></tr>
+              
                 </tfoot>
               </table>
             </div>
