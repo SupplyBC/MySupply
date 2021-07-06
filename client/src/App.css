@@ -1622,11 +1622,16 @@ select {
     align-self: center;
   }
 
-  .costsClashContainer .std-cost-container {
+  .costsClashContainer {
+    margin-bottom: 20px;
+  }
+
+  /* .costsClashContainer .std-cost-container {
    justify-self: center;
    align-self: center;
     padding: 5px 48px;
-  }
+  } */
+
   /* 
   MEDIA QUERY END
   */
