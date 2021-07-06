@@ -304,7 +304,7 @@ class ReviewStdCostSheet extends Component {
 }
 
 class ReviewActCostSheet extends Component {
-  state = { id: "", tableVisibility: false , requested: []};
+  state = { id: "", tableVisibility: false, requested: [] };
 
   constructor(props) {
     super(props);
@@ -335,9 +335,9 @@ class ReviewActCostSheet extends Component {
 
     const actual = await this.props.pcContract.methods
       .getActualCost(proId)
-      .call();  
+      .call();
 
-      console.log(actual)
+    console.log(actual)
 
     const actualCostData = actual.map((item, index) => {
       let matActCostValue = parseFloat(actual.directMaterialCost, 10);
@@ -346,10 +346,10 @@ class ReviewActCostSheet extends Component {
       let laborActCostValue = parseFloat(actual.directLaborCost, 10);
       let totalDirectCostValue = matActCostValue + pkgActCostValue + laborActCostValue;
       let totalActCostValue = parseFloat(actual.CostTOT, 10);
-      let mrkActCostValue = totalDirectCostValue * 15/100;
-      let rsrchActCostValue = totalDirectCostValue * 3/100;
-      let totalIndirectCostValue = totalDirectCostValue * 20/100;
-      let fundManuCostValue = totalDirectCostValue * 30/100;
+      let mrkActCostValue = totalDirectCostValue * 15 / 100;
+      let rsrchActCostValue = totalDirectCostValue * 3 / 100;
+      let totalIndirectCostValue = totalDirectCostValue * 20 / 100;
+      let fundManuCostValue = totalDirectCostValue * 30 / 100;
       // // let totalActCostValue = parseInt(actual.CostTOT,10);
       // let totalActCostValue =
       //   matActCostValue +
@@ -418,7 +418,7 @@ class ReviewActCostSheet extends Component {
         totalDirectCostValue,
         totalIndirectCostValue,
         fundManuCostValue
-        
+
       });
       return true;
     });
@@ -431,7 +431,7 @@ class ReviewActCostSheet extends Component {
       return matRequests[matRequests.length - 1];
     })
     console.log(requests)
-    if(requests.length === 0) {
+    if (requests.length === 0) {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
       });
@@ -445,30 +445,30 @@ class ReviewActCostSheet extends Component {
     const infoFiltered = info.filter(mat => {
       // based on: const found = arr1.some(r=> arr2.includes(r))
       // checks if an array contains values from another array
-       return mat.some(r=>matRequested.includes(r));
+      return mat.some(r => matRequested.includes(r));
       //return mat.includes('mat01')
 
     })
 
-    const names = infoFiltered.map((mat,index) => {
+    const names = infoFiltered.map((mat, index) => {
       let name = mat.materialName;
       return (
         <table>
-        <tr key={index}>
-        <td style={{padding: '8px 0px'}}> {name} </td>
-        </tr>
+          <tr key={index}>
+            <td style={{ padding: '8px 0px' }}> {name} </td>
+          </tr>
         </table>
       );
     })
 
-    this.setState({names})
+    this.setState({ names })
 
 
     const materialCosts = infoFiltered.map(mat => {
       const matCost = mat.unitCost;
       const matCostValue = parseFloat(matCost);
       // if (mat.materialType === 'active' || mat.materialType === 'support') {
-      
+
       // } else {
       //   return 0;
       // }
@@ -488,7 +488,7 @@ class ReviewActCostSheet extends Component {
     //     }
     // })
 
-    this.setState({materialCosts})
+    this.setState({ materialCosts })
 
     const productSpecsInfo = await this.props.pcContract.methods.getProductSpecs(proId).call();
     const productSpecs = productSpecsInfo.map(spec => {
@@ -496,14 +496,14 @@ class ReviewActCostSheet extends Component {
       this.setState({ name })
       return name;
     })
-    this.setState({productSpecs})
+    this.setState({ productSpecs })
 
 
-  
-    const matAmountAll = productSpecsInfo.map (spec => {
+
+    const matAmountAll = productSpecsInfo.map(spec => {
       const amountMg = spec.materialAmount;
       const amountMgValue = parseFloat(amountMg);
-      const amountKgValue = amountMgValue/1000000;
+      const amountKgValue = amountMgValue / 1000000;
       return amountKgValue;
     })
 
@@ -523,22 +523,22 @@ class ReviewActCostSheet extends Component {
     let actMatCosts = materialCosts.map((cost, index) => {
       let myCost = cost * matAmountAll[index]
       let myCostStr = myCost.toLocaleString("en-US", {
-           style: "currency",
-           currency: "USD",
-        });
-      return(
+        style: "currency",
+        currency: "USD",
+      });
+      return (
         <table>
-        <tr key={index}>
-        <td >{myCostStr} </td>
-        </tr>
+          <tr key={index}>
+            <td >{myCostStr} </td>
+          </tr>
         </table>
       );
     })
-    this.setState({actMatCosts})
+    this.setState({ actMatCosts })
 
-    
 
-    console.log(this.state.totalActCostValue,this.state.totalActCost)
+
+    console.log(this.state.totalActCostValue, this.state.totalActCost)
 
     if (this.state.totalActCostValue === 0 || isNaN(this.state.totalActCostValue)) {
       this.setState({
@@ -639,13 +639,13 @@ class ReviewActCostSheet extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style={{borderBottom: '1px solid #999'}} ><th colSpan="2">Raw Material Details</th></tr>
-              
-                   <tr>
-                     <td>{this.state.names}</td>  
-                     <td>{this.state.actMatCosts}</td> 
+                  <tr style={{ borderBottom: '1px solid #999' }} ><th colSpan="2">Raw Material Details</th></tr>
+
+                  <tr>
+                    <td>{this.state.names}</td>
+                    <td>{this.state.actMatCosts}</td>
                   </tr>
-                  <tr style={{borderTop: '1px solid #999'}}>
+                  <tr style={{ borderTop: '1px solid #999' }}>
                     <td> Raw Materials Total </td>
                     <td>{this.state.matActCost}</td>
                   </tr>
@@ -664,7 +664,7 @@ class ReviewActCostSheet extends Component {
                     }}
                   >
                     <th>TOTAL DIRECT COST</th>
-                    <td style={{padding: '8px 50px'}}>{this.state.totalDirectCost}</td>
+                    <td style={{ padding: '8px 50px' }}>{this.state.totalDirectCost}</td>
                   </tr>
                   <tr className={`${classified}`}>
                     <td> Indirect Manufacturing Costs (20%) </td>
@@ -754,7 +754,7 @@ class SetActualCosts extends Component {
     const infoFiltered = info.filter(mat => {
       // based on: const found = arr1.some(r=> arr2.includes(r))
       // checks if an array contains values from another array
-       return mat.some(r=>matRequested.includes(r));
+      return mat.some(r => matRequested.includes(r));
       //return mat.includes('mat01')
 
     })
@@ -763,7 +763,7 @@ class SetActualCosts extends Component {
     if (infoFiltered.length !== matRequested.length) {
       this.setState({
         msg: " ERROR CODE 1101: An Unexpected error occured. Make sure you requested all required materials and try again",
-        error:true
+        error: true
       })
       setTimeout(() => {
         this.setState({ msg: " " });
@@ -793,12 +793,12 @@ class SetActualCosts extends Component {
 
 
       if (matInfo.every((val, index) => val === productSpecs[index])) {
-         
+
         const materialCosts = infoFiltered.map(mat => {
           const matCost = mat.unitCost;
           const matCostValue = parseFloat(matCost);
           // if (mat.materialType === 'active' || mat.materialType === 'support') {
-          
+
           // } else {
           //   return 0;
           // }
@@ -818,7 +818,7 @@ class SetActualCosts extends Component {
         //     }
         // })
 
-        this.setState({materialCosts})
+        this.setState({ materialCosts })
 
 
         // const matAmountAll = productSpecsInfo.map (spec => {
@@ -828,85 +828,85 @@ class SetActualCosts extends Component {
         //   return amountKgValue;
         // })
 
-        const matAmount = productSpecsInfo.map (spec => {
+        const matAmount = productSpecsInfo.map(spec => {
           const amountMg = spec.materialAmount;
           const amountMgValue = parseFloat(amountMg);
           if (spec.materialType === 'active' || spec.materialType === 'support') {
-            const amountKgValue = amountMgValue/1000000;
+            const amountKgValue = amountMgValue / 1000000;
             return amountKgValue;
           } else {
             return 0;
           }
         })
 
-       const pkgAmount = productSpecsInfo.map (spec => {
-        const amountMg = spec.materialAmount;
-        const amountMgValue = parseFloat(amountMg);
-        if (spec.materialType === 'packaging') {
+        const pkgAmount = productSpecsInfo.map(spec => {
+          const amountMg = spec.materialAmount;
+          const amountMgValue = parseFloat(amountMg);
+          if (spec.materialType === 'packaging') {
 
-        const amountKgValue = amountMgValue/1000000;
-        return amountKgValue;
-        } else {
-          return 0;
-        }
-      
-      })
+            const amountKgValue = amountMgValue / 1000000;
+            return amountKgValue;
+          } else {
+            return 0;
+          }
 
-     
-      this.setState({matAmount,pkgAmount});
+        })
 
-       // multiply two arrays
-       
-       
-       let actMatCosts = materialCosts.map((cost, index) => {
-         return cost * matAmount[index]
-       }) 
-       let actPkgCosts = materialCosts.map((cost, index) => {
-        return cost * pkgAmount[index]
-      }) 
-      // let actMatPkgCosts = materialCosts.map((cost, index) => {
-      //   return cost * matAmountAll[index]
-      // }) 
-      
 
-       this.setState({actMatCosts,actPkgCosts});
-       const actMaterialCostTotal = actMatCosts.reduce( (a,b) => a+b,0);
-       const actPkgCostTotal = actPkgCosts.reduce( (a,b) => a+b,0);
-       const actMatPkgTotal = actMaterialCostTotal + actPkgCostTotal
-       //const newMaterialCost2 = materialCosts.reduce(function(r,a,i){return r+a*matAmount[i]},0)
-       this.setState({actMaterialCostTotal, actPkgCostTotal,actMatPkgTotal})
+        this.setState({ matAmount, pkgAmount });
 
-       const pro = this.state.product;
-       const units = this.state.productUnitsNo;
-       const actLabor = parseFloat(this.state.directLaborActCost,10);
-       const actLaborStr = actLabor.toString();
-       const matQtyAct = this.state.matQtyAct.toString();
-       const matActTotal = this.state.actMatPkgTotal;
-      //  const matPkgTotal = this.state.actMatPkgTotal;
-       const matActTotalStr = matActTotal.toString();
-       const pkgActCostValue = this.state.actPkgCostTotal;
-       const pkgActCostStr = pkgActCostValue.toString();
-       const totalDirectActCostValue = matActTotal + pkgActCostValue + actLabor;
-       const totalDirectActCostStr = totalDirectActCostValue.toString();
-       let mrkActCostValue = totalDirectActCostValue * 15/100;
-       let rsrchActCostValue = totalDirectActCostValue * 3/100;
-       let totalIndirectActCostValue = totalDirectActCostValue * 20/100;
-       let fundManuCostActValue = totalDirectActCostValue * 30/100;
-       let totalActCostValue = totalDirectActCostValue + totalIndirectActCostValue + mrkActCostValue + rsrchActCostValue + fundManuCostActValue;
-       let totalActCostStr = totalActCostValue.toString();
-       await this.props.pcContract.methods.setActualCost(
-        pro,
-        units,
-        matQtyAct,
-        [
-         matActTotalStr,
-         pkgActCostStr,
-         actLaborStr,
-         totalDirectActCostStr,
-         totalActCostStr,
-        ]
-      ).send({ from: this.props.account[0] }).once("receipt", (receipt) => {
-          this.setState({ msg: "Actual Costs Were Set Successfully" , error: false});
+        // multiply two arrays
+
+
+        let actMatCosts = materialCosts.map((cost, index) => {
+          return cost * matAmount[index]
+        })
+        let actPkgCosts = materialCosts.map((cost, index) => {
+          return cost * pkgAmount[index]
+        })
+        // let actMatPkgCosts = materialCosts.map((cost, index) => {
+        //   return cost * matAmountAll[index]
+        // }) 
+
+
+        this.setState({ actMatCosts, actPkgCosts });
+        const actMaterialCostTotal = actMatCosts.reduce((a, b) => a + b, 0);
+        const actPkgCostTotal = actPkgCosts.reduce((a, b) => a + b, 0);
+        const actMatPkgTotal = actMaterialCostTotal + actPkgCostTotal
+        //const newMaterialCost2 = materialCosts.reduce(function(r,a,i){return r+a*matAmount[i]},0)
+        this.setState({ actMaterialCostTotal, actPkgCostTotal, actMatPkgTotal })
+
+        const pro = this.state.product;
+        const units = this.state.productUnitsNo;
+        const actLabor = parseFloat(this.state.directLaborActCost, 10);
+        const actLaborStr = actLabor.toString();
+        const matQtyAct = this.state.matQtyAct.toString();
+        const matActTotal = this.state.actMatPkgTotal;
+        //  const matPkgTotal = this.state.actMatPkgTotal;
+        const matActTotalStr = matActTotal.toString();
+        const pkgActCostValue = this.state.actPkgCostTotal;
+        const pkgActCostStr = pkgActCostValue.toString();
+        const totalDirectActCostValue = matActTotal + pkgActCostValue + actLabor;
+        const totalDirectActCostStr = totalDirectActCostValue.toString();
+        let mrkActCostValue = totalDirectActCostValue * 15 / 100;
+        let rsrchActCostValue = totalDirectActCostValue * 3 / 100;
+        let totalIndirectActCostValue = totalDirectActCostValue * 20 / 100;
+        let fundManuCostActValue = totalDirectActCostValue * 30 / 100;
+        let totalActCostValue = totalDirectActCostValue + totalIndirectActCostValue + mrkActCostValue + rsrchActCostValue + fundManuCostActValue;
+        let totalActCostStr = totalActCostValue.toString();
+        await this.props.pcContract.methods.setActualCost(
+          pro,
+          units,
+          matQtyAct,
+          [
+            matActTotalStr,
+            pkgActCostStr,
+            actLaborStr,
+            totalDirectActCostStr,
+            totalActCostStr,
+          ]
+        ).send({ from: this.props.account[0] }).once("receipt", (receipt) => {
+          this.setState({ msg: "Actual Costs Were Set Successfully", error: false });
           setTimeout(() => {
             this.setState({ msg: " " });
           }, 2000);
@@ -917,21 +917,21 @@ class SetActualCosts extends Component {
           matQtyAct: '',
           directLaborActCost: ''
         })
-      
-   
+
+
 
 
       } else {
-       this.setState({
+        this.setState({
           msg: "ERROR CODE 2101: An Unexpected error occured. Make sure you entered a valid product Id and try again.",
           error: true
-       })
+        })
         setTimeout(() => {
-        this.setState({ msg: " " });
-      }, 4000);
+          this.setState({ msg: " " });
+        }, 4000);
       }
 
-    
+
     }
 
 
@@ -942,7 +942,7 @@ class SetActualCosts extends Component {
 
 
 
-  
+
     // const pkgMatAct = parseInt(this.state.packagingMaterialActCost, 10);
     // // const totBudget = parseInt(this.state.budget,10);
     // const mrkAct = parseInt(this.state.mrkActCost, 10);
@@ -950,7 +950,7 @@ class SetActualCosts extends Component {
     // const rateAct = parseInt(this.state.hourlyRateActCost, 10);
     // const hrsNoAct = parseInt(this.state.workHrsAct, 10);
     // const matUnitAct = parseInt(this.state.matUnitActCost, 10);
-   
+
     // const shippingAct = parseInt(this.state.shippingActCost, 10);
 
     // const totalActual = matAct + pkgMatAct + labAct + manuIndirectActCost
@@ -996,7 +996,7 @@ class SetActualCosts extends Component {
   };
 
   onChange = async (e) => {
-   
+
     this.setState({
       product: this.proRef.current.value,
       productUnitsNo: this.unitNoRef.current.value,
@@ -1022,7 +1022,7 @@ class SetActualCosts extends Component {
     //  );
     // }
     let msgType;
-    this.state.error?  msgType='alert': msgType='good'
+    this.state.error ? msgType = 'alert' : msgType = 'good'
     return (
       <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
@@ -1174,11 +1174,11 @@ class SetFlexibleBudget extends Component {
     const totalLaborFlexStr = totalLaborFlex.toString();
     const totalDirectFlexCost = totalMatFlex + pkgMatFlex + totalLaborFlex;
     const totalDirectFlexCostStr = totalDirectFlexCost.toString();
-    const totalIndirectFlexCost = totalDirectFlexCost * 20/100;
-    const FundManuFlexCost = totalDirectFlexCost * 30/100;
-    const mrkFlex = totalDirectFlexCost * 15/100;
-    const rsrhFlex = totalDirectFlexCost * 3/100;
-    const totalFlexCost = totalDirectFlexCost +  totalIndirectFlexCost + FundManuFlexCost + mrkFlex + rsrhFlex;
+    const totalIndirectFlexCost = totalDirectFlexCost * 20 / 100;
+    const FundManuFlexCost = totalDirectFlexCost * 30 / 100;
+    const mrkFlex = totalDirectFlexCost * 15 / 100;
+    const rsrhFlex = totalDirectFlexCost * 3 / 100;
+    const totalFlexCost = totalDirectFlexCost + totalIndirectFlexCost + FundManuFlexCost + mrkFlex + rsrhFlex;
     const totalFlexCostStr = totalFlexCost.toString();
     // const shippingFlex = parseInt(this.state.shippingFlexCost, 10);
 
@@ -1292,7 +1292,7 @@ class SetFlexibleBudget extends Component {
         />
 
 
-      
+
 
         <input type="submit" className="btn" value="SET FLEXIBLE COSTS" />
 
@@ -1324,11 +1324,11 @@ class CalculateStaticVariance extends Component {
       let matCostValue = parseFloat(standard.directMaterialCost, 10);
       let pkgCostValue = parseFloat(standard.packagingMaterialCost, 10);
       let laborCostValue = parseFloat(standard.directLaborCost, 10);
-      let totalDirectCostValue = parseFloat(standard.totalDirectCost,10)
-      let mrkCostValue = totalDirectCostValue * 15/100;
-      let rsrchCostValue = totalDirectCostValue * 3/100;
-      let totalIndirectCostValue = totalDirectCostValue * 20/100;
-      let totalStdCostValue = parseFloat(standard.CostTOT,10);
+      let totalDirectCostValue = parseFloat(standard.totalDirectCost, 10)
+      let mrkCostValue = totalDirectCostValue * 15 / 100;
+      let rsrchCostValue = totalDirectCostValue * 3 / 100;
+      let totalIndirectCostValue = totalDirectCostValue * 20 / 100;
+      let totalStdCostValue = parseFloat(standard.CostTOT, 10);
       // let totalActCostValue =
       //   matActCostValue +
       //   pkgActCostValue +
@@ -1403,11 +1403,11 @@ class CalculateStaticVariance extends Component {
       let matActCostValue = parseFloat(actual.directMaterialCost, 10);
       let pkgActCostValue = parseFloat(actual.packagingMaterialCost, 10);
       let laborActCostValue = parseFloat(actual.directLaborCost, 10);
-      let totalDirectActCostValue = parseFloat(actual.totalDirectCost,10)
-      let mrkActCostValue = totalDirectActCostValue * 15/100;
-      let rsrchActCostValue = totalDirectActCostValue * 3/100;
-      let totalIndirectActCostValue = totalDirectActCostValue * 20/100;
-      let totalActCostValue = parseFloat(actual.CostTOT,10);
+      let totalDirectActCostValue = parseFloat(actual.totalDirectCost, 10)
+      let mrkActCostValue = totalDirectActCostValue * 15 / 100;
+      let rsrchActCostValue = totalDirectActCostValue * 3 / 100;
+      let totalIndirectActCostValue = totalDirectActCostValue * 20 / 100;
+      let totalActCostValue = parseFloat(actual.CostTOT, 10);
       // let totalActCostValue =
       //   matActCostValue +
       //   pkgActCostValue +
@@ -1476,7 +1476,7 @@ class CalculateStaticVariance extends Component {
 
     if (
       this.state.totalCost === "$0.00" ||
-      this.state.totalActCost === "$0.00" || 
+      this.state.totalActCost === "$0.00" ||
       isNaN(this.state.totalStdCostValue) ||
       isNaN(this.state.totalActCostValue)
     ) {
@@ -1596,13 +1596,13 @@ class CalculateStaticVariance extends Component {
                     </td>
                     <td>{this.state.laborActCost}</td>
                   </tr>
-                  <tr style={{borderBottom: '1px solid #999' , borderTop: '1px solid #999'}}>
+                  <tr style={{ borderBottom: '1px solid #999', borderTop: '1px solid #999' }}>
                     <td> Total Direct Costs </td>
                     <td>{this.state.totalDirectCost}</td>
                     <td>
                       {Math.abs(
                         this.state.totalDirectCostValue -
-                          this.state.totalDirectActCostValue
+                        this.state.totalDirectActCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -1616,7 +1616,7 @@ class CalculateStaticVariance extends Component {
                     <td>
                       {Math.abs(
                         this.state.totalIndirectCostValue -
-                          this.state.totalDirectActCostValue
+                        this.state.totalDirectActCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
@@ -1698,11 +1698,11 @@ class CalculateFlexibleVariance extends Component {
       let matCostValue = parseFloat(standard.directMaterialCost, 10);
       let pkgCostValue = parseFloat(standard.packagingMaterialCost, 10);
       let laborCostValue = parseFloat(standard.directLaborCost, 10);
-      let totalDirectCostValue = parseFloat(standard.totalDirectCost,10);
-      let mrkCostValue = totalDirectCostValue * 15/100;
-      let rsrchCostValue = totalDirectCostValue * 3/100;
-      let totalIndirectCostValue = totalDirectCostValue * 20/100;
-      let totalStdCostValue = parseFloat(standard.CostTOT,10);
+      let totalDirectCostValue = parseFloat(standard.totalDirectCost, 10);
+      let mrkCostValue = totalDirectCostValue * 15 / 100;
+      let rsrchCostValue = totalDirectCostValue * 3 / 100;
+      let totalIndirectCostValue = totalDirectCostValue * 20 / 100;
+      let totalStdCostValue = parseFloat(standard.CostTOT, 10);
 
       // let totalStdCostValue =
       //   matCostValue +
@@ -1734,7 +1734,7 @@ class CalculateFlexibleVariance extends Component {
         currency: "USD",
       });
       // let totalCost = totalCostValue.toLocaleString("en-US", {style: "currency", currency: "USD"});
-      let  totalDirectCost = totalDirectCostValue.toLocaleString("en-US", {
+      let totalDirectCost = totalDirectCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
@@ -1778,11 +1778,11 @@ class CalculateFlexibleVariance extends Component {
       let matActCostValue = parseFloat(actual.directMaterialCost, 10);
       let pkgActCostValue = parseFloat(actual.packagingMaterialCost, 10);
       let laborActCostValue = parseFloat(actual.directLaborCost, 10);
-      let totalDirectActCostValue = parseFloat(actual.totalDirectCost,10);
-      let mrkActCostValue = totalDirectActCostValue * 15/100;
-      let rsrchActCostValue = totalDirectActCostValue * 3/100;
-      let totalIndirectActCostValue = totalDirectActCostValue * 20/100;
-      let totalActCostValue = parseFloat(actual.CostTOT,10);
+      let totalDirectActCostValue = parseFloat(actual.totalDirectCost, 10);
+      let mrkActCostValue = totalDirectActCostValue * 15 / 100;
+      let rsrchActCostValue = totalDirectActCostValue * 3 / 100;
+      let totalIndirectActCostValue = totalDirectActCostValue * 20 / 100;
+      let totalActCostValue = parseFloat(actual.CostTOT, 10);
 
       // let totalStdCostValue =
       //   matCostValue +
@@ -1814,7 +1814,7 @@ class CalculateFlexibleVariance extends Component {
         currency: "USD",
       });
       // let totalCost = totalCostValue.toLocaleString("en-US", {style: "currency", currency: "USD"});
-      let  totalDirectActCost = totalDirectActCostValue.toLocaleString("en-US", {
+      let totalDirectActCost = totalDirectActCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
@@ -1857,11 +1857,11 @@ class CalculateFlexibleVariance extends Component {
       let matFlexCostValue = parseFloat(flexible.directMaterialCost, 10);
       let pkgFlexCostValue = parseFloat(flexible.packagingMaterialCost, 10);
       let laborFlexCostValue = parseFloat(flexible.directLaborCost, 10);
-      let totalDirectFlexCostValue = parseFloat(flexible.totalDirectCost,10);
-      let mrkFlexCostValue = totalDirectFlexCostValue * 15/100;
-      let rsrchFlexCostValue = totalDirectFlexCostValue * 3/100;
-      let totalIndirectFlexCostValue = totalDirectFlexCostValue * 20/100;
-      let totalFlexCostValue = parseFloat(flexible.CostTOT,10);
+      let totalDirectFlexCostValue = parseFloat(flexible.totalDirectCost, 10);
+      let mrkFlexCostValue = totalDirectFlexCostValue * 15 / 100;
+      let rsrchFlexCostValue = totalDirectFlexCostValue * 3 / 100;
+      let totalIndirectFlexCostValue = totalDirectFlexCostValue * 20 / 100;
+      let totalFlexCostValue = parseFloat(flexible.CostTOT, 10);
 
       // let totalFlexCostValue =
       //   matCostValue +
@@ -1893,7 +1893,7 @@ class CalculateFlexibleVariance extends Component {
         currency: "USD",
       });
       // let totalCost = totalCostValue.toLocaleString("en-US", {style: "currency", currency: "USD"});
-      let  totalDirectFlexCost = totalDirectFlexCostValue.toLocaleString("en-US", {
+      let totalDirectFlexCost = totalDirectFlexCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
@@ -1935,15 +1935,15 @@ class CalculateFlexibleVariance extends Component {
       this.state.totalFlexCost === "$0.00" ||
       isNaN(this.state.totalStdCostValue) ||
       isNaN(this.state.totalActCostValue) ||
-      isNaN(this.state.totalFlexCostValue) 
+      isNaN(this.state.totalFlexCostValue)
     ) {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
       });
       this.setState({ tableVisibility: false });
     } else {
-      
-      this.setState({msg: '', tableVisibility: true });
+
+      this.setState({ msg: '', tableVisibility: true });
     }
 
     setTimeout(() => {
@@ -2086,7 +2086,7 @@ class CalculateFlexibleVariance extends Component {
                     </td>
                     <td>{this.state.laborCost}</td>
                   </tr>
-                  <tr style={{borderTop: '1px solid #999', borderBottom: '1px solid #999'}}>
+                  <tr style={{ borderTop: '1px solid #999', borderBottom: '1px solid #999' }}>
                     <td>Total Direct Costs</td>
                     <td>{this.state.totalDirectActCost}</td>
                     <td>
@@ -2099,7 +2099,7 @@ class CalculateFlexibleVariance extends Component {
                       })}
                     </td>
                     <td>{this.state.totalDirectFlexCost}</td>
-                    
+
                     <td>
                       {Math.abs(
                         this.state.totalDirectFlexCostValue -
@@ -2124,7 +2124,7 @@ class CalculateFlexibleVariance extends Component {
                       })}
                     </td>
                     <td>{this.state.totalDirectFlexCost}</td>
-                    
+
                     <td>
                       {Math.abs(
                         this.state.totalIndirectFlexCostValue -
@@ -2220,7 +2220,7 @@ class CalculateFlexibleVariance extends Component {
 }
 
 class CalculatePriceVariance extends Component {
-  state = { id: "", tableVisibility: false };
+  state = { id: "", tableVisibility: false , requested: []};
 
   constructor(props) {
     super(props);
@@ -2232,121 +2232,157 @@ class CalculatePriceVariance extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     const proId = this.state.id;
-    const standard = await this.props.pcContract.methods
-      .getStdCostPlan(proId)
+    const specs = await this.props.pcContract.methods
+      .getProductSpecs(proId)
       .call();
 
-    const stdCostData = standard.map((item, index) => {
-      let materialUnitStdCostValue = parseInt(standard.materialCostPerUnit);
-      let hourlyStdRateValue = parseInt(standard.ratePerWorkHr, 10);
-      let workHrsStdNo = parseInt(standard.workHrs, 10);
-      let materialUnitStdCost = materialUnitStdCostValue.toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
-      let hourlyStdRate = hourlyStdRateValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-
-      this.setState({
-        standard,
-        proId,
-        materialUnitStdCostValue,
-        hourlyStdRateValue,
-        materialUnitStdCost,
-        hourlyStdRate,
-        workHrsStdNo,
-      });
-      return true;
-    });
-
-    const actual = await this.props.pcContract.methods
-      .getActualCost(proId)
-      .call();
-    const actualCostData = actual.map((item, index) => {
-      let materialUnitActCostValue = parseInt(actual.materialCostPerUnit);
-      let hourlyActRateValue = parseInt(actual.ratePerWorkHr, 10);
-      let workHrsActNo = parseInt(actual.workHrs, 10);
-      let materialUnitActCost = materialUnitActCostValue.toLocaleString(
-        "en-US",
-        { style: "currency", currency: "USD" }
-      );
-      let hourlyActRate = hourlyActRateValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-      this.setState({
-        actual,
-        materialUnitActCostValue,
-        hourlyActRateValue,
-        materialUnitActCost,
-        hourlyActRate,
-        workHrsActNo,
-      });
-      return true;
-    });
-
-    const stdQty = await this.props.pcContract.methods
-      .getStdMaterialQty(proId)
-      .call();
     const actQty = await this.props.pcContract.methods
-      .getActualMaterialQty(proId)
+      .getActualBudgetUnits(proId)
       .call();
+    this.setState({ actQty });
 
-    this.setState({ stdQty, actQty });
+    const specInfo = specs.map(spec => {
+      let name = spec.materialName;
+      this.setState({name});
+      return name;
+    })
+
+    this.setState({specInfo})
+
+    const specCostInfo = specs.map(spec => {
+      let unitCost = spec.materialUnitCost;
+      let unitCostValue = parseFloat(unitCost)
+      this.setState({unitCost});
+      return unitCostValue;
+    })
+    console.log(specCostInfo)
+    this.setState({specCostInfo})
+
+    const specAmountInfo = specs.map(spec => {
+      let amountMg = spec.materialAmount;
+      let amountKg = amountMg/1000000;
+      this.setState({amountKg});
+      return amountKg;
+    })
+    console.log(specAmountInfo);
+    this.setState({specAmountInfo})
+
+
+    // cost of product specs for total production units
+    const materialActualAmount = specAmountInfo.map((spec,index) => {
+      let amount = spec*parseFloat(actQty);
+
+      return amount
+    })
+    console.log(materialActualAmount);
+    this.setState({materialActualAmount})
+
+    const requests = await this.props.pcContract.methods.getMyRequests().call();
+    const matRequested = requests.map(request => {
+      let id = request.materialID;
+      let matRequests = [...this.state.requested, id]
+      this.setState({ requested: matRequests })
+      return matRequests[matRequests.length - 1];
+    })
+    if (requests.length === 0) {
+      this.setState({
+        msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
+      });
+      setTimeout(() => {
+        this.setState({ msg: " " });
+      }, 3000);
+    }
+
+    const matInfo = await this.props.pcContract.methods.getMaterials().call();
+
+    const matInfoFiltered = matInfo.filter(mat => {
+      // based on: const found = arr1.some(r=> arr2.includes(r))
+      // checks if an array contains values from another array
+      return mat.some(r => matRequested.includes(r));
+      //return mat.includes('mat01')
+
+    })
+
+    const names = matInfoFiltered.map((mat, index) => {
+      let name = mat.materialName;
+      return (
+        <table>
+          <tr key={index}>
+            <td style={{ padding: '8px 0px' }}> {name} </td>
+          </tr>
+        </table>
+      );
+    })
+
+    this.setState({ names })
+
+
+    const materialCosts = matInfoFiltered.map( (mat) => {
+      const matCost = mat.unitCost;
+      const matCostValue = parseFloat(matCost);
+      this.setState({matCostValue})
+      return matCostValue;
+
+    })
+    this.setState({materialCosts});
+    // substract two arrays and return positive numbers
+    // based on 
+    // A.map( (x, i) => x - B[i] ).map( x => Math.abs(x) );
+
+    const costDiff = materialCosts.map( (x, i) => x - specCostInfo[i] ).map( x => Math.abs(x) );
+    this.setState({costDiff})
+
+    const priceVariance = costDiff.map( (x, i) => x * materialActualAmount[i] ).map( x => x );
+
+    const priceVarianceStrs = priceVariance.map( (variance , index) => {
+     let costStr = variance.toLocaleString(
+        "en-US",
+        { style: "currency", currency: "USD" }
+      );
+
+      return (
+        <tr>
+          <td> { costStr} </td>
+        </tr>
+      );
+    })
+
+    this.setState({priceVarianceStrs})
+
+    const totalVariance = priceVariance.reduce((a, b) => a + b, 0);
+    const totalVarianceStr = totalVariance.toLocaleString(
+          "en-US",
+          { style: "currency", currency: "USD" }
+        );
+    this.setState({totalVariance,totalVarianceStr})
 
     if (
-      this.state.materialUnitStdCost === "$0.00" ||
-      this.state.materialUnitActCost === "$0.00"
+      this.state.totalVariance === 0 ||
+      isNaN(this.state.totalVariance) 
     ) {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
       });
       this.setState({ tableVisibility: false });
     } else {
-      this.setState({ tableVisibility: true });
+      this.setState({msg: '', tableVisibility: true });
     }
 
     setTimeout(() => {
       this.setState({ msg: " " });
     }, 3000);
-    this.setState({ stdCostData, actualCostData });
+    // this.setState({ stdCostData, actualCostData });
 
-    let materialCalc =
-      Math.abs(
-        this.state.materialUnitActCostValue -
-        this.state.materialUnitStdCostValue
-      ) * this.state.actQty;
-    let laborCalc =
-      Math.abs(this.state.hourlyActRateValue - this.state.hourlyStdRateValue) *
-      this.state.workHrsActNo;
-    let material = materialCalc.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-    let labor = laborCalc.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-    this.setState({ material, labor });
   };
 
   onChange = async (e) => {
     this.setState({
       id: this.productIdRef.current.value,
     });
+
   };
   render() {
-    if (true) {
-      return (
-        <div>
-
-          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
-          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-        </div>
-      );
-    }
+ 
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -2394,12 +2430,25 @@ class CalculatePriceVariance extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Direct Material </td>
-                    <td>
-                      {`(${this.state.materialUnitActCost} per gram - ${this.state.materialUnitStdCost} per gram)  * ${this.state.actQty} grams = ${this.state.material}`}
-                    </td>
+                  <tr style={{borderBottom: '1px solid #999'}}>
+                    <th>No of Production Units</th>
+                    <td style={{textAlign:'center'}}>{`${this.state.actQty} units`}</td>
                   </tr>
+                  <tr style={{borderBottom: '1px solid #999'}}>
+                    <td colSpan="2">Direct Material Details </td>
+                  </tr>
+                  <tr>
+
+                    <td>
+                      {/* {`(${this.state.materialUnitActCost} per gram - ${this.state.materialUnitStdCost} per gram)  * ${this.state.actQty} grams = ${this.state.material}`} */}
+                       {this.state.names}
+                    </td>
+                    <td>{this.state.priceVarianceStrs}</td>
+                  </tr>
+                  <tr style={{borderTop:'1px solid #999', borderBottom: '1px solid #999'}}>
+                    <td>total</td>
+                    <td>{this.state.totalVarianceStr}</td>
+                </tr>
                   {/* <tr>
                     <td> Direct Labor </td>
                     <td>
@@ -2408,7 +2457,7 @@ class CalculatePriceVariance extends Component {
                   </tr> */}
                 </tbody>
                 <tfoot>
-                  <tr></tr>
+                
                 </tfoot>
               </table>
             </div>
