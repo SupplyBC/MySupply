@@ -1365,18 +1365,20 @@ class CalculateStaticVariance extends Component {
       .getStdCostPlan(proId)
       .call();
     const stdCostData = standard.map((item, index) => {
-      let matCostValue = parseInt(standard.directMaterialCost, 10);
-      let pkgCostValue = parseInt(standard.packagingMaterialCost, 10);
-      let laborCostValue = parseInt(standard.directLaborCost, 10);
-      let mrkCostValue = parseInt(standard.marketingCost, 10);
-      let rsrchCostValue = parseInt(standard.researchCost, 10);
-      // let totalCostValue = parseInt(standard.CostTOT,10);
-      let totalStdCostValue =
-        matCostValue +
-        pkgCostValue +
-        laborCostValue +
-        mrkCostValue +
-        rsrchCostValue;
+      let matCostValue = parseFloat(standard.directMaterialCost, 10);
+      let pkgCostValue = parseFloat(standard.packagingMaterialCost, 10);
+      let laborCostValue = parseFloat(standard.directLaborCost, 10);
+      let totalDirectCostValue = parseFloat(standard.totalDirectCost,10)
+      let mrkCostValue = totalDirectCostValue * 15/100;
+      let rsrchCostValue = totalDirectCostValue * 3/100;
+      let totalIndirectCostValue = totalDirectCostValue * 20/100;
+      let totalStdCostValue = parseFloat(standard.CostTOT,10);
+      // let totalActCostValue =
+      //   matActCostValue +
+      //   pkgActCostValue +
+      //   laborActCostValue +
+      //   mrkActCostValue +
+      //   rsrchActCostValue;
 
       let matCost = matCostValue.toLocaleString("en-US", {
         style: "currency",
@@ -1390,6 +1392,7 @@ class CalculateStaticVariance extends Component {
         style: "currency",
         currency: "USD",
       });
+
       let mrkCost = mrkCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -1398,27 +1401,40 @@ class CalculateStaticVariance extends Component {
         style: "currency",
         currency: "USD",
       });
-      // let totalCost = totalCostValue.toLocaleString("en-US", {style: "currency", currency: "USD"});
       let totalStdCost = totalStdCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
 
+      let totalDirectCost = totalDirectCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      let totalIndirectCost = totalIndirectCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+
       this.setState({
         standard,
-        proId,
         matCost,
         pkgCost,
         laborCost,
         mrkCost,
         rsrchCost,
         totalStdCost,
+        totalDirectCost,
+        totalIndirectCost,
         matCostValue,
         pkgCostValue,
         laborCostValue,
         mrkCostValue,
         rsrchCostValue,
         totalStdCostValue,
+        totalDirectCostValue,
+        totalIndirectCostValue
       });
       return true;
     });
@@ -1428,18 +1444,20 @@ class CalculateStaticVariance extends Component {
       .call();
 
     const actualCostData = actual.map((item, index) => {
-      let matActCostValue = parseInt(actual.directMaterialCost, 10);
-      let pkgActCostValue = parseInt(actual.packagingMaterialCost, 10);
-      let laborActCostValue = parseInt(actual.directLaborCost, 10);
-      let mrkActCostValue = parseInt(actual.marketingCost, 10);
-      let rsrchActCostValue = parseInt(actual.researchCost, 10);
-      // let totalActCostValue = parseInt(actual.CostTOT,10);
-      let totalActCostValue =
-        matActCostValue +
-        pkgActCostValue +
-        laborActCostValue +
-        mrkActCostValue +
-        rsrchActCostValue;
+      let matActCostValue = parseFloat(actual.directMaterialCost, 10);
+      let pkgActCostValue = parseFloat(actual.packagingMaterialCost, 10);
+      let laborActCostValue = parseFloat(actual.directLaborCost, 10);
+      let totalDirectActCostValue = parseFloat(actual.totalDirectCost,10)
+      let mrkActCostValue = totalDirectActCostValue * 15/100;
+      let rsrchActCostValue = totalDirectActCostValue * 3/100;
+      let totalIndirectActCostValue = totalDirectActCostValue * 20/100;
+      let totalActCostValue = parseFloat(actual.CostTOT,10);
+      // let totalActCostValue =
+      //   matActCostValue +
+      //   pkgActCostValue +
+      //   laborActCostValue +
+      //   mrkActCostValue +
+      //   rsrchActCostValue;
 
       let matActCost = matActCostValue.toLocaleString("en-US", {
         style: "currency",
@@ -1467,6 +1485,17 @@ class CalculateStaticVariance extends Component {
         currency: "USD",
       });
 
+      let totalDirectActCost = totalDirectActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+      let totalIndirectActCost = totalIndirectActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+
+
       this.setState({
         actual,
         matActCost,
@@ -1475,19 +1504,25 @@ class CalculateStaticVariance extends Component {
         mrkActCost,
         rsrchActCost,
         totalActCost,
+        totalDirectActCost,
+        totalIndirectActCost,
         matActCostValue,
         pkgActCostValue,
         laborActCostValue,
         mrkActCostValue,
         rsrchActCostValue,
         totalActCostValue,
+        totalDirectActCostValue,
+        totalIndirectActCostValue
       });
       return true;
     });
 
     if (
       this.state.totalCost === "$0.00" ||
-      this.state.totalActCost === "$0.00"
+      this.state.totalActCost === "$0.00" || 
+      isNaN(this.state.totalStdCostValue) ||
+      isNaN(this.state.totalActCostValue)
     ) {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
@@ -1509,15 +1544,15 @@ class CalculateStaticVariance extends Component {
     });
   };
   render() {
-    if (true) {
-      return (
-        <div>
+    // if (true) {
+    //   return (
+    //     <div>
 
-          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
-          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-        </div>
-      );
-    }
+    //       <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+    //       <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+    //     </div>
+    //   );
+    // }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -1605,20 +1640,34 @@ class CalculateStaticVariance extends Component {
                     </td>
                     <td>{this.state.laborActCost}</td>
                   </tr>
-                  {/* <tr>
-                    <td> Indirect Manufacturing Costs </td>
-                    <td>{this.state.indirectManuCost}</td>
+                  <tr>
+                    <td> Total Direct Costs </td>
+                    <td>{this.state.totalDirectCost}</td>
                     <td>
                       {Math.abs(
-                        this.state.indirectManuCostValue -
-                          this.state.indirectManuActCostValue
+                        this.state.totalDirectCostValue -
+                          this.state.totalDirectActCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                       })}
                     </td>
-                    <td>{this.state.indirectManuActCost}</td>
-                  </tr> */}
+                    <td>{this.state.totalDirectActCost}</td>
+                  </tr>
+                  <tr>
+                    <td> Total Indirect Costs </td>
+                    <td>{this.state.totalIndirectCost}</td>
+                    <td>
+                      {Math.abs(
+                        this.state.totalIndirectCostValue -
+                          this.state.totalDirectActCostValue
+                      ).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </td>
+                    <td>{this.state.totalDirectActCost}</td>
+                  </tr>
                   <tr>
                     <td> Marketing </td>
                     <td>{this.state.mrkCost}</td>
