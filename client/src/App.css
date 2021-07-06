@@ -378,9 +378,9 @@ select {
 }
 
 
-.costsClashContainer .std-cost-container {
+/* .costsClashContainer .std-cost-container {
   margin-left: -19%;
-}
+} */
 
 .supplier-summary-container {
   display: flex;
@@ -963,7 +963,6 @@ select {
 .financial-status-container .form-row input[type="text"] {
   width: 43%;
 }
-
 .std-cost-container {
   display: flex;
   flex-direction: column;
@@ -1097,13 +1096,18 @@ select {
 
 .product-data-container table th,
 .product-data-container table td {
-  padding: 8px 15px;
+  padding: 8px 25px;
 }
 
 .product-data-container tbody tr:hover {
   background-color: #5398b6;
   color: #f2f2f2;
 }
+
+.product-data-container table tbody td {
+  padding: 8px 25px;
+}
+
 
 .product-data-container tbody tr {
   background-color: rgb(221, 220, 220);
