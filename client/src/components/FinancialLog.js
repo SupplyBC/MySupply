@@ -1142,15 +1142,12 @@ class SetActualCosts extends Component {
 class SetFlexibleBudget extends Component {
   state = {
     product: "",
-    productUnitsNo: 0,
-    packagingMaterialFlexCost: 0,
-    mrkFlexCost: 0,
-    rsrhFlexCost: 0,
+    productUnitsNo: '',
+    totalMaterialFlexCost: '',
+    packagingMaterialFlexCost: '',
+    totalLaborFlexCost: '',
+    totalDirectFlexCost: 0,
     totalFlexCost: 0,
-    workHrsFlex: 0,
-    hourlyRateFlexCost: 0,
-    matUnitFlexCost: 0,
-    shippingFlexCost: 0
   };
 
   constructor(props) {
@@ -1158,12 +1155,8 @@ class SetFlexibleBudget extends Component {
     this.proRef = React.createRef();
     this.unitNoRef = React.createRef();
     this.pkgMatFlexRef = React.createRef();
-    this.mrkFlexRef = React.createRef();
-    this.rsrhFlexRef = React.createRef();
-    this.workHrsFlexRef = React.createRef();
-    this.hourlyRateFlexRef = React.createRef();
-    this.matUnitFlexRef = React.createRef();
-    this.shippingFlexRef = React.createRef();
+    this.totalMatFlexRef = React.createRef();
+    this.totalLaborFlexRef = React.createRef();
     this.OnChange = this.onChange.bind(this);
     this.OnSubmit = this.OnSubmit.bind(this);
   }
@@ -1173,13 +1166,22 @@ class SetFlexibleBudget extends Component {
 
     const pro = this.state.product;
     const units = this.state.productUnitsNo;
-    const pkgMatFlex = parseInt(this.state.packagingMaterialFlexCost, 10);
-    const mrkFlex = parseInt(this.state.mrkFlexCost, 10);
-    const rsrhFlex = parseInt(this.state.rsrhFlexCost, 10);
-    const rateFlex = parseInt(this.state.hourlyRateFlexCost, 10);
-    const workHrsFlex = parseInt(this.state.workHrsFlex, 10);
-    const matUnitFlex = parseInt(this.state.matUnitFlexCost, 10);
-    const shippingFlex = parseInt(this.state.shippingFlexCost, 10);
+    const totalMatFlex = parseFloat(this.state.totalMaterialFlexCost, 10);
+    const totalMatFlexStr = totalMatFlex.toString();
+    const pkgMatFlex = parseFloat(this.state.packagingMaterialFlexCost, 10);
+    const pkgMatFlexStr = pkgMatFlex.toString();
+    const totalLaborFlex = parseFloat(this.state.totalLaborFlexCost, 10);
+    const totalLaborFlexStr = totalLaborFlex.toString();
+    const totalDirectFlexCost = totalMatFlex + pkgMatFlex + totalLaborFlex;
+    const totalDirectFlexCostStr = totalDirectFlexCost.toString();
+    const totalIndirectFlexCost = totalDirectFlexCost * 20/100;
+    const FundManuFlexCost = totalDirectFlexCost * 30/100;
+    const mrkFlex = totalDirectFlexCost * 15/100;
+    const rsrhFlex = totalDirectFlexCost * 3/100;
+    const totalFlexCost = totalDirectFlexCost +  totalIndirectFlexCost + FundManuFlexCost + mrkFlex + rsrhFlex;
+    const totalFlexCostStr = totalFlexCost.toString();
+    // const shippingFlex = parseInt(this.state.shippingFlexCost, 10);
+
 
     // const totalFlex = matFlex + pkgMatFlex + labFlex + manuIndirectFlexCost
     //                     + mrkFlex + rsrhFlex;
@@ -1190,13 +1192,14 @@ class SetFlexibleBudget extends Component {
       .setFlexibleCosts(
         pro,
         units,
-        pkgMatFlex,
-        matUnitFlex,
-        rateFlex,
-        workHrsFlex,
-        mrkFlex,
-        rsrhFlex,
-        shippingFlex
+        [
+          totalMatFlexStr,
+          pkgMatFlexStr,
+          totalLaborFlexStr,
+          totalDirectFlexCostStr,
+          totalFlexCostStr
+
+        ]
       )
       .send({ from: this.props.account[0] })
       .once("receipt", (receipt) => {
@@ -1208,15 +1211,9 @@ class SetFlexibleBudget extends Component {
 
     this.setState({
       productUnitsNo: "",
-      directMaterialFlexCost: "",
-      packagingMaterialFlexCost: "",
-      laborFlexCost: "",
-      mrkFlexCost: "",
-      rsrhFlexCost: "",
-      workHrsFlex: "",
-      hourlyRateFlexCost: "",
-      matUnitFlexCost: "",
-      shippingFlexCost: ""
+      totalMaterialFlexCost: '',
+      packagingMaterialFlexCost: '',
+      totalLaborFlexCost: '',
     });
   };
 
@@ -1225,24 +1222,20 @@ class SetFlexibleBudget extends Component {
       product: this.proRef.current.value,
       productUnitsNo: this.unitNoRef.current.value,
       packagingMaterialFlexCost: this.pkgMatFlexRef.current.value,
-      mrkFlexCost: this.mrkFlexRef.current.value,
-      rsrhFlexCost: this.rsrhFlexRef.current.value,
-      workHrsFlex: this.workHrsFlexRef.current.value,
-      hourlyRateFlexCost: this.hourlyRateFlexRef.current.value,
-      matUnitFlexCost: this.matUnitFlexRef.current.value,
-      shippingFlexCost: this.shippingFlexRef.current.value
+      totalMaterialFlexCost: this.totalMatFlexRef.current.value,
+      totalLaborFlexCost: this.totalLaborFlexRef.current.value
     });
   };
   render() {
-    if (true) {
-      return (
-        <div>
+    // if (true) {
+    //   return (
+    //     <div>
 
-          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
-          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-        </div>
-      );
-    }
+    //       <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+    //       <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+    //     </div>
+    //   );
+    // }
     return (
       <form onSubmit={this.OnSubmit} className="newform-container">
         <label>Product ID:</label>
@@ -1268,17 +1261,17 @@ class SetFlexibleBudget extends Component {
 
         <h4> Set Flexible Costs </h4>
 
-        <label>Unit Material Cost: </label>
+        <label>Material Cost Total: </label>
         <input
           type="number"
-          ref={this.matUnitFlexRef}
-          value={this.state.matUnitFlexCost}
+          ref={this.totalMatFlexRef}
+          value={this.state.totalMaterialFlexCost}
           placeholder="e.g. 5"
           onChange={this.OnChange}
           required="required"
         />
 
-        <label>Packaging Materials: </label>
+        <label>Packaging Materials Total: </label>
         <input
           type="number"
           ref={this.pkgMatFlexRef}
@@ -1288,55 +1281,18 @@ class SetFlexibleBudget extends Component {
           required="required"
         />
 
-        <label>Working Hours No: </label>
+        <label>Labor Cost Total: </label>
         <input
           type="number"
-          ref={this.workHrsFlexRef}
-          value={this.state.workHrsFlex}
+          ref={this.totalLaborFlexRef}
+          value={this.state.totalLaborFlexCost}
           placeholder="e.g. 2000"
           onChange={this.OnChange}
           required="required"
         />
 
-        <label>Hourly Work Rate: </label>
-        <input
-          type="number"
-          ref={this.hourlyRateFlexRef}
-          value={this.state.hourlyRateFlexCost}
-          placeholder="e.g. 50"
-          onChange={this.OnChange}
-          required="required"
-        />
 
-        <label>Shipping Cost: </label>
-        <input
-          type="number"
-          ref={this.shippingFlexRef}
-          value={this.state.shippingFlexCost}
-          placeholder="e.g. 50"
-          onChange={this.OnChange}
-          required="required"
-        />
-
-        <label>Marketing: </label>
-        <input
-          type="number"
-          ref={this.mrkFlexRef}
-          value={this.state.mrkFlexCost}
-          placeholder="e.g. 5000"
-          onChange={this.OnChange}
-          required="required"
-        />
-
-        <label>Research: </label>
-        <input
-          type="number"
-          ref={this.rsrhFlexRef}
-          value={this.state.rsrhFlexCost}
-          placeholder="e.g. 5000"
-          onChange={this.OnChange}
-          required="required"
-        />
+      
 
         <input type="submit" className="btn" value="SET FLEXIBLE COSTS" />
 
@@ -1529,7 +1485,7 @@ class CalculateStaticVariance extends Component {
       });
       this.setState({ tableVisibility: false });
     } else {
-      this.setState({ tableVisibility: true });
+      this.setState({ msg: '', tableVisibility: true });
     }
 
     setTimeout(() => {
@@ -1640,7 +1596,7 @@ class CalculateStaticVariance extends Component {
                     </td>
                     <td>{this.state.laborActCost}</td>
                   </tr>
-                  <tr>
+                  <tr style={{borderBottom: '1px solid #999' , borderTop: '1px solid #999'}}>
                     <td> Total Direct Costs </td>
                     <td>{this.state.totalDirectCost}</td>
                     <td>
@@ -1739,20 +1695,22 @@ class CalculateFlexibleVariance extends Component {
       .getStdCostPlan(proId)
       .call();
     const stdCostData = standard.map((item, index) => {
-      let matCostValue = parseInt(standard.directMaterialCost, 10);
-      let pkgCostValue = parseInt(standard.packagingMaterialCost, 10);
-      let laborCostValue = parseInt(standard.directLaborCost, 10);
+      let matCostValue = parseFloat(standard.directMaterialCost, 10);
+      let pkgCostValue = parseFloat(standard.packagingMaterialCost, 10);
+      let laborCostValue = parseFloat(standard.directLaborCost, 10);
+      let totalDirectCostValue = parseFloat(standard.totalDirectCost,10);
+      let mrkCostValue = totalDirectCostValue * 15/100;
+      let rsrchCostValue = totalDirectCostValue * 3/100;
+      let totalIndirectCostValue = totalDirectCostValue * 20/100;
+      let totalStdCostValue = parseFloat(standard.CostTOT,10);
 
-      let mrkCostValue = parseInt(standard.marketingCost, 10);
-      let rsrchCostValue = parseInt(standard.researchCost, 10);
-      // let totalCostValue = parseInt(standard.CostTOT,10);
-      let totalStdCostValue =
-        matCostValue +
-        pkgCostValue +
-        laborCostValue +
+      // let totalStdCostValue =
+      //   matCostValue +
+      //   pkgCostValue +
+      //   laborCostValue +
 
-        mrkCostValue +
-        rsrchCostValue;
+      //   mrkCostValue +
+      //   rsrchCostValue;
 
       let matCost = matCostValue.toLocaleString("en-US", {
         style: "currency",
@@ -1776,6 +1734,14 @@ class CalculateFlexibleVariance extends Component {
         currency: "USD",
       });
       // let totalCost = totalCostValue.toLocaleString("en-US", {style: "currency", currency: "USD"});
+      let  totalDirectCost = totalDirectCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let totalIndirectCost = totalIndirectCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
       let totalStdCost = totalStdCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -1787,16 +1753,18 @@ class CalculateFlexibleVariance extends Component {
         matCost,
         pkgCost,
         laborCost,
-
         mrkCost,
         rsrchCost,
+        totalDirectCost,
+        totalIndirectCost,
         totalStdCost,
         matCostValue,
         pkgCostValue,
         laborCostValue,
-
         mrkCostValue,
         rsrchCostValue,
+        totalDirectCostValue,
+        totalIndirectCostValue,
         totalStdCostValue,
       });
       return true;
@@ -1807,20 +1775,22 @@ class CalculateFlexibleVariance extends Component {
       .call();
 
     const actualCostData = actual.map((item, index) => {
-      let matActCostValue = parseInt(actual.directMaterialCost, 10);
-      let pkgActCostValue = parseInt(actual.packagingMaterialCost, 10);
-      let laborActCostValue = parseInt(actual.directLaborCost, 10);
+      let matActCostValue = parseFloat(actual.directMaterialCost, 10);
+      let pkgActCostValue = parseFloat(actual.packagingMaterialCost, 10);
+      let laborActCostValue = parseFloat(actual.directLaborCost, 10);
+      let totalDirectActCostValue = parseFloat(actual.totalDirectCost,10);
+      let mrkActCostValue = totalDirectActCostValue * 15/100;
+      let rsrchActCostValue = totalDirectActCostValue * 3/100;
+      let totalIndirectActCostValue = totalDirectActCostValue * 20/100;
+      let totalActCostValue = parseFloat(actual.CostTOT,10);
 
-      let mrkActCostValue = parseInt(actual.marketingCost, 10);
-      let rsrchActCostValue = parseInt(actual.researchCost, 10);
-      // let totalActCostValue = parseInt(actual.CostTOT,10);
-      let totalActCostValue =
-        matActCostValue +
-        pkgActCostValue +
-        laborActCostValue +
+      // let totalStdCostValue =
+      //   matCostValue +
+      //   pkgCostValue +
+      //   laborCostValue +
 
-        mrkActCostValue +
-        rsrchActCostValue;
+      //   mrkCostValue +
+      //   rsrchCostValue;
 
       let matActCost = matActCostValue.toLocaleString("en-US", {
         style: "currency",
@@ -1843,6 +1813,15 @@ class CalculateFlexibleVariance extends Component {
         style: "currency",
         currency: "USD",
       });
+      // let totalCost = totalCostValue.toLocaleString("en-US", {style: "currency", currency: "USD"});
+      let  totalDirectActCost = totalDirectActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let totalIndirectActCost = totalIndirectActCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
       let totalActCost = totalActCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -1850,17 +1829,22 @@ class CalculateFlexibleVariance extends Component {
 
       this.setState({
         actual,
+        proId,
         matActCost,
         pkgActCost,
         laborActCost,
         mrkActCost,
         rsrchActCost,
+        totalDirectActCost,
+        totalIndirectActCost,
         totalActCost,
         matActCostValue,
         pkgActCostValue,
         laborActCostValue,
         mrkActCostValue,
         rsrchActCostValue,
+        totalDirectActCostValue,
+        totalIndirectActCostValue,
         totalActCostValue,
       });
       return true;
@@ -1869,21 +1853,23 @@ class CalculateFlexibleVariance extends Component {
     const flexible = await this.props.pcContract.methods
       .getFlexibleCosts(proId)
       .call();
-
     const flexCostData = flexible.map((item, index) => {
-      let matFlexCostValue = parseInt(flexible.directMaterialCost, 10);
-      let pkgFlexCostValue = parseInt(flexible.packagingMaterialCost, 10);
-      let laborFlexCostValue = parseInt(flexible.directLaborCost, 10);
+      let matFlexCostValue = parseFloat(flexible.directMaterialCost, 10);
+      let pkgFlexCostValue = parseFloat(flexible.packagingMaterialCost, 10);
+      let laborFlexCostValue = parseFloat(flexible.directLaborCost, 10);
+      let totalDirectFlexCostValue = parseFloat(flexible.totalDirectCost,10);
+      let mrkFlexCostValue = totalDirectFlexCostValue * 15/100;
+      let rsrchFlexCostValue = totalDirectFlexCostValue * 3/100;
+      let totalIndirectFlexCostValue = totalDirectFlexCostValue * 20/100;
+      let totalFlexCostValue = parseFloat(flexible.CostTOT,10);
 
-      let mrkFlexCostValue = parseInt(flexible.marketingCost, 10);
-      let rsrchFlexCostValue = parseInt(flexible.researchCost, 10);
-      let totalFlexCostValue =
-        matFlexCostValue +
-        pkgFlexCostValue +
-        laborFlexCostValue +
+      // let totalFlexCostValue =
+      //   matCostValue +
+      //   pkgCostValue +
+      //   laborCostValue +
 
-        mrkFlexCostValue +
-        rsrchFlexCostValue;
+      //   mrkCostValue +
+      //   rsrchCostValue;
 
       let matFlexCost = matFlexCostValue.toLocaleString("en-US", {
         style: "currency",
@@ -1906,24 +1892,38 @@ class CalculateFlexibleVariance extends Component {
         style: "currency",
         currency: "USD",
       });
+      // let totalCost = totalCostValue.toLocaleString("en-US", {style: "currency", currency: "USD"});
+      let  totalDirectFlexCost = totalDirectFlexCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+      let totalIndirectFlexCost = totalIndirectFlexCostValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
       let totalFlexCost = totalFlexCostValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
 
       this.setState({
-        actual,
+        flexible,
+        proId,
         matFlexCost,
         pkgFlexCost,
         laborFlexCost,
         mrkFlexCost,
         rsrchFlexCost,
+        totalDirectFlexCost,
+        totalIndirectFlexCost,
         totalFlexCost,
         matFlexCostValue,
         pkgFlexCostValue,
         laborFlexCostValue,
         mrkFlexCostValue,
         rsrchFlexCostValue,
+        totalDirectFlexCostValue,
+        totalIndirectFlexCostValue,
         totalFlexCostValue,
       });
       return true;
@@ -1932,14 +1932,18 @@ class CalculateFlexibleVariance extends Component {
     if (
       this.state.totalStdCost === "$0.00" ||
       this.state.totalActCost === "$0.00" ||
-      this.state.totalFlexCost === "$0.00"
+      this.state.totalFlexCost === "$0.00" ||
+      isNaN(this.state.totalStdCostValue) ||
+      isNaN(this.state.totalActCostValue) ||
+      isNaN(this.state.totalFlexCostValue) 
     ) {
       this.setState({
         msg: "No Financial Data Found for the Given Product ID!".toUpperCase(),
       });
       this.setState({ tableVisibility: false });
     } else {
-      this.setState({ tableVisibility: true });
+      
+      this.setState({msg: '', tableVisibility: true });
     }
 
     setTimeout(() => {
@@ -1955,15 +1959,15 @@ class CalculateFlexibleVariance extends Component {
   };
 
   render() {
-    if (true) {
-      return (
-        <div>
+    // if (true) {
+    //   return (
+    //     <div>
 
-          <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
-          <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
-        </div>
-      );
-    }
+    //       <h1 style={{ fontSize: '3em', color: '#f2f2f2' }}><span role="img" aria-label="construction">🚧</span> <br />UNDER MAINTENANCE </h1>
+    //       <p><em>This feature is currently under maintenance and will be back online soon.</em></p>
+    //     </div>
+    //   );
+    // }
     let table;
     let acc = this.props.account;
     let cont1 = this.props.pcContract;
@@ -2082,31 +2086,56 @@ class CalculateFlexibleVariance extends Component {
                     </td>
                     <td>{this.state.laborCost}</td>
                   </tr>
-                  {/* <tr>
-                    <td>Indirect Manufacturing Costs</td>
-                    <td>{this.state.indirectManuActCost}</td>
+                  <tr style={{borderTop: '1px solid #999', borderBottom: '1px solid #999'}}>
+                    <td>Total Direct Costs</td>
+                    <td>{this.state.totalDirectActCost}</td>
                     <td>
                       {Math.abs(
-                        this.state.indirectManuActCostValue -
-                        this.state.indirectManuFlexCostValue
+                        this.state.totalDirectActCostValue -
+                        this.state.totalDirectFlexCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                       })}
                     </td>
-                    <td>{this.state.indirectManuFlexCost}</td>
+                    <td>{this.state.totalDirectFlexCost}</td>
                     
                     <td>
                       {Math.abs(
-                        this.state.indirectManuFlexCostValue -
-                        this.state.indirectManuCostValue
+                        this.state.totalDirectFlexCostValue -
+                        this.state.totalDirectCostValue
                       ).toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                       })}
                     </td>
-                    <td>{this.state.indirectManuCost}</td>
-                  </tr> */}
+                    <td>{this.state.totalDirectCost}</td>
+                  </tr>
+                  <tr>
+                    <td>Indirect Manufacturing Costs</td>
+                    <td>{this.state.totalIndirectActCost}</td>
+                    <td>
+                      {Math.abs(
+                        this.state.totalIndirectActCostValue -
+                        this.state.totalIndirectFlexCostValue
+                      ).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </td>
+                    <td>{this.state.totalDirectFlexCost}</td>
+                    
+                    <td>
+                      {Math.abs(
+                        this.state.totalIndirectFlexCostValue -
+                        this.state.totalIndirectCostValue
+                      ).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </td>
+                    <td>{this.state.totalIndirectCost}</td>
+                  </tr>
                   <tr>
                     <td> Marketing </td>
                     <td>{this.state.mrkActCost}</td>
